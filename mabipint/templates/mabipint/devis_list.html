@@ -89,21 +89,35 @@
                                title="Voir">
                                 <i class="fas fa-eye"></i>
                             </a>
+                            {% if devis.statut == 'brouillon' or devis.statut == 'valide' %}
                             <a href="{% url 'devis_edit' devis.pk %}"
                                class="inline-block bg-green-100 text-green-700 px-3 py-1 rounded hover:bg-green-200 transition"
                                title="Modifier">
                                 <i class="fas fa-edit"></i>
                             </a>
+                            {% else %}
+                            <span class="inline-block bg-gray-100 text-gray-400 px-3 py-1 rounded cursor-not-allowed"
+                                  title="Modification verrouillée">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            {% endif %}
                             <a href="{% url 'devis_pdf' devis.pk %}"
                                class="inline-block bg-purple-100 text-purple-700 px-3 py-1 rounded hover:bg-purple-200 transition"
                                title="PDF">
                                 <i class="fas fa-file-pdf"></i>
                             </a>
+                            {% if devis.statut != 'accepte' %}
                             <a href="{% url 'devis_delete' devis.pk %}"
                                class="inline-block bg-red-100 text-red-700 px-3 py-1 rounded hover:bg-red-200 transition"
                                title="Supprimer">
                                 <i class="fas fa-trash"></i>
                             </a>
+                            {% else %}
+                            <span class="inline-block bg-gray-100 text-gray-400 px-3 py-1 rounded cursor-not-allowed"
+                                  title="Suppression impossible (devis accepté)">
+                                <i class="fas fa-ban"></i>
+                            </span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}

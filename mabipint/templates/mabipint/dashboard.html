@@ -162,12 +162,18 @@
                             {{ devis.total_general|floatformat:2 }} FC
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            <a href="{% url 'devis_detail' devis.pk %}" class="text-blue-600 hover:text-blue-900 mr-3">
+                            <a href="{% url 'devis_detail' devis.pk %}" class="text-blue-600 hover:text-blue-900 mr-3" title="Voir">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <a href="{% url 'devis_edit' devis.pk %}" class="text-green-600 hover:text-green-900">
+                            {% if devis.statut == 'brouillon' or devis.statut == 'valide' %}
+                            <a href="{% url 'devis_edit' devis.pk %}" class="text-green-600 hover:text-green-900" title="Modifier">
                                 <i class="fas fa-edit"></i>
                             </a>
+                            {% else %}
+                            <span class="text-gray-400 cursor-not-allowed" title="Modification verrouillée">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}

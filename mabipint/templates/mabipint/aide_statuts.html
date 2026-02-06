@@ -1,0 +1,282 @@
+{% extends 'mabipint/base.html' %}
+
+{% block title %}Aide - Statuts des Devis - MABIPINT{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- En-tête -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">
+            <i class="fas fa-question-circle text-blue-600 mr-3"></i>Guide des Statuts et Protections
+        </h1>
+        <p class="text-gray-600 mt-2">Comprendre les statuts et les règles de modification des devis</p>
+    </div>
+
+    <!-- Tableau récapitulatif -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+        <div class="px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-700">
+            <h2 class="text-xl font-semibold text-white">
+                <i class="fas fa-table mr-2"></i>Tableau Récapitulatif des Protections
+            </h2>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Modification</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Suppression</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Raison</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <tr class="hover:bg-yellow-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                <i class="fas fa-edit mr-1"></i>BROUILLON
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <span class="text-green-600 font-bold text-lg">✅</span>
+                            <p class="text-xs text-gray-600">Autorisée</p>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <span class="text-green-600 font-bold text-lg">✅</span>
+                            <p class="text-xs text-gray-600">Autorisée</p>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-700">
+                            Devis en cours de création - Liberté totale
+                        </td>
+                    </tr>
+
+                    <tr class="hover:bg-green-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                <i class="fas fa-check mr-1"></i>VALIDÉ
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <span class="text-green-600 font-bold text-lg">✅</span>
+                            <p class="text-xs text-gray-600">Autorisée</p>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <span class="text-green-600 font-bold text-lg">✅</span>
+                            <p class="text-xs text-gray-600">Autorisée</p>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-700">
+                            Devis finalisé mais pas encore envoyé
+                        </td>
+                    </tr>
+
+                    <tr class="hover:bg-blue-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                <i class="fas fa-paper-plane mr-1"></i>ENVOYÉ
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <span class="text-red-600 font-bold text-lg">❌</span>
+                            <p class="text-xs text-gray-600">Verrouillée</p>
+                            <i class="fas fa-lock text-gray-400 mt-1"></i>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <span class="text-green-600 font-bold text-lg">✅</span>
+                            <p class="text-xs text-gray-600">Autorisée</p>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-700">
+                            Devis chez le client - Ne doit pas changer
+                        </td>
+                    </tr>
+
+                    <tr class="hover:bg-purple-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                                <i class="fas fa-thumbs-up mr-1"></i>ACCEPTÉ
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <span class="text-red-600 font-bold text-lg">❌</span>
+                            <p class="text-xs text-gray-600">Verrouillée</p>
+                            <i class="fas fa-lock text-gray-400 mt-1"></i>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <span class="text-red-600 font-bold text-lg">❌</span>
+                            <p class="text-xs text-gray-600">Verrouillée</p>
+                            <i class="fas fa-ban text-gray-400 mt-1"></i>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-700">
+                            <strong>Engagement client - Protection maximale</strong>
+                        </td>
+                    </tr>
+
+                    <tr class="hover:bg-red-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                <i class="fas fa-times mr-1"></i>REFUSÉ
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <span class="text-red-600 font-bold text-lg">❌</span>
+                            <p class="text-xs text-gray-600">Verrouillée</p>
+                            <i class="fas fa-lock text-gray-400 mt-1"></i>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <span class="text-green-600 font-bold text-lg">✅</span>
+                            <p class="text-xs text-gray-600">Autorisée</p>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-700">
+                            Devis archivé - Pas de modification nécessaire
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Workflow -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-6">
+            <i class="fas fa-project-diagram text-blue-600 mr-2"></i>Workflow Typique
+        </h2>
+
+        <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 md:space-x-4">
+            <div class="flex-1 text-center">
+                <div class="bg-yellow-100 border-2 border-yellow-400 rounded-lg p-4 mb-2">
+                    <i class="fas fa-edit text-3xl text-yellow-600 mb-2"></i>
+                    <p class="font-semibold text-yellow-800">BROUILLON</p>
+                    <p class="text-xs text-yellow-700 mt-1">Création</p>
+                </div>
+                <p class="text-xs text-gray-600">✏️ Modifications libres</p>
+            </div>
+
+            <i class="fas fa-arrow-right text-2xl text-gray-400 hidden md:block"></i>
+            <i class="fas fa-arrow-down text-2xl text-gray-400 md:hidden"></i>
+
+            <div class="flex-1 text-center">
+                <div class="bg-green-100 border-2 border-green-400 rounded-lg p-4 mb-2">
+                    <i class="fas fa-check text-3xl text-green-600 mb-2"></i>
+                    <p class="font-semibold text-green-800">VALIDÉ</p>
+                    <p class="text-xs text-green-700 mt-1">Finalisation</p>
+                </div>
+                <p class="text-xs text-gray-600">✅ Prêt à envoyer</p>
+            </div>
+
+            <i class="fas fa-arrow-right text-2xl text-gray-400 hidden md:block"></i>
+            <i class="fas fa-arrow-down text-2xl text-gray-400 md:hidden"></i>
+
+            <div class="flex-1 text-center">
+                <div class="bg-blue-100 border-2 border-blue-400 rounded-lg p-4 mb-2">
+                    <i class="fas fa-paper-plane text-3xl text-blue-600 mb-2"></i>
+                    <p class="font-semibold text-blue-800">ENVOYÉ</p>
+                    <p class="text-xs text-blue-700 mt-1">Chez le client</p>
+                </div>
+                <p class="text-xs text-gray-600">🔒 Verrouillé</p>
+            </div>
+
+            <i class="fas fa-arrow-right text-2xl text-gray-400 hidden md:block"></i>
+            <i class="fas fa-arrow-down text-2xl text-gray-400 md:hidden"></i>
+
+            <div class="flex-1 text-center">
+                <div class="bg-purple-100 border-2 border-purple-400 rounded-lg p-4 mb-2">
+                    <i class="fas fa-thumbs-up text-3xl text-purple-600 mb-2"></i>
+                    <p class="font-semibold text-purple-800">ACCEPTÉ</p>
+                    <p class="text-xs text-purple-700 mt-1">Gagné!</p>
+                </div>
+                <p class="text-xs text-gray-600">🔒🔒 Protection max</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bonnes pratiques -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- À faire -->
+        <div class="bg-green-50 border-l-4 border-green-500 rounded-r-lg p-6">
+            <h3 class="text-lg font-semibold text-green-800 mb-4">
+                <i class="fas fa-check-circle mr-2"></i>✅ Bonnes Pratiques
+            </h3>
+            <ul class="space-y-2 text-sm text-green-700">
+                <li class="flex items-start">
+                    <i class="fas fa-check text-green-600 mr-2 mt-1"></i>
+                    <span>Vérifier le devis avant de l'envoyer</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check text-green-600 mr-2 mt-1"></i>
+                    <span>Garder les devis acceptés intacts</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check text-green-600 mr-2 mt-1"></i>
+                    <span>Utiliser les statuts correctement</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-check text-green-600 mr-2 mt-1"></i>
+                    <span>Créer un nouveau devis si besoin de modifier un accepté</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- À éviter -->
+        <div class="bg-red-50 border-l-4 border-red-500 rounded-r-lg p-6">
+            <h3 class="text-lg font-semibold text-red-800 mb-4">
+                <i class="fas fa-times-circle mr-2"></i>❌ À Éviter
+            </h3>
+            <ul class="space-y-2 text-sm text-red-700">
+                <li class="flex items-start">
+                    <i class="fas fa-times text-red-600 mr-2 mt-1"></i>
+                    <span>Ne pas envoyer un brouillon au client</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-times text-red-600 mr-2 mt-1"></i>
+                    <span>Ne pas modifier un devis accepté</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-times text-red-600 mr-2 mt-1"></i>
+                    <span>Ne pas supprimer les devis acceptés</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-times text-red-600 mr-2 mt-1"></i>
+                    <span>Ne pas changer le statut sans raison</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <h2 class="text-xl font-semibold text-gray-900 mb-6">
+            <i class="fas fa-question-circle text-blue-600 mr-2"></i>Questions Fréquentes
+        </h2>
+
+        <div class="space-y-4">
+            <div class="border-l-4 border-blue-500 pl-4 py-2">
+                <p class="font-semibold text-gray-900 mb-2">Q: J'ai envoyé un devis avec une erreur, que faire?</p>
+                <p class="text-sm text-gray-700">R: Changez le statut en "BROUILLON", corrigez l'erreur, revalidez, puis remettez en "ENVOYÉ". N'oubliez pas d'informer le client du changement.</p>
+            </div>
+
+            <div class="border-l-4 border-blue-500 pl-4 py-2">
+                <p class="font-semibold text-gray-900 mb-2">Q: Le client a accepté mais veut modifier quelque chose?</p>
+                <p class="text-sm text-gray-700">R: Créez un NOUVEAU devis avec les modifications demandées. Gardez l'ancien pour l'historique et la traçabilité.</p>
+            </div>
+
+            <div class="border-l-4 border-blue-500 pl-4 py-2">
+                <p class="font-semibold text-gray-900 mb-2">Q: Pourquoi je ne peux pas supprimer un devis accepté?</p>
+                <p class="text-sm text-gray-700">R: C'est un engagement contractuel qui doit rester dans le système pour l'historique, la comptabilité et les aspects juridiques.</p>
+            </div>
+
+            <div class="border-l-4 border-blue-500 pl-4 py-2">
+                <p class="font-semibold text-gray-900 mb-2">Q: Comment débloquer un devis verrouillé?</p>
+                <p class="text-sm text-gray-700">R: Changez temporairement le statut vers "BROUILLON" ou "VALIDÉ", effectuez vos modifications, puis remettez le statut approprié. Attention: à utiliser avec précaution!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Retour -->
+    <div class="mt-8 text-center">
+        <a href="{% url 'dashboard' %}" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+            <i class="fas fa-arrow-left mr-2"></i>Retour au tableau de bord
+        </a>
+    </div>
+
+</div>
+{% endblock %}

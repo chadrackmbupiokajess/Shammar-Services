@@ -12,9 +12,15 @@
         </a>
 
         <div class="space-x-2">
+            {% if devis.statut == 'brouillon' or devis.statut == 'valide' %}
             <a href="{% url 'devis_edit' devis.pk %}" class="inline-block bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
                 <i class="fas fa-edit mr-2"></i>Modifier
             </a>
+            {% else %}
+            <button disabled class="inline-block bg-gray-400 text-white px-4 py-2 rounded-lg cursor-not-allowed opacity-60" title="Modification impossible pour ce statut">
+                <i class="fas fa-lock mr-2"></i>Modification verrouillée
+            </button>
+            {% endif %}
             <a href="{% url 'devis_pdf' devis.pk %}" class="inline-block bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
                 <i class="fas fa-file-pdf mr-2"></i>Voir PDF
             </a>

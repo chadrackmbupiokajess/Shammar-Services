@@ -110,6 +110,12 @@ def devis_edit(request, pk):
     """Modifier un devis existant"""
     devis = get_object_or_404(Devis, pk=pk)
 
+    # Vérifier si le devis peut être modifié selon son statut
+    statuts_non_modifiables = ['envoye', 'accepte', 'refuse']
+    if devis.statut in statuts_non_modifiables:
+        messages.error(request, f'Impossible de modifier un devis avec le statut "{devis.get_statut_display()}". Seuls les devis en brouillon ou validés peuvent être modifiés.')
+        return redirect('devis_detail', pk=devis.pk)
+
     if request.method == 'POST':
         form = DevisForm(request.POST, instance=devis)
 
@@ -160,6 +166,11 @@ def devis_delete(request, pk):
     """Supprimer un devis"""
     devis = get_object_or_404(Devis, pk=pk)
 
+    # Vérifier si le devis peut être supprimé selon son statut
+    if devis.statut == 'accepte':
+        messages.error(request, 'Impossible de supprimer un devis accepté. Veuillez d\'abord changer son statut.')
+        return redirect('devis_detail', pk=devis.pk)
+
     if request.method == 'POST':
         numero = devis.numero
         devis.delete()
@@ -177,3 +188,9 @@ def devis_pdf(request, pk):
     # Pour l'instant, on affiche juste une version imprimable
     # On ajoutera la génération PDF avec ReportLab plus tard
     return render(request, 'mabipint/devis_pdf.html', {'devis': devis})
+
+
+@login_required
+def aide_statuts(request):
+    """Page d'aide sur les statuts"""
+    return render(request, 'mabipint/aide_statuts.html')
