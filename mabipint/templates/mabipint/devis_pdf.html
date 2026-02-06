@@ -1,0 +1,198 @@
+{% extends 'mabipint/base.html' %}
+
+{% block title %}PDF - Devis {{ devis.numero }} - MABIPINT{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- Actions d'impression -->
+    <div class="mb-6 flex justify-between items-center no-print">
+        <a href="{% url 'devis_detail' devis.pk %}" class="text-blue-600 hover:text-blue-800 font-medium">
+            <i class="fas fa-arrow-left mr-2"></i>Retour au devis
+        </a>
+
+        <button onclick="window.print()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition shadow-md">
+            <i class="fas fa-print mr-2"></i>Imprimer / Enregistrer en PDF
+        </button>
+    </div>
+
+    <!-- Document PDF -->
+    <div class="bg-white shadow-2xl" style="min-height: 297mm; position: relative;">
+
+        <!-- Filigrane -->
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); opacity: 0.05; z-index: 0; pointer-events: none;">
+            <div style="font-size: 120px; font-weight: bold; color: #1E40AF; white-space: nowrap;">
+                SHAMMAR SERVICES
+            </div>
+        </div>
+
+        <!-- Contenu -->
+        <div style="position: relative; z-index: 1; padding: 40px;">
+
+            <!-- En-tête avec logo -->
+            <div style="border-bottom: 4px solid #1E40AF; padding-bottom: 20px; margin-bottom: 30px;">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div>
+                        <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                            <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+                                <i class="fas fa-building" style="font-size: 30px; color: white;"></i>
+                            </div>
+                            <div>
+                                <h1 style="font-size: 32px; font-weight: bold; color: #1E40AF; margin: 0; line-height: 1.2;">SHAMMAR SERVICES</h1>
+                                <p style="font-size: 14px; color: #6B7280; margin: 0;">Écosystème MABIPINT</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 12px; color: #9CA3AF; margin: 5px 0 0 0;">Système de Gestion des Devis</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <h2 style="font-size: 36px; font-weight: bold; color: #1F2937; margin: 0 0 10px 0;">DEVIS</h2>
+                        <p style="font-size: 20px; font-weight: 600; color: #3B82F6; margin: 0;">{{ devis.numero }}</p>
+                        <p style="font-size: 12px; color: #6B7280; margin: 10px 0 0 0;">Date: {{ devis.date_creation|date:"d/m/Y" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informations -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 40px;">
+                <!-- Client -->
+                <div>
+                    <h3 style="font-size: 16px; font-weight: 600; color: #1F2937; margin-bottom: 15px; border-bottom: 2px solid #3B82F6; padding-bottom: 8px;">
+                        <i class="fas fa-user" style="color: #3B82F6; margin-right: 8px;"></i>INFORMATIONS CLIENT
+                    </h3>
+                    <div style="background: #F9FAFB; padding: 15px; border-radius: 8px; border-left: 4px solid #3B82F6;">
+                        <p style="font-weight: 600; color: #1F2937; margin: 0 0 10px 0; font-size: 15px;">{{ devis.client_nom }}</p>
+                        {% if devis.client_email %}
+                        <p style="font-size: 13px; color: #4B5563; margin: 5px 0;">
+                            <i class="fas fa-envelope" style="color: #3B82F6; margin-right: 8px; width: 16px;"></i>{{ devis.client_email }}
+                        </p>
+                        {% endif %}
+                        {% if devis.client_telephone %}
+                        <p style="font-size: 13px; color: #4B5563; margin: 5px 0;">
+                            <i class="fas fa-phone" style="color: #10B981; margin-right: 8px; width: 16px;"></i>{{ devis.client_telephone }}
+                        </p>
+                        {% endif %}
+                        {% if devis.client_adresse %}
+                        <p style="font-size: 13px; color: #4B5563; margin: 10px 0 0 0;">
+                            <i class="fas fa-map-marker-alt" style="color: #EF4444; margin-right: 8px; width: 16px;"></i>{{ devis.client_adresse }}
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Détails devis -->
+                <div>
+                    <h3 style="font-size: 16px; font-weight: 600; color: #1F2937; margin-bottom: 15px; border-bottom: 2px solid #3B82F6; padding-bottom: 8px;">
+                        <i class="fas fa-info-circle" style="color: #3B82F6; margin-right: 8px;"></i>DÉTAILS DU DEVIS
+                    </h3>
+                    <div style="background: #F9FAFB; padding: 15px; border-radius: 8px; border-left: 4px solid #3B82F6;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: #6B7280; font-size: 13px;">Statut:</span>
+                            <span style="font-weight: 600; color: #1F2937; font-size: 13px;">{{ devis.get_statut_display }}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: #6B7280; font-size: 13px;">Créé par:</span>
+                            <span style="font-weight: 500; color: #1F2937; font-size: 13px;">{{ devis.created_by.get_full_name|default:devis.created_by.username }}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #6B7280; font-size: 13px;">Dernière modification:</span>
+                            <span style="font-size: 12px; color: #4B5563;">{{ devis.date_modification|date:"d/m/Y H:i" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tableau des prestations -->
+            <div style="margin-bottom: 30px;">
+                <h3 style="font-size: 16px; font-weight: 600; color: #1F2937; margin-bottom: 15px;">
+                    <i class="fas fa-list" style="color: #3B82F6; margin-right: 8px;"></i>DÉTAIL DES PRESTATIONS
+                </h3>
+
+                <table style="width: 100%; border-collapse: collapse; border: 1px solid #D1D5DB;">
+                    <thead>
+                        <tr style="background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); color: white;">
+                            <th style="padding: 12px 8px; text-align: left; font-size: 13px; font-weight: 600; border: 1px solid #3B82F6;">N°</th>
+                            <th style="padding: 12px 8px; text-align: left; font-size: 13px; font-weight: 600; border: 1px solid #3B82F6;">LIBELLÉ</th>
+                            <th style="padding: 12px 8px; text-align: center; font-size: 13px; font-weight: 600; border: 1px solid #3B82F6;">UNITÉ</th>
+                            <th style="padding: 12px 8px; text-align: right; font-size: 13px; font-weight: 600; border: 1px solid #3B82F6;">QTÉ</th>
+                            <th style="padding: 12px 8px; text-align: right; font-size: 13px; font-weight: 600; border: 1px solid #3B82F6;">P.U</th>
+                            <th style="padding: 12px 8px; text-align: right; font-size: 13px; font-weight: 600; border: 1px solid #3B82F6;">P.T</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ligne in devis.lignes.all %}
+                        <tr style="{% if forloop.counter|divisibleby:2 %}background: #F9FAFB;{% else %}background: white;{% endif %}">
+                            <td style="padding: 10px 8px; font-size: 13px; font-weight: 500; border: 1px solid #E5E7EB;">{{ ligne.numero_ligne }}</td>
+                            <td style="padding: 10px 8px; font-size: 13px; border: 1px solid #E5E7EB;">{{ ligne.libelle }}</td>
+                            <td style="padding: 10px 8px; font-size: 13px; text-align: center; border: 1px solid #E5E7EB;">{{ ligne.get_unite_display }}</td>
+                            <td style="padding: 10px 8px; font-size: 13px; text-align: right; border: 1px solid #E5E7EB;">{{ ligne.quantite }}</td>
+                            <td style="padding: 10px 8px; font-size: 13px; text-align: right; border: 1px solid #E5E7EB;">{{ ligne.prix_unitaire|floatformat:2 }} FC</td>
+                            <td style="padding: 10px 8px; font-size: 13px; text-align: right; font-weight: 600; border: 1px solid #E5E7EB;">{{ ligne.prix_total|floatformat:2 }} FC</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Totaux -->
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 30px;">
+                <div style="width: 400px;">
+                    <div style="background: #F9FAFB; padding: 20px; border-radius: 8px; border: 2px solid #D1D5DB;">
+                        <div style="display: flex; justify-content: space-between; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid #D1D5DB;">
+                            <span style="color: #4B5563; font-weight: 500; font-size: 14px;">Total Fourniture:</span>
+                            <span style="font-size: 16px; font-weight: 600; color: #1F2937;">{{ devis.total_fourniture|floatformat:2 }} FC</span>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid #D1D5DB;">
+                            <span style="color: #4B5563; font-weight: 500; font-size: 14px;">Main d'œuvre (25%):</span>
+                            <span style="font-size: 16px; font-weight: 600; color: #1F2937;">{{ devis.main_oeuvre|floatformat:2 }} FC</span>
+                        </div>
+
+                        <div style="background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); color: white; padding: 15px; border-radius: 6px; margin-top: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-size: 16px; font-weight: bold;">TOTAL GÉNÉRAL:</span>
+                                <span style="font-size: 24px; font-weight: bold;">{{ devis.total_general|floatformat:2 }} FC</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            {% if devis.notes %}
+            <div style="background: #FEF3C7; border-left: 4px solid #F59E0B; padding: 15px; border-radius: 4px; margin-bottom: 30px;">
+                <h3 style="font-size: 14px; font-weight: 600; color: #92400E; margin: 0 0 10px 0;">
+                    <i class="fas fa-sticky-note" style="margin-right: 8px;"></i>NOTES ET OBSERVATIONS
+                </h3>
+                <p style="font-size: 13px; color: #78350F; margin: 0; white-space: pre-line;">{{ devis.notes }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Pied de page -->
+            <div style="border-top: 2px solid #D1D5DB; padding-top: 20px; text-align: center; margin-top: 40px;">
+                <p style="font-size: 16px; font-weight: 600; color: #1E40AF; margin: 0 0 5px 0;">SHAMMAR SERVICES - Écosystème MABIPINT</p>
+                <p style="font-size: 12px; color: #6B7280; margin: 0;">Merci pour votre confiance</p>
+                <p style="font-size: 11px; color: #9CA3AF; margin: 10px 0 0 0;">Document généré le {{ devis.date_modification|date:"d/m/Y à H:i" }}</p>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<style>
+@media print {
+    body {
+        background: white;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    @page {
+        size: A4;
+        margin: 0;
+    }
+}
+</style>
+{% endblock %}

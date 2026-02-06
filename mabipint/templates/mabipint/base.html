@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MABIPINT - Shammar Services{% endblock %}</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50">
+
+    {% if user.is_authenticated %}
+    <!-- Navigation -->
+    <nav class="gradient-bg shadow-lg no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <!-- Logo -->
+                    <div class="flex-shrink-0 flex items-center">
+                        <div class="text-white">
+                            <h1 class="text-2xl font-bold">SHAMMAR SERVICES</h1>
+                            <p class="text-xs text-blue-100">Écosystème MABIPINT</p>
+                        </div>
+                    </div>
+
+                    <!-- Menu principal -->
+                    <div class="hidden md:ml-10 md:flex md:space-x-4">
+                        <a href="{% url 'dashboard' %}" class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition">
+                            <i class="fas fa-home mr-2"></i>Tableau de bord
+                        </a>
+                        <a href="{% url 'devis_list' %}" class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition">
+                            <i class="fas fa-file-invoice mr-2"></i>Devis
+                        </a>
+                        <a href="{% url 'devis_create' %}" class="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-md text-sm font-medium transition">
+                            <i class="fas fa-plus mr-2"></i>Nouveau Devis
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Menu utilisateur -->
+                <div class="flex items-center">
+                    <div class="ml-3 relative flex items-center space-x-4">
+                        <span class="text-white text-sm">
+                            <i class="fas fa-user-circle mr-2"></i>{{ user.get_full_name|default:user.username }}
+                        </span>
+                        <a href="{% url 'logout' %}" class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <!-- Messages Flash -->
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 no-print">
+        {% for message in messages %}
+        <div class="{% if message.tags == 'error' %}bg-red-100 border-red-400 text-red-700{% elif message.tags == 'success' %}bg-green-100 border-green-400 text-green-700{% elif message.tags == 'warning' %}bg-yellow-100 border-yellow-400 text-yellow-700{% else %}bg-blue-100 border-blue-400 text-blue-700{% endif %} border-l-4 p-4 mb-4 rounded-r-lg shadow-md" role="alert">
+            <div class="flex items-center">
+                <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'success' %}fa-check-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} mr-3"></i>
+                <p>{{ message }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Contenu principal -->
+    <main class="{% if user.is_authenticated %}py-8{% endif %}">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    {% if user.is_authenticated %}
+    <footer class="bg-white border-t border-gray-200 mt-12 no-print">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-gray-500 text-sm">
+                &copy; 2024 <span class="font-semibold text-blue-600">Shammar Services</span> - Écosystème MABIPINT. Tous droits réservés.
+            </p>
+        </div>
+    </footer>
+    {% endif %}
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,189 @@
+{% extends 'mabipint/base.html' %}
+
+{% block title %}Tableau de bord - MABIPINT{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- En-tête -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">
+            <i class="fas fa-chart-line text-blue-600 mr-3"></i>Tableau de bord
+        </h1>
+        <p class="text-gray-600 mt-2">Vue d'ensemble de vos devis et activités</p>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Devis -->
+        <div class="bg-white rounded-xl shadow-md p-6 card-hover border-l-4 border-blue-600">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 mb-1">Total Devis</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ total_devis }}</p>
+                </div>
+                <div class="bg-blue-100 rounded-full p-4">
+                    <i class="fas fa-file-invoice text-2xl text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Brouillons -->
+        <div class="bg-white rounded-xl shadow-md p-6 card-hover border-l-4 border-yellow-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 mb-1">Brouillons</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ devis_brouillon }}</p>
+                </div>
+                <div class="bg-yellow-100 rounded-full p-4">
+                    <i class="fas fa-edit text-2xl text-yellow-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Validés -->
+        <div class="bg-white rounded-xl shadow-md p-6 card-hover border-l-4 border-green-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 mb-1">Validés</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ devis_valide }}</p>
+                </div>
+                <div class="bg-green-100 rounded-full p-4">
+                    <i class="fas fa-check-circle text-2xl text-green-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Acceptés -->
+        <div class="bg-white rounded-xl shadow-md p-6 card-hover border-l-4 border-purple-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 mb-1">Acceptés</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ devis_accepte }}</p>
+                </div>
+                <div class="bg-purple-100 rounded-full p-4">
+                    <i class="fas fa-thumbs-up text-2xl text-purple-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">
+            <i class="fas fa-bolt text-yellow-500 mr-2"></i>Actions rapides
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a href="{% url 'devis_create' %}" class="flex items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition border border-blue-200">
+                <div class="bg-blue-600 rounded-full p-3 mr-4">
+                    <i class="fas fa-plus text-white"></i>
+                </div>
+                <div>
+                    <p class="font-semibold text-gray-900">Nouveau Devis</p>
+                    <p class="text-sm text-gray-600">Créer un nouveau devis</p>
+                </div>
+            </a>
+
+            <a href="{% url 'devis_list' %}" class="flex items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition border border-green-200">
+                <div class="bg-green-600 rounded-full p-3 mr-4">
+                    <i class="fas fa-list text-white"></i>
+                </div>
+                <div>
+                    <p class="font-semibold text-gray-900">Voir tous les devis</p>
+                    <p class="text-sm text-gray-600">Liste complète</p>
+                </div>
+            </a>
+
+            <a href="/admin/" class="flex items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition border border-purple-200">
+                <div class="bg-purple-600 rounded-full p-3 mr-4">
+                    <i class="fas fa-cog text-white"></i>
+                </div>
+                <div>
+                    <p class="font-semibold text-gray-900">Administration</p>
+                    <p class="text-sm text-gray-600">Panneau d'admin</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Devis récents -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-700">
+            <h2 class="text-xl font-semibold text-white">
+                <i class="fas fa-clock mr-2"></i>Devis récents
+            </h2>
+        </div>
+
+        {% if devis_list %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Numéro</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for devis in devis_list %}
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="font-semibold text-blue-600">{{ devis.numero }}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">{{ devis.client_nom }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ devis.date_creation|date:"d/m/Y" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if devis.statut == 'brouillon' %}
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                <i class="fas fa-edit mr-1"></i>Brouillon
+                            </span>
+                            {% elif devis.statut == 'valide' %}
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                <i class="fas fa-check mr-1"></i>Validé
+                            </span>
+                            {% elif devis.statut == 'accepte' %}
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                                <i class="fas fa-thumbs-up mr-1"></i>Accepté
+                            </span>
+                            {% else %}
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                {{ devis.get_statut_display }}
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                            {{ devis.total_general|floatformat:2 }} FC
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <a href="{% url 'devis_detail' devis.pk %}" class="text-blue-600 hover:text-blue-900 mr-3">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'devis_edit' devis.pk %}" class="text-green-600 hover:text-green-900">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-8 text-center">
+            <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
+            <p class="text-gray-500 mb-4">Aucun devis pour le moment</p>
+            <a href="{% url 'devis_create' %}" class="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+                <i class="fas fa-plus mr-2"></i>Créer votre premier devis
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}
