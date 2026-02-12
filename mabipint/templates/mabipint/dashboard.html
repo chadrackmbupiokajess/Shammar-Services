@@ -6,11 +6,11 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
     <!-- En-tête -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">
-            <i class="fas fa-chart-line text-blue-600 mr-3"></i>Tableau de bord
+    <div class="mb-6 md:mb-8">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-900">
+            <i class="fas fa-chart-line text-blue-600 mr-2 md:mr-3"></i>Tableau de bord
         </h1>
-        <p class="text-gray-600 mt-2">Vue d'ensemble de vos devis et activités</p>
+        <p class="text-sm md:text-base text-gray-600 mt-2">Vue d'ensemble de vos devis et activités</p>
     </div>
 
     <!-- Statistiques -->
@@ -28,41 +28,41 @@
             </div>
         </div>
 
-        <!-- Brouillons -->
-        <div class="bg-white rounded-xl shadow-md p-6 card-hover border-l-4 border-yellow-500">
+        <!-- En cours -->
+        <div class="bg-white rounded-xl shadow-md p-6 card-hover border-l-4 border-orange-500">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600 mb-1">Brouillons</p>
-                    <p class="text-3xl font-bold text-gray-900">{{ devis_brouillon }}</p>
+                    <p class="text-sm font-medium text-gray-600 mb-1">En cours</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ devis_en_cours }}</p>
                 </div>
-                <div class="bg-yellow-100 rounded-full p-4">
-                    <i class="fas fa-edit text-2xl text-yellow-600"></i>
+                <div class="bg-orange-100 rounded-full p-4">
+                    <i class="fas fa-clock text-2xl text-orange-600"></i>
                 </div>
             </div>
         </div>
 
-        <!-- Validés -->
+        <!-- Payés -->
         <div class="bg-white rounded-xl shadow-md p-6 card-hover border-l-4 border-green-500">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600 mb-1">Validés</p>
-                    <p class="text-3xl font-bold text-gray-900">{{ devis_valide }}</p>
+                    <p class="text-sm font-medium text-gray-600 mb-1">Payés</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ devis_paye }}</p>
                 </div>
                 <div class="bg-green-100 rounded-full p-4">
-                    <i class="fas fa-check-circle text-2xl text-green-600"></i>
+                    <i class="fas fa-money-bill-wave text-2xl text-green-600"></i>
                 </div>
             </div>
         </div>
 
-        <!-- Acceptés -->
-        <div class="bg-white rounded-xl shadow-md p-6 card-hover border-l-4 border-purple-500">
+        <!-- Annulés -->
+        <div class="bg-white rounded-xl shadow-md p-6 card-hover border-l-4 border-red-500">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600 mb-1">Acceptés</p>
-                    <p class="text-3xl font-bold text-gray-900">{{ devis_accepte }}</p>
+                    <p class="text-sm font-medium text-gray-600 mb-1">Annulés</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ devis_annule }}</p>
                 </div>
-                <div class="bg-purple-100 rounded-full p-4">
-                    <i class="fas fa-thumbs-up text-2xl text-purple-600"></i>
+                <div class="bg-red-100 rounded-full p-4">
+                    <i class="fas fa-times-circle text-2xl text-red-600"></i>
                 </div>
             </div>
         </div>
@@ -115,7 +115,7 @@
         </div>
 
         {% if devis_list %}
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto table-responsive">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
@@ -140,17 +140,17 @@
                             {{ devis.date_creation|date:"d/m/Y" }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            {% if devis.statut == 'brouillon' %}
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                <i class="fas fa-edit mr-1"></i>Brouillon
+                            {% if devis.statut == 'en_cours' %}
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
+                                <i class="fas fa-clock mr-1"></i>En cours
                             </span>
-                            {% elif devis.statut == 'valide' %}
+                            {% elif devis.statut == 'paye' %}
                             <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                <i class="fas fa-check mr-1"></i>Validé
+                                <i class="fas fa-money-bill-wave mr-1"></i>Payé
                             </span>
-                            {% elif devis.statut == 'accepte' %}
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
-                                <i class="fas fa-thumbs-up mr-1"></i>Accepté
+                            {% elif devis.statut == 'annule' %}
+                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                <i class="fas fa-times-circle mr-1"></i>Annulé
                             </span>
                             {% else %}
                             <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
@@ -165,7 +165,7 @@
                             <a href="{% url 'devis_detail' devis.pk %}" class="text-blue-600 hover:text-blue-900 mr-3" title="Voir">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            {% if devis.statut == 'brouillon' or devis.statut == 'valide' %}
+                            {% if devis.statut == 'en_cours' %}
                             <a href="{% url 'devis_edit' devis.pk %}" class="text-green-600 hover:text-green-900" title="Modifier">
                                 <i class="fas fa-edit"></i>
                             </a>

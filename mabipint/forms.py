@@ -7,7 +7,7 @@ class DevisForm(forms.ModelForm):
 
     class Meta:
         model = Devis
-        fields = ['client_nom', 'client_email', 'client_telephone', 'client_adresse', 'statut', 'notes']
+        fields = ['client_nom', 'client_email', 'client_telephone', 'client_adresse', 'statut', 'mode_paiement', 'notes']
         widgets = {
             'client_nom': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
@@ -27,6 +27,9 @@ class DevisForm(forms.ModelForm):
                 'rows': 3
             }),
             'statut': forms.Select(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+            }),
+            'mode_paiement': forms.Select(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'
             }),
             'notes': forms.Textarea(attrs={

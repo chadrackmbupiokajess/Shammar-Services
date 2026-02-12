@@ -6,27 +6,29 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
     <!-- Actions -->
-    <div class="mb-6 flex justify-between items-center no-print">
-        <a href="{% url 'devis_list' %}" class="text-blue-600 hover:text-blue-800 font-medium">
-            <i class="fas fa-arrow-left mr-2"></i>Retour à la liste
-        </a>
+    <div class="mb-6 no-print">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+            <a href="{% url 'devis_list' %}" class="text-blue-600 hover:text-blue-800 font-medium">
+                <i class="fas fa-arrow-left mr-2"></i>Retour à la liste
+            </a>
 
-        <div class="space-x-2">
-            {% if devis.statut == 'brouillon' or devis.statut == 'valide' %}
-            <a href="{% url 'devis_edit' devis.pk %}" class="inline-block bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
-                <i class="fas fa-edit mr-2"></i>Modifier
-            </a>
-            {% else %}
-            <button disabled class="inline-block bg-gray-400 text-white px-4 py-2 rounded-lg cursor-not-allowed opacity-60" title="Modification impossible pour ce statut">
-                <i class="fas fa-lock mr-2"></i>Modification verrouillée
-            </button>
-            {% endif %}
-            <a href="{% url 'devis_pdf' devis.pk %}" class="inline-block bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
-                <i class="fas fa-file-pdf mr-2"></i>Voir PDF
-            </a>
-            <button onclick="window.print()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-                <i class="fas fa-print mr-2"></i>Imprimer
-            </button>
+            <div class="flex flex-wrap gap-2">
+                {% if devis.statut == 'en_cours' %}
+                <a href="{% url 'devis_edit' devis.pk %}" class="inline-block bg-green-600 text-white px-3 md:px-4 py-2 rounded-lg hover:bg-green-700 transition text-sm md:text-base">
+                    <i class="fas fa-edit mr-1 md:mr-2"></i><span class="hidden sm:inline">Modifier</span><span class="sm:hidden">Modif.</span>
+                </a>
+                {% else %}
+                <button disabled class="inline-block bg-gray-400 text-white px-3 md:px-4 py-2 rounded-lg cursor-not-allowed opacity-60 text-sm md:text-base" title="Modification impossible pour ce statut">
+                    <i class="fas fa-lock mr-1 md:mr-2"></i><span class="hidden sm:inline">Verrouillé</span><span class="sm:hidden">🔒</span>
+                </button>
+                {% endif %}
+                <a href="{% url 'devis_pdf' devis.pk %}" class="inline-block bg-purple-600 text-white px-3 md:px-4 py-2 rounded-lg hover:bg-purple-700 transition text-sm md:text-base">
+                    <i class="fas fa-file-pdf mr-1 md:mr-2"></i><span class="hidden sm:inline">PDF</span><span class="sm:hidden">📄</span>
+                </a>
+                <button onclick="window.print()" class="bg-blue-600 text-white px-3 md:px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm md:text-base">
+                    <i class="fas fa-print mr-1 md:mr-2"></i><span class="hidden sm:inline">Imprimer</span><span class="sm:hidden">🖨️</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -82,17 +84,17 @@
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <div class="flex justify-between mb-2">
                         <span class="text-gray-600">Statut:</span>
-                        {% if devis.statut == 'brouillon' %}
-                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                            <i class="fas fa-edit mr-1"></i>Brouillon
+                        {% if devis.statut == 'en_cours' %}
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">
+                            <i class="fas fa-clock mr-1"></i>En cours
                         </span>
-                        {% elif devis.statut == 'valide' %}
+                        {% elif devis.statut == 'paye' %}
                         <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                            <i class="fas fa-check mr-1"></i>Validé
+                            <i class="fas fa-money-bill-wave mr-1"></i>Payé
                         </span>
-                        {% elif devis.statut == 'accepte' %}
-                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
-                            <i class="fas fa-thumbs-up mr-1"></i>Accepté
+                        {% elif devis.statut == 'annule' %}
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                            <i class="fas fa-times-circle mr-1"></i>Annulé
                         </span>
                         {% else %}
                         <span class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
@@ -100,6 +102,12 @@
                         </span>
                         {% endif %}
                     </div>
+                    {% if devis.mode_paiement %}
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-600">Mode de paiement:</span>
+                        <span class="font-medium">{{ devis.get_mode_paiement_display }}</span>
+                    </div>
+                    {% endif %}
                     <div class="flex justify-between mb-2">
                         <span class="text-gray-600">Créé par:</span>
                         <span class="font-medium">{{ devis.created_by.get_full_name|default:devis.created_by.username }}</span>

@@ -36,6 +36,48 @@
                 display: none !important;
             }
         }
+
+        /* Responsive improvements */
+        @media (max-width: 768px) {
+            /* Amélioration des tableaux sur mobile */
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* Réduction de la taille des textes sur mobile */
+            h1 {
+                font-size: 1.5rem !important;
+            }
+
+            h2 {
+                font-size: 1.25rem !important;
+            }
+
+            /* Amélioration des cartes statistiques */
+            .card-hover {
+                margin-bottom: 1rem;
+            }
+
+            /* Amélioration du footer */
+            footer {
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Animation du menu mobile */
+        #mobile-menu {
+            transition: all 0.3s ease-in-out;
+        }
+
+        #mobile-menu.hidden {
+            max-height: 0;
+            overflow: hidden;
+        }
+
+        #mobile-menu:not(.hidden) {
+            max-height: 500px;
+        }
     </style>
 
     {% block extra_css %}{% endblock %}
@@ -51,12 +93,12 @@
                     <!-- Logo -->
                     <div class="flex-shrink-0 flex items-center">
                         <div class="text-white">
-                            <h1 class="text-2xl font-bold">SHAMMAR SERVICES</h1>
+                            <h1 class="text-xl md:text-2xl font-bold">SHAMMAR SERVICES</h1>
                             <p class="text-xs text-blue-100">Écosystème MABIPINT</p>
                         </div>
                     </div>
 
-                    <!-- Menu principal -->
+                    <!-- Menu principal (Desktop) -->
                     <div class="hidden md:ml-10 md:flex md:space-x-4">
                         <a href="{% url 'dashboard' %}" class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition">
                             <i class="fas fa-home mr-2"></i>Tableau de bord
@@ -73,8 +115,8 @@
                     </div>
                 </div>
 
-                <!-- Menu utilisateur -->
-                <div class="flex items-center">
+                <!-- Menu utilisateur (Desktop) -->
+                <div class="hidden md:flex items-center">
                     <div class="ml-3 relative flex items-center space-x-4">
                         <span class="text-white text-sm">
                             <i class="fas fa-user-circle mr-2"></i>{{ user.get_full_name|default:user.username }}
@@ -84,6 +126,41 @@
                         </a>
                     </div>
                 </div>
+
+                <!-- Bouton Menu Mobile (Burger) -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-button" type="button" class="text-white hover:bg-blue-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-white">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path id="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            <path id="close-icon" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Mobile (Caché par défaut) -->
+        <div id="mobile-menu" class="hidden md:hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="{% url 'dashboard' %}" class="text-white hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium">
+                    <i class="fas fa-home mr-2"></i>Tableau de bord
+                </a>
+                <a href="{% url 'devis_list' %}" class="text-white hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium">
+                    <i class="fas fa-file-invoice mr-2"></i>Devis
+                </a>
+                <a href="{% url 'devis_create' %}" class="bg-white text-blue-600 hover:bg-blue-50 block px-3 py-2 rounded-md text-base font-medium">
+                    <i class="fas fa-plus mr-2"></i>Nouveau Devis
+                </a>
+                <a href="{% url 'aide_statuts' %}" class="text-white hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium">
+                    <i class="fas fa-question-circle mr-2"></i>Aide
+                </a>
+                <div class="border-t border-blue-500 my-2"></div>
+                <div class="px-3 py-2 text-white text-sm">
+                    <i class="fas fa-user-circle mr-2"></i>{{ user.get_full_name|default:user.username }}
+                </div>
+                <a href="{% url 'logout' %}" class="text-white hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
+                </a>
             </div>
         </div>
     </nav>
@@ -120,5 +197,35 @@
     {% endif %}
 
     {% block extra_js %}{% endblock %}
+
+    <!-- Script Menu Mobile -->
+    <script>
+        // Toggle Menu Mobile
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+        const closeIcon = document.getElementById('close-icon');
+
+        if (mobileMenuButton) {
+            mobileMenuButton.addEventListener('click', function() {
+                // Toggle menu
+                mobileMenu.classList.toggle('hidden');
+
+                // Toggle icons
+                menuIcon.classList.toggle('hidden');
+                closeIcon.classList.toggle('hidden');
+            });
+
+            // Fermer le menu quand on clique sur un lien
+            const mobileLinks = mobileMenu.querySelectorAll('a');
+            mobileLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    mobileMenu.classList.add('hidden');
+                    menuIcon.classList.remove('hidden');
+                    closeIcon.classList.add('hidden');
+                });
+            });
+        }
+    </script>
 </body>
 </html>

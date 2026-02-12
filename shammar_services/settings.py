@@ -18,7 +18,7 @@ SECRET_KEY = 'django-insecure-shammar-services-mabipint-2024-change-in-productio
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['shammarservice.pythonanywhere.com', 'localhost', '127.0.0.1']
 
 
 # Application definition

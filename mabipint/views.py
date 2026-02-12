@@ -43,16 +43,22 @@ def dashboard(request):
 
     # Statistiques
     total_devis = Devis.objects.count()
-    devis_brouillon = Devis.objects.filter(statut='brouillon').count()
-    devis_valide = Devis.objects.filter(statut='valide').count()
-    devis_accepte = Devis.objects.filter(statut='accepte').count()
+    devis_en_cours = Devis.objects.filter(statut='en_cours').count()
+    devis_paye = Devis.objects.filter(statut='paye').count()
+    devis_annule = Devis.objects.filter(statut='annule').count()
+
+    # Calcul du chiffre d'affaires (total des devis payés)
+    from django.db.models import Sum
+    chiffre_affaires = Devis.objects.filter(statut='paye').aggregate(
+        total=Sum('lignes__quantite') * Sum('lignes__prix_unitaire')
+    )
 
     context = {
         'devis_list': devis_list,
         'total_devis': total_devis,
-        'devis_brouillon': devis_brouillon,
-        'devis_valide': devis_valide,
-        'devis_accepte': devis_accepte,
+        'devis_en_cours': devis_en_cours,
+        'devis_paye': devis_paye,
+        'devis_annule': devis_annule,
     }
     return render(request, 'mabipint/dashboard.html', context)
 
@@ -111,9 +117,8 @@ def devis_edit(request, pk):
     devis = get_object_or_404(Devis, pk=pk)
 
     # Vérifier si le devis peut être modifié selon son statut
-    statuts_non_modifiables = ['envoye', 'accepte', 'refuse']
-    if devis.statut in statuts_non_modifiables:
-        messages.error(request, f'Impossible de modifier un devis avec le statut "{devis.get_statut_display()}". Seuls les devis en brouillon ou validés peuvent être modifiés.')
+    if devis.statut == 'paye':
+        messages.error(request, f'Impossible de modifier un devis payé. Le devis est verrouillé.')
         return redirect('devis_detail', pk=devis.pk)
 
     if request.method == 'POST':
@@ -167,8 +172,8 @@ def devis_delete(request, pk):
     devis = get_object_or_404(Devis, pk=pk)
 
     # Vérifier si le devis peut être supprimé selon son statut
-    if devis.statut == 'accepte':
-        messages.error(request, 'Impossible de supprimer un devis accepté. Veuillez d\'abord changer son statut.')
+    if devis.statut == 'paye':
+        messages.error(request, 'Impossible de supprimer un devis payé. Veuillez d\'abord changer son statut.')
         return redirect('devis_detail', pk=devis.pk)
 
     if request.method == 'POST':

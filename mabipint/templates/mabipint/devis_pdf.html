@@ -89,6 +89,12 @@
                             <span style="color: #6B7280; font-size: 13px;">Statut:</span>
                             <span style="font-weight: 600; color: #1F2937; font-size: 13px;">{{ devis.get_statut_display }}</span>
                         </div>
+                        {% if devis.mode_paiement %}
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: #6B7280; font-size: 13px;">Mode de paiement:</span>
+                            <span style="font-weight: 600; color: #1F2937; font-size: 13px;">{{ devis.get_mode_paiement_display }}</span>
+                        </div>
+                        {% endif %}
                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                             <span style="color: #6B7280; font-size: 13px;">Créé par:</span>
                             <span style="font-weight: 500; color: #1F2937; font-size: 13px;">{{ devis.created_by.get_full_name|default:devis.created_by.username }}</span>
