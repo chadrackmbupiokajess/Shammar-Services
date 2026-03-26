@@ -7,6 +7,7 @@ from django.db import transaction
 from .models import Devis, LigneDevis
 from .forms import DevisForm, LigneDevisForm
 import json
+from decimal import Decimal
 
 
 def login_view(request):
@@ -45,10 +46,16 @@ def dashboard(request):
     total_devis = Devis.objects.count()
     devis_paye = Devis.objects.filter(statut='paye').count()
 
+    # Calcul du chiffre d'affaires total
+    # Comme on a des propriétés calculées dans le modèle, on doit boucler sur les objets
+    toutes_les_ventes = Devis.objects.all()
+    chiffre_affaires_total = sum(v.total_general for v in toutes_les_ventes)
+
     context = {
         'devis_list': devis_list,
         'total_devis': total_devis,
         'devis_paye': devis_paye,
+        'chiffre_affaires_total': chiffre_affaires_total,
     }
     return render(request, 'mabipint/dashboard.html', context)
 
@@ -93,7 +100,7 @@ def devis_create(request):
                             prix_unitaire=ligne['prix_unitaire']
                         )
 
-                messages.success(request, f'Devis {devis.numero} créé avec succès!')
+                messages.success(request, f'Vente {devis.numero} enregistrée avec succès!')
                 return redirect('devis_detail', pk=devis.pk)
     else:
         form = DevisForm()
@@ -130,7 +137,7 @@ def devis_edit(request, pk):
                             prix_unitaire=ligne['prix_unitaire']
                         )
 
-                messages.success(request, f'Devis {devis.numero} modifié avec succès!')
+                messages.success(request, f'Vente {devis.numero} modifiée avec succès!')
                 return redirect('devis_detail', pk=devis.pk)
     else:
         form = DevisForm(instance=devis)
@@ -159,7 +166,7 @@ def devis_delete(request, pk):
     if request.method == 'POST':
         numero = devis.numero
         devis.delete()
-        messages.success(request, f'Devis {numero} supprimé avec succès!')
+        messages.success(request, f'Vente {numero} supprimée avec succès!')
         return redirect('devis_list')
 
     return render(request, 'mabipint/devis_delete.html', {'devis': devis})

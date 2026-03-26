@@ -14,12 +14,12 @@
     </div>
 
     <!-- Statistiques -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <!-- Total Ventes -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Total Ventes (Nombre) -->
         <div class="bg-white rounded-xl shadow-md p-6 card-hover border-l-4 border-blue-600">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600 mb-1">Total Ventes</p>
+                    <p class="text-sm font-medium text-gray-600 mb-1">Nombre de Ventes</p>
                     <p class="text-3xl font-bold text-gray-900">{{ total_devis }}</p>
                 </div>
                 <div class="bg-blue-100 rounded-full p-4">
@@ -28,7 +28,7 @@
             </div>
         </div>
 
-        <!-- Chiffre d'Affaires (Payés) -->
+        <!-- Ventes Payées (Nombre) -->
         <div class="bg-white rounded-xl shadow-md p-6 card-hover border-l-4 border-green-500">
             <div class="flex items-center justify-between">
                 <div>
@@ -36,7 +36,20 @@
                     <p class="text-3xl font-bold text-gray-900">{{ devis_paye }}</p>
                 </div>
                 <div class="bg-green-100 rounded-full p-4">
-                    <i class="fas fa-money-bill-wave text-2xl text-green-600"></i>
+                    <i class="fas fa-check-circle text-2xl text-green-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chiffre d'Affaires Total (Argent) -->
+        <div class="bg-white rounded-xl shadow-md p-6 card-hover border-l-4 border-yellow-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 mb-1">Chiffre d'Affaires Total</p>
+                    <p class="text-2xl md:text-3xl font-bold text-gray-900">{{ chiffre_affaires_total|floatformat:2 }} FC</p>
+                </div>
+                <div class="bg-yellow-100 rounded-full p-4">
+                    <i class="fas fa-money-bill-wave text-2xl text-yellow-600"></i>
                 </div>
             </div>
         </div>
