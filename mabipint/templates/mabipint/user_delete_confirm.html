@@ -1,0 +1,49 @@
+{% extends 'mabipint/base.html' %}
+
+{% block title %}Supprimer l'agent - MABIPEINT{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-red-100">
+        <div class="bg-red-600 p-6 text-center">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-white/20 rounded-full mb-4 animate-pulse">
+                <i class="fas fa-exclamation-triangle text-white text-4xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-white uppercase tracking-wider">Confirmation de Suppression</h1>
+        </div>
+
+        <div class="p-8 text-center">
+            <p class="text-gray-600 mb-6">
+                Êtes-vous sûr de vouloir supprimer définitivement le compte de l'agent :
+            </p>
+            <div class="bg-red-50 border border-red-100 rounded-xl p-6 mb-8">
+                <p class="text-2xl font-black text-red-700 mb-1">{{ user_to_delete.get_full_name|default:user_to_delete.username }}</p>
+                <p class="text-sm text-red-500 font-medium">Identifiant : {{ user_to_delete.username }}</p>
+            </div>
+
+            <div class="bg-amber-50 border-l-4 border-amber-400 p-4 mb-8 text-left">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-info-circle text-amber-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-amber-700">
+                            <strong>Attention :</strong> Cette action est irréversible. Toutes les informations liées à ce compte seront définitivement perdues.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <form method="POST" class="flex flex-col sm:flex-row gap-4 justify-center">
+                {% csrf_token %}
+                <a href="{% url 'user_edit' user_to_delete.pk %}" class="px-8 py-3 bg-gray-100 text-gray-700 rounded-xl font-bold hover:bg-gray-200 transition order-2 sm:order-1">
+                    <i class="fas fa-times mr-2"></i>Annuler
+                </a>
+                <button type="submit" class="px-8 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 shadow-lg shadow-red-200 transition transform hover:-translate-y-1 active:scale-95 order-1 sm:order-2">
+                    <i class="fas fa-trash-alt mr-2"></i>Confirmer la suppression
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

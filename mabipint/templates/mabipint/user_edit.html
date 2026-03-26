@@ -13,13 +13,13 @@
             </h1>
             <p class="text-gray-600 mt-2">Mettez à jour les informations de <strong>{{ user_to_edit.username }}</strong>.</p>
         </div>
-        <a href="{% url 'user_list' %}" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition flex items-center">
+        <a href="{% url 'user_list' %}" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition flex items-center shadow-sm">
             <i class="fas fa-arrow-left mr-2"></i>Retour
         </a>
     </div>
 
     <!-- Formulaire -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 mb-8">
         <form method="POST" class="p-6 md:p-8">
             {% csrf_token %}
 
@@ -113,13 +113,23 @@
                 </div>
             </div>
 
-            <div class="mt-8 pt-6 border-t border-gray-100 flex justify-end space-x-4">
-                <a href="{% url 'user_list' %}" class="bg-white text-gray-500 px-6 py-3 rounded-lg font-bold hover:bg-gray-50 border border-gray-200 transition">
-                    Annuler
+            <div class="mt-8 pt-6 border-t border-gray-100 flex flex-col sm:flex-row justify-between gap-4">
+                {% if user_to_edit != request.user %}
+                <a href="{% url 'user_delete' user_to_edit.pk %}" class="bg-red-50 text-red-600 px-6 py-3 rounded-lg font-bold hover:bg-red-600 hover:text-white border border-red-200 transition text-center sm:text-left">
+                    <i class="fas fa-trash-alt mr-2"></i>Supprimer le compte
                 </a>
-                <button type="submit" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-700 shadow-lg transition transform hover:-translate-y-1">
-                    <i class="fas fa-save mr-2"></i>Mettre à jour l'Agent
-                </button>
+                {% else %}
+                <div></div> <!-- Espace vide pour maintenir l'alignement du bouton Enregistrer -->
+                {% endif %}
+
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="{% url 'user_list' %}" class="bg-white text-gray-500 px-6 py-3 rounded-lg font-bold hover:bg-gray-50 border border-gray-200 transition text-center">
+                        Annuler
+                    </a>
+                    <button type="submit" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-700 shadow-lg transition transform hover:-translate-y-1">
+                        <i class="fas fa-save mr-2"></i>Mettre à jour l'Agent
+                    </button>
+                </div>
             </div>
         </form>
     </div>

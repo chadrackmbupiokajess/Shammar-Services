@@ -194,6 +194,25 @@ def user_edit(request, pk):
 
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
+def user_delete(request, pk):
+    """Supprimer un agent (Admin seulement)"""
+    user_to_delete = get_object_or_404(User, pk=pk)
+
+    if user_to_delete == request.user:
+        messages.error(request, "Vous ne pouvez pas supprimer votre propre compte administrateur.")
+        return redirect('user_list')
+
+    if request.method == 'POST':
+        username = user_to_delete.username
+        user_to_delete.delete()
+        messages.success(request, f"L'agent {username} a été supprimé avec succès.")
+        return redirect('user_list')
+
+    return render(request, 'mabipint/user_delete_confirm.html', {'user_to_delete': user_to_delete})
+
+
+@login_required
 def devis_list(request):
     """Liste de tous les devis (Filtrée par rôle) avec pagination et recherche AJAX"""
     if request.user.is_superuser:
