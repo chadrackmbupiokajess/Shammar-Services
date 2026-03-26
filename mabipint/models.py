@@ -72,22 +72,15 @@ class LigneDevis(models.Model):
     """Modèle pour les lignes d'un devis"""
 
     UNITE_CHOICES = [
-        ('piece', 'Pièce'),
-        ('m2', 'm²'),
-        ('m3', 'm³'),
+        ('gramme', 'g'),
         ('kg', 'Kg'),
-        ('tonne', 'Tonne'),
         ('litre', 'Litre'),
-        ('metre', 'Mètre'),
-        ('heure', 'Heure'),
-        ('jour', 'Jour'),
-        ('forfait', 'Forfait'),
     ]
 
     devis = models.ForeignKey(Devis, on_delete=models.CASCADE, related_name='lignes', verbose_name="Devis")
     numero_ligne = models.PositiveIntegerField(verbose_name="N°")
     libelle = models.CharField(max_length=500, verbose_name="Libellé")
-    unite = models.CharField(max_length=20, choices=UNITE_CHOICES, default='piece', verbose_name="Unité")
+    unite = models.CharField(max_length=20, choices=UNITE_CHOICES, default='kg', verbose_name="Unité")
     quantite = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], verbose_name="Quantité")
     prix_unitaire = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], verbose_name="Prix Unitaire (P.U)")
 

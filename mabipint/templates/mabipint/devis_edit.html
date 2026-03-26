@@ -151,16 +151,9 @@ let ligneCounter = 0;
 let lignes = {{ lignes_json|safe }};
 
 const unites = [
-    {value: 'piece', label: 'Pièce'},
-    {value: 'm2', label: 'm²'},
-    {value: 'm3', label: 'm³'},
+    {value: 'gramme', label: 'g'}
     {value: 'kg', label: 'Kg'},
-    {value: 'tonne', label: 'Tonne'},
     {value: 'litre', label: 'Litre'},
-    {value: 'metre', label: 'Mètre'},
-    {value: 'heure', label: 'Heure'},
-    {value: 'jour', label: 'Jour'},
-    {value: 'forfait', label: 'Forfait'}
 ];
 
 // Ajouter des IDs aux lignes existantes
@@ -176,7 +169,7 @@ function ajouterLigne() {
         id: ligneCounter,
         numero: ligneCounter,
         libelle: '',
-        unite: 'piece',
+        unite: 'kg',
         quantite: 1,
         prix_unitaire: 0
     };
