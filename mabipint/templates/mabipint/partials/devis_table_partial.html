@@ -1,56 +1,58 @@
 {% if devis_list %}
-<div class="overflow-x-auto table-responsive">
-    <table class="min-w-full divide-y divide-gray-200">
+<div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200" style="table-layout: fixed;">
         <thead class="bg-blue-600">
             <tr>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">N° Vente / Date</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Client</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Contact</th>
-                <th class="px-6 py-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Statut</th>
-                <th class="px-6 py-4 text-right text-xs font-semibold text-white uppercase tracking-wider">Total Général</th>
-                <th class="px-6 py-4 text-center text-xs font-semibold text-white uppercase tracking-wider">Actions</th>
+                <th style="width: 120px;" class="px-2 md:px-6 py-4 text-left text-[10px] md:text-xs font-semibold text-white uppercase tracking-wider">N° / Date</th>
+                <th style="width: 100px;" class="px-2 md:px-6 py-4 text-left text-[10px] md:text-xs font-semibold text-white uppercase tracking-wider">Client</th>
+                <th style="width: 100px;" class="px-2 md:px-6 py-4 text-left text-[10px] md:text-xs font-semibold text-white uppercase tracking-wider">Contact</th>
+                <th style="width: 60px;" class="px-2 md:px-6 py-4 text-left text-[10px] md:text-xs font-semibold text-white uppercase tracking-wider">Statut</th>
+                <th style="width: 100px;" class="px-2 md:px-6 py-4 text-right text-[10px] md:text-xs font-semibold text-white uppercase tracking-wider">Total</th>
+                <th style="width: 80px;" class="px-2 md:px-6 py-4 text-center text-[10px] md:text-xs font-semibold text-white uppercase tracking-wider">Actions</th>
             </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
             {% for devis in devis_list %}
             <tr class="hover:bg-blue-50 transition">
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="font-bold text-blue-600">{{ devis.numero }}</div>
-                    <div class="text-[10px] text-gray-500 font-medium">
-                        <i class="fas fa-calendar-alt mr-1"></i>{{ devis.date_creation|date:"d/m/Y H:i" }}
+                <td class="px-2 md:px-6 py-3 whitespace-nowrap overflow-hidden">
+                    <div class="font-bold text-blue-600 text-[10px] md:text-sm">{{ devis.numero }}</div>
+                    <div class="text-[9px] md:text-[10px] text-gray-500 font-medium truncate">
+                        {{ devis.date_creation|date:"d/m/Y H:i" }}
                     </div>
                 </td>
-                <td class="px-6 py-4">
-                    <div class="text-sm font-semibold text-gray-900">{{ devis.client_nom }}</div>
+                <td class="px-2 md:px-6 py-3 overflow-hidden">
+                    <div class="text-[10px] md:text-sm font-semibold text-gray-900 truncate">{{ devis.client_nom }}</div>
                 </td>
-                <td class="px-6 py-4">
-                    <div class="text-xs text-gray-600">
+                <td class="px-2 md:px-6 py-3 overflow-hidden">
+                    <div class="text-[9px] md:text-xs text-gray-600 truncate">
                         {% if devis.client_telephone %}
-                        <div>{{ devis.client_telephone }}</div>
+                        {{ devis.client_telephone }}
                         {% else %}
                         <span class="text-gray-400">---</span>
                         {% endif %}
                     </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-3 py-1 inline-flex text-[10px] leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                <td class="px-2 md:px-6 py-3 whitespace-nowrap">
+                    <span class="px-1.5 md:px-3 py-0.5 inline-flex text-[8px] md:text-[10px] leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                         Payé
                     </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right">
-                    <span class="font-bold text-gray-900">{{ devis.total_general|floatformat:2 }} FC</span>
+                <td class="px-2 md:px-6 py-3 whitespace-nowrap text-right">
+                    <span class="font-bold text-gray-900 text-[10px] md:text-sm">{{ devis.total_general|floatformat:0 }} FC</span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-center text-sm space-x-1 md:space-x-2">
-                    <a href="{% url 'devis_detail' devis.pk %}"
-                       class="inline-block bg-blue-50 text-blue-600 p-2 rounded-lg hover:bg-blue-100 transition"
-                       title="Détails">
-                        <i class="fas fa-eye"></i>
-                    </a>
-                    <a href="{% url 'devis_pdf' devis.pk %}"
-                       class="inline-block bg-purple-50 text-purple-600 p-2 rounded-lg hover:bg-purple-100 transition"
-                       title="Reçu PDF">
-                        <i class="fas fa-file-pdf"></i>
-                    </a>
+                <td class="px-2 md:px-6 py-3 whitespace-nowrap text-center text-[10px] md:text-sm">
+                    <div class="flex justify-center space-x-1">
+                        <a href="{% url 'devis_detail' devis.pk %}"
+                           class="inline-block bg-blue-50 text-blue-600 p-1 md:p-2 rounded hover:bg-blue-100 transition"
+                           title="Détails">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{% url 'devis_pdf' devis.pk %}"
+                           class="inline-block bg-purple-50 text-purple-600 p-1 md:p-2 rounded hover:bg-purple-100 transition"
+                           title="Reçu PDF">
+                            <i class="fas fa-file-pdf"></i>
+                        </a>
+                    </div>
                 </td>
             </tr>
             {% endfor %}
@@ -58,32 +60,28 @@
     </table>
 </div>
 
-<!-- Pagination -->
+<!-- Pagination (Forcée compacte pour mobile) -->
 {% if devis_list.has_other_pages %}
-<div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
-    <p class="text-sm text-gray-600">
-        Page {{ devis_list.number }} sur {{ devis_list.paginator.num_pages }}
+<div class="bg-gray-50 px-2 md:px-6 py-3 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-2">
+    <p class="text-[10px] md:text-sm text-gray-600">
+        {{ devis_list.number }}/{{ devis_list.paginator.num_pages }}
     </p>
     <nav class="inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
         {% if devis_list.has_previous %}
         <a href="?page={{ devis_list.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}"
-           class="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+           class="relative inline-flex items-center px-2 py-1.5 rounded-l-md border border-gray-300 bg-white text-[10px] md:text-sm font-medium text-gray-500 hover:bg-gray-50">
             <i class="fas fa-chevron-left"></i>
         </a>
-        {% else %}
-        <span class="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400">
-            <i class="fas fa-chevron-left"></i>
-        </span>
         {% endif %}
 
         {% for num in devis_list.paginator.page_range %}
             {% if devis_list.number == num %}
-            <span class="relative inline-flex items-center px-4 py-2 border border-blue-600 bg-blue-600 text-sm font-bold text-white">
+            <span class="relative inline-flex items-center px-3 py-1.5 border border-blue-600 bg-blue-600 text-[10px] md:text-sm font-bold text-white">
                 {{ num }}
             </span>
-            {% elif num > devis_list.number|add:'-3' and num < devis_list.number|add:'3' %}
+            {% elif num > devis_list.number|add:'-2' and num < devis_list.number|add:'2' %}
             <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}"
-               class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+               class="relative inline-flex items-center px-3 py-1.5 border border-gray-300 bg-white text-[10px] md:text-sm font-medium text-gray-700 hover:bg-gray-50">
                 {{ num }}
             </a>
             {% endif %}
@@ -91,25 +89,18 @@
 
         {% if devis_list.has_next %}
         <a href="?page={{ devis_list.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}"
-           class="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+           class="relative inline-flex items-center px-2 py-1.5 rounded-r-md border border-gray-300 bg-white text-[10px] md:text-sm font-medium text-gray-500 hover:bg-gray-50">
             <i class="fas fa-chevron-right"></i>
         </a>
-        {% else %}
-        <span class="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-400">
-            <i class="fas fa-chevron-right"></i>
-        </span>
         {% endif %}
     </nav>
 </div>
 {% endif %}
 
 {% else %}
-<div class="p-12 text-center">
-    <i class="fas fa-shopping-basket text-8xl text-gray-300 mb-6"></i>
-    <h3 class="text-xl font-semibold text-gray-700 mb-2">Aucune vente trouvée</h3>
-    <p class="text-gray-500 mb-6">Commencez par enregistrer votre première vente</p>
-    <a href="{% url 'devis_create' %}" class="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition shadow-md">
-        <i class="fas fa-cart-plus mr-2"></i>Enregistrer une vente
-    </a>
+<div class="p-8 text-center">
+    <i class="fas fa-shopping-basket text-6xl text-gray-300 mb-4"></i>
+    <h3 class="text-lg font-semibold text-gray-700 mb-2">Aucune vente</h3>
+    <a href="{% url 'devis_create' %}" class="text-blue-600 font-bold text-sm">Enregistrer une vente</a>
 </div>
 {% endif %}
