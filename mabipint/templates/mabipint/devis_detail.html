@@ -12,9 +12,11 @@
         </a>
 
         <div class="flex flex-wrap gap-2 w-full sm:w-auto justify-center">
-            <!--<a href="{% url 'devis_edit' devis.pk %}" class="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition text-sm">
+            {% if user.is_superuser %}
+            <a href="{% url 'devis_edit' devis.pk %}" class="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition text-sm">
                 <i class="fas fa-edit mr-1"></i>Modifier
-            </a>-->
+            </a>
+            {% endif %}
             <a href="{% url 'devis_pdf' devis.pk %}" class="bg-purple-600 text-white px-3 py-2 rounded-lg hover:bg-purple-700 transition text-sm">
                 <i class="fas fa-file-pdf mr-1"></i>PDF
             </a>
