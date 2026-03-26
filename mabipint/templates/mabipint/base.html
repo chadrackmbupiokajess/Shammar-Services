@@ -39,13 +39,11 @@
 
         /* Responsive improvements */
         @media (max-width: 768px) {
-            /* Amélioration des tableaux sur mobile */
             .table-responsive {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
             }
 
-            /* Réduction de la taille des textes sur mobile */
             h1 {
                 font-size: 1.5rem !important;
             }
@@ -54,18 +52,15 @@
                 font-size: 1.25rem !important;
             }
 
-            /* Amélioration des cartes statistiques */
             .card-hover {
                 margin-bottom: 1rem;
             }
 
-            /* Amélioration du footer */
             footer {
                 font-size: 0.75rem;
             }
         }
 
-        /* Animation du menu mobile */
         #mobile-menu {
             transition: all 0.3s ease-in-out;
         }
@@ -101,13 +96,13 @@
                     <!-- Menu principal (Desktop) -->
                     <div class="hidden md:ml-10 md:flex md:space-x-4">
                         <a href="{% url 'dashboard' %}" class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition">
-                            <i class="fas fa-home mr-2"></i>Tableau de bord
+                            <i class="fas fa-chart-line mr-2"></i>Tableau de bord
                         </a>
                         <a href="{% url 'devis_list' %}" class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition">
-                            <i class="fas fa-file-invoice mr-2"></i>Devis
+                            <i class="fas fa-history mr-2"></i>Ventes
                         </a>
                         <a href="{% url 'devis_create' %}" class="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-md text-sm font-medium transition">
-                            <i class="fas fa-plus mr-2"></i>Nouveau Devis
+                            <i class="fas fa-shopping-cart mr-2"></i>Nouvelle Vente
                         </a>
                         <a href="{% url 'aide_statuts' %}" class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition">
                             <i class="fas fa-question-circle mr-2"></i>Aide
@@ -143,13 +138,13 @@
         <div id="mobile-menu" class="hidden md:hidden">
             <div class="px-2 pt-2 pb-3 space-y-1">
                 <a href="{% url 'dashboard' %}" class="text-white hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium">
-                    <i class="fas fa-home mr-2"></i>Tableau de bord
+                    <i class="fas fa-chart-line mr-2"></i>Tableau de bord
                 </a>
                 <a href="{% url 'devis_list' %}" class="text-white hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium">
-                    <i class="fas fa-file-invoice mr-2"></i>Devis
+                    <i class="fas fa-history mr-2"></i>Ventes
                 </a>
                 <a href="{% url 'devis_create' %}" class="bg-white text-blue-600 hover:bg-blue-50 block px-3 py-2 rounded-md text-base font-medium">
-                    <i class="fas fa-plus mr-2"></i>Nouveau Devis
+                    <i class="fas fa-shopping-cart mr-2"></i>Nouvelle Vente
                 </a>
                 <a href="{% url 'aide_statuts' %}" class="text-white hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium">
                     <i class="fas fa-question-circle mr-2"></i>Aide
@@ -208,15 +203,11 @@
 
         if (mobileMenuButton) {
             mobileMenuButton.addEventListener('click', function() {
-                // Toggle menu
                 mobileMenu.classList.toggle('hidden');
-
-                // Toggle icons
                 menuIcon.classList.toggle('hidden');
                 closeIcon.classList.toggle('hidden');
             });
 
-            // Fermer le menu quand on clique sur un lien
             const mobileLinks = mobileMenu.querySelectorAll('a');
             mobileLinks.forEach(link => {
                 link.addEventListener('click', function() {
