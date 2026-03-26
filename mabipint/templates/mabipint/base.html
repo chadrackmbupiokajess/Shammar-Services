@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -80,6 +81,7 @@
 <body class="bg-gray-50">
 
     {% if user.is_authenticated %}
+    {% with request.resolver_match.url_name as url_name %}
     <!-- Navigation -->
     <nav class="gradient-bg shadow-lg no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -89,22 +91,22 @@
                     <div class="flex-shrink-0 flex items-center">
                         <div class="text-white">
                             <h1 class="text-xl md:text-2xl font-bold">SHAMMAR SERVICES</h1>
-                            <p class="text-xs text-blue-100">Écosystème MABIPINT</p>
+                            <p class="text-xs text-blue-100">Écosystème MABIPEINT</p>
                         </div>
                     </div>
 
                     <!-- Menu principal (Desktop) -->
                     <div class="hidden md:ml-10 md:flex md:space-x-4">
-                        <a href="{% url 'dashboard' %}" class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition">
+                        <a href="{% url 'dashboard' %}" class="{% if url_name == 'dashboard' %}bg-white text-blue-600{% else %}text-white hover:bg-blue-700{% endif %} px-3 py-2 rounded-md text-sm font-medium transition flex items-center">
                             <i class="fas fa-chart-line mr-2"></i>Tableau de bord
                         </a>
-                        <a href="{% url 'devis_list' %}" class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition">
+                        <a href="{% url 'devis_list' %}" class="{% if url_name == 'devis_list' %}bg-white text-blue-600{% else %}text-white hover:bg-blue-700{% endif %} px-3 py-2 rounded-md text-sm font-medium transition flex items-center">
                             <i class="fas fa-history mr-2"></i>Ventes
                         </a>
-                        <a href="{% url 'devis_create' %}" class="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-md text-sm font-medium transition">
+                        <a href="{% url 'devis_create' %}" class="{% if url_name == 'devis_create' %}bg-white text-blue-600{% else %}text-white hover:bg-blue-700{% endif %} px-4 py-2 rounded-md text-sm font-medium transition flex items-center">
                             <i class="fas fa-shopping-cart mr-2"></i>Nouvelle Vente
                         </a>
-                        <a href="{% url 'aide_statuts' %}" class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition">
+                        <a href="{% url 'aide_statuts' %}" class="{% if url_name == 'aide_statuts' %}bg-white text-blue-600{% else %}text-white hover:bg-blue-700{% endif %} px-3 py-2 rounded-md text-sm font-medium transition flex items-center">
                             <i class="fas fa-question-circle mr-2"></i>Aide
                         </a>
                     </div>
@@ -137,16 +139,16 @@
         <!-- Menu Mobile (Caché par défaut) -->
         <div id="mobile-menu" class="hidden md:hidden">
             <div class="px-2 pt-2 pb-3 space-y-1">
-                <a href="{% url 'dashboard' %}" class="text-white hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium">
+                <a href="{% url 'dashboard' %}" class="{% if url_name == 'dashboard' %}bg-white text-blue-600{% else %}text-white hover:bg-blue-700{% endif %} block px-3 py-2 rounded-md text-base font-medium">
                     <i class="fas fa-chart-line mr-2"></i>Tableau de bord
                 </a>
-                <a href="{% url 'devis_list' %}" class="text-white hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium">
+                <a href="{% url 'devis_list' %}" class="{% if url_name == 'devis_list' %}bg-white text-blue-600{% else %}text-white hover:bg-blue-700{% endif %} block px-3 py-2 rounded-md text-base font-medium">
                     <i class="fas fa-history mr-2"></i>Ventes
                 </a>
-                <a href="{% url 'devis_create' %}" class="bg-white text-blue-600 hover:bg-blue-50 block px-3 py-2 rounded-md text-base font-medium">
+                <a href="{% url 'devis_create' %}" class="{% if url_name == 'devis_create' %}bg-white text-blue-600{% else %}text-white hover:bg-blue-700{% endif %} block px-3 py-2 rounded-md text-base font-medium">
                     <i class="fas fa-shopping-cart mr-2"></i>Nouvelle Vente
                 </a>
-                <a href="{% url 'aide_statuts' %}" class="text-white hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium">
+                <a href="{% url 'aide_statuts' %}" class="{% if url_name == 'aide_statuts' %}bg-white text-blue-600{% else %}text-white hover:bg-blue-700{% endif %} block px-3 py-2 rounded-md text-base font-medium">
                     <i class="fas fa-question-circle mr-2"></i>Aide
                 </a>
                 <div class="border-t border-blue-500 my-2"></div>
@@ -159,6 +161,7 @@
             </div>
         </div>
     </nav>
+    {% endwith %}
     {% endif %}
 
     <!-- Messages Flash -->
