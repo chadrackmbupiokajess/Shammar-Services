@@ -8,10 +8,10 @@ from django.db import transaction
 from django.utils import timezone
 from datetime import datetime, timedelta
 from .models import Devis, LigneDevis, UserProfile
-from .forms import DevisForm, LigneDevisForm, UserCreateForm
+from .forms import DevisForm, LigneDevisForm, UserCreateForm, UserEditForm
 import json
 from decimal import Decimal
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.core.paginator import Paginator
 
 
@@ -102,7 +102,18 @@ def dashboard(request):
 @user_passes_test(lambda u: u.is_superuser)
 def user_list(request):
     """Liste des utilisateurs et leurs performances (Admin seulement)"""
-    users = User.objects.all().order_by('-date_joined')
+    search_query = request.GET.get('search', '')
+    
+    users = User.objects.all()
+    if search_query:
+        users = users.filter(
+            Q(username__icontains=search_query) |
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(profile__telephone__icontains=search_query)
+        )
+    
+    users = users.order_by('-date_joined')
     user_data = []
     
     for user in users:
@@ -115,8 +126,13 @@ def user_list(request):
             'total_ventes': total_ventes,
             'ca_total': ca_total
         })
+    
+    context = {'user_data': user_data, 'search_query': search_query}
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'mabipint/partials/user_cards_partial.html', context)
         
-    return render(request, 'mabipint/user_list.html', {'user_data': user_data})
+    return render(request, 'mabipint/user_list.html', context)
 
 
 @login_required
@@ -143,6 +159,38 @@ def user_create(request):
         form = UserCreateForm()
     
     return render(request, 'mabipint/user_create.html', {'form': form})
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def user_edit(request, pk):
+    """Modifier un agent (Admin seulement)"""
+    user_to_edit = get_object_or_404(User, pk=pk)
+    profile, created = UserProfile.objects.get_or_create(user=user_to_edit)
+    
+    if request.method == 'POST':
+        form = UserEditForm(request.POST, instance=user_to_edit)
+        if form.is_valid():
+            with transaction.atomic():
+                user = form.save()
+                
+                # Mettre à jour le téléphone dans le profil
+                profile.telephone = form.cleaned_data['telephone']
+                profile.save()
+                
+                # Mettre à jour le mot de passe si fourni
+                new_password = form.cleaned_data.get('password')
+                if new_password:
+                    user.set_password(new_password)
+                    user.save()
+                
+                messages.success(request, f"L'agent {user.username} a été mis à jour.")
+                return redirect('user_list')
+    else:
+        initial_data = {'telephone': profile.telephone}
+        form = UserEditForm(instance=user_to_edit, initial=initial_data)
+    
+    return render(request, 'mabipint/user_edit.html', {'form': form, 'user_to_edit': user_to_edit})
 
 
 @login_required

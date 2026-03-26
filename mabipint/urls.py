@@ -12,6 +12,7 @@ urlpatterns = [
     # Utilisateurs (Admin seulement)
     path('utilisateurs/', views.user_list, name='user_list'),
     path('utilisateurs/ajouter/', views.user_create, name='user_create'),
+    path('utilisateurs/<int:pk>/modifier/', views.user_edit, name='user_edit'),
 
     # Aide
     path('aide/statuts/', views.aide_statuts, name='aide_statuts'),
