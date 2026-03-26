@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.db import transaction
 from django.utils import timezone
 from datetime import datetime, timedelta
@@ -43,8 +43,14 @@ def logout_view(request):
 
 @login_required
 def dashboard(request):
-    """Tableau de bord principal"""
-    devis_list = Devis.objects.all()[:10]
+    """Tableau de bord principal (Filtré par rôle)"""
+    # Si superutilisateur, voir tout. Sinon, voir uniquement ses propres ventes.
+    if request.user.is_superuser:
+        user_devis = Devis.objects.all()
+    else:
+        user_devis = Devis.objects.filter(created_by=request.user)
+        
+    devis_list = user_devis.order_by('-date_creation')[:10]
     now = timezone.now()
     
     # Récupérer la date de filtrage si elle existe
@@ -52,46 +58,40 @@ def dashboard(request):
     if date_filter_str:
         try:
             target_date = datetime.strptime(date_filter_str, '%Y-%m-%d').date()
-            # On crée un datetime à partir de la date pour les calculs
             reference_date = timezone.make_aware(datetime.combine(target_date, datetime.max.time()))
         except ValueError:
             reference_date = now
     else:
         reference_date = now
 
-    # Statistiques de base (toujours globales)
-    total_devis = Devis.objects.count()
-    devis_paye = Devis.objects.filter(statut='paye').count()
+    # Statistiques de base
+    total_devis = user_devis.count()
+    devis_paye = user_devis.filter(statut='paye').count()
 
     # Chiffre d'affaires total
-    toutes_les_ventes = Devis.objects.all()
-    chiffre_affaires_total = sum(v.total_general for v in toutes_les_ventes)
+    chiffre_affaires_total = sum(v.total_general for v in user_devis)
 
     # Chiffre d'affaires par période
     # Aujourd'hui
-    ventes_aujourdhui = Devis.objects.filter(date_creation__date=now.date())
-    ca_aujourdhui = sum(v.total_general for v in ventes_aujourdhui)
+    ca_aujourdhui = sum(v.total_general for v in user_devis.filter(date_creation__date=now.date()))
 
     # Cette semaine
     debut_semaine = now - timedelta(days=now.weekday())
-    ventes_semaine = Devis.objects.filter(date_creation__gte=debut_semaine)
-    ca_semaine = sum(v.total_general for v in ventes_semaine)
+    ca_semaine = sum(v.total_general for v in user_devis.filter(date_creation__gte=debut_semaine))
 
     # Ce mois-ci
-    ventes_mois = Devis.objects.filter(date_creation__month=now.month, date_creation__year=now.year)
-    ca_mois = sum(v.total_general for v in ventes_mois)
+    ca_mois = sum(v.total_general for v in user_devis.filter(date_creation__month=now.month, date_creation__year=now.year))
 
     # Cette année
-    ventes_annee = Devis.objects.filter(date_creation__year=now.year)
-    ca_annee = sum(v.total_general for v in ventes_annee)
+    ca_annee = sum(v.total_general for v in user_devis.filter(date_creation__year=now.year))
 
-    # Données pour le graphique (7 jours à partir de la date de référence)
+    # Données pour le graphique
     graph_labels = []
     graph_data = []
     for i in range(6, -1, -1):
         day = reference_date - timedelta(days=i)
         graph_labels.append(day.strftime('%d/%m'))
-        ventes_jour = Devis.objects.filter(date_creation__date=day.date())
+        ventes_jour = user_devis.filter(date_creation__date=day.date())
         total_jour = sum(v.total_general for v in ventes_jour)
         graph_data.append(float(total_jour))
 
@@ -113,8 +113,11 @@ def dashboard(request):
 
 @login_required
 def devis_list(request):
-    """Liste de tous les devis avec pagination et recherche AJAX"""
-    devis_queryset = Devis.objects.all().order_by('-date_creation')
+    """Liste de tous les devis (Filtrée par rôle) avec pagination et recherche AJAX"""
+    if request.user.is_superuser:
+        devis_queryset = Devis.objects.all().order_by('-date_creation')
+    else:
+        devis_queryset = Devis.objects.filter(created_by=request.user).order_by('-date_creation')
     
     # Paramètre de recherche
     search_query = request.GET.get('search')
@@ -135,7 +138,6 @@ def devis_list(request):
         'search_query': search_query
     }
     
-    # Si c'est une requête AJAX, on renvoie juste le tableau partiel
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return render(request, 'mabipint/partials/devis_table_partial.html', context)
 
@@ -144,8 +146,11 @@ def devis_list(request):
 
 @login_required
 def devis_detail(request, pk):
-    """Détail d'un devis"""
+    """Détail d'un devis (Sécurisé par rôle)"""
     devis = get_object_or_404(Devis, pk=pk)
+    # Sécurité : vérifier que le devis appartient à l'utilisateur OU que l'utilisateur est admin
+    if not request.user.is_superuser and devis.created_by != request.user:
+        raise Http404("Vous n'avez pas l'autorisation de voir cette vente.")
     return render(request, 'mabipint/devis_detail.html', {'devis': devis})
 
 
@@ -161,7 +166,6 @@ def devis_create(request):
                 devis.created_by = request.user
                 devis.save()
 
-                # Récupérer les lignes du formulaire (envoyées en JSON)
                 lignes_data = request.POST.get('lignes_data')
                 if lignes_data:
                     lignes = json.loads(lignes_data)
@@ -185,8 +189,11 @@ def devis_create(request):
 
 @login_required
 def devis_edit(request, pk):
-    """Modifier un devis existant"""
+    """Modifier un devis existant (Sécurisé par rôle)"""
     devis = get_object_or_404(Devis, pk=pk)
+    # Sécurité : Admin peut tout modifier, sinon seulement ses propres ventes
+    if not request.user.is_superuser and devis.created_by != request.user:
+        raise Http404("Modification interdite.")
 
     if request.method == 'POST':
         form = DevisForm(request.POST, instance=devis)
@@ -194,11 +201,8 @@ def devis_edit(request, pk):
         if form.is_valid():
             with transaction.atomic():
                 devis = form.save()
-
-                # Supprimer les anciennes lignes
                 devis.lignes.all().delete()
 
-                # Ajouter les nouvelles lignes
                 lignes_data = request.POST.get('lignes_data')
                 if lignes_data:
                     lignes = json.loads(lignes_data)
@@ -217,7 +221,6 @@ def devis_edit(request, pk):
     else:
         form = DevisForm(instance=devis)
 
-    # Préparer les lignes existantes pour le JavaScript
     lignes_json = json.dumps([{
         'numero': ligne.numero_ligne,
         'libelle': ligne.libelle,
@@ -235,8 +238,11 @@ def devis_edit(request, pk):
 
 @login_required
 def devis_delete(request, pk):
-    """Supprimer un devis"""
+    """Supprimer un devis (Sécurisé par rôle)"""
     devis = get_object_or_404(Devis, pk=pk)
+    # Sécurité
+    if not request.user.is_superuser and devis.created_by != request.user:
+        raise Http404("Suppression interdite.")
 
     if request.method == 'POST':
         numero = devis.numero
@@ -249,11 +255,12 @@ def devis_delete(request, pk):
 
 @login_required
 def devis_pdf(request, pk):
-    """Générer un PDF du devis"""
+    """Générer un PDF du devis (Sécurisé par rôle)"""
     devis = get_object_or_404(Devis, pk=pk)
+    # Sécurité
+    if not request.user.is_superuser and devis.created_by != request.user:
+        raise Http404("Visualisation interdite.")
 
-    # Pour l'instant, on affiche juste une version imprimable
-    # On ajoutera la génération PDF avec ReportLab plus tard
     return render(request, 'mabipint/devis_pdf.html', {'devis': devis})
 
 
