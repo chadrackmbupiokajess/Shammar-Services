@@ -3,146 +3,148 @@
 {% block title %}Nouvelle Vente - MABIPINT{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
 
     <!-- En-tête -->
-    <div class="mb-6 md:mb-8">
-        <h1 class="text-2xl md:text-3xl font-bold text-gray-900">
+    <div class="mb-4 md:mb-8">
+        <h1 class="text-xl md:text-3xl font-bold text-gray-900 flex items-center">
             <i class="fas fa-cart-plus text-blue-600 mr-2 md:mr-3"></i>Nouvelle Vente Directe
         </h1>
-        <p class="text-sm md:text-base text-gray-600 mt-2">Enregistrez les articles pour le client présent.</p>
+        <p class="text-xs md:text-base text-gray-600 mt-1">Enregistrez les articles pour le client présent.</p>
     </div>
 
     <form method="post" id="devisForm">
         {% csrf_token %}
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
             <!-- Formulaire principal -->
-            <div class="lg:col-span-2 space-y-6">
+            <div class="lg:col-span-2 space-y-4 md:space-y-6">
 
-                <!-- Informations client -->
-                <div class="bg-white rounded-xl shadow-md p-6">
-                    <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                <!-- Informations client (Toujours en 2 colonnes sur mobile) -->
+                <div class="bg-white rounded-xl shadow-md p-3 md:p-6">
+                    <h2 class="text-lg md:text-xl font-semibold text-gray-900 mb-3 md:mb-4 flex items-center">
                         <i class="fas fa-user text-blue-600 mr-2"></i>Client
                     </h2>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Nom du client *</label>
+                    <div class="grid grid-cols-2 gap-3 md:gap-4">
+                        <div class="col-span-2">
+                            <label class="block text-xs md:text-sm font-medium text-gray-700 mb-1">Nom du client *</label>
                             {{ form.client_nom }}
                         </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Email (Optionnel)</label>
+                        <div class="col-span-1">
+                            <label class="block text-xs md:text-sm font-medium text-gray-700 mb-1">Email</label>
                             {{ form.client_email }}
                         </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Téléphone (Optionnel)</label>
+                        <div class="col-span-1">
+                            <label class="block text-xs md:text-sm font-medium text-gray-700 mb-1">Téléphone</label>
                             {{ form.client_telephone }}
                         </div>
 
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Adresse (Optionnel)</label>
+                        <div class="col-span-2">
+                            <label class="block text-xs md:text-sm font-medium text-gray-700 mb-1">Adresse</label>
                             {{ form.client_adresse }}
                         </div>
                     </div>
                 </div>
 
                 <!-- Articles de la vente -->
-                <div class="bg-white rounded-xl shadow-md p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-semibold text-gray-900 flex items-center">
-                            <i class="fas fa-shopping-basket text-blue-600 mr-2"></i>Articles de la vente
+                <div class="bg-white rounded-xl shadow-md p-3 md:p-6">
+                    <div class="flex justify-between items-center mb-3 md:mb-4">
+                        <h2 class="text-lg md:text-xl font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-shopping-basket text-blue-600 mr-2"></i>Articles
                         </h2>
-                        <button type="button" onclick="ajouterLigne()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
-                            <i class="fas fa-plus mr-2"></i>Ajouter un article
+                        <button type="button" onclick="ajouterLigne()" class="bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 transition text-xs md:text-base">
+                            <i class="fas fa-plus mr-1 md:mr-2"></i>Ajouter
                         </button>
                     </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full" id="lignesTable">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">N°</th>
-                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Désignation</th>
-                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Unité</th>
-                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Qté</th>
-                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Prix Unit.</th>
-                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
-                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="lignesBody">
-                                <!-- Les lignes seront ajoutées ici dynamiquement -->
-                            </tbody>
-                        </table>
+                    <div class="overflow-x-auto -mx-3 md:mx-0">
+                        <div class="inline-block min-w-full align-middle">
+                            <table class="min-w-full divide-y divide-gray-200" id="lignesTable">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-2 py-2 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase">N°</th>
+                                        <th class="px-2 py-2 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase">Désignation</th>
+                                        <th class="px-2 py-2 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase">Unité</th>
+                                        <th class="px-2 py-2 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase">Qté</th>
+                                        <th class="px-2 py-2 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase">P.U</th>
+                                        <th class="px-2 py-2 text-right text-[10px] md:text-xs font-medium text-gray-500 uppercase">Total</th>
+                                        <th class="px-2 py-2 text-center text-[10px] md:text-xs font-medium text-gray-500 uppercase"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="lignesBody" class="bg-white divide-y divide-gray-100">
+                                    <!-- Les lignes seront ajoutées ici dynamiquement -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
-                    <div class="mt-4 text-center text-gray-500 hidden" id="emptyMessage">
-                        <i class="fas fa-info-circle mr-2"></i>Cliquez sur "Ajouter un article" pour commencer
+                    <div class="mt-4 text-center text-gray-500 hidden text-xs" id="emptyMessage">
+                        <i class="fas fa-info-circle mr-2"></i>Cliquez sur "Ajouter" pour commencer
                     </div>
                 </div>
 
                 <!-- Notes -->
-                <div class="bg-white rounded-xl shadow-md p-6">
-                    <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                        <i class="fas fa-sticky-note text-blue-600 mr-2"></i>Notes / Observations
+                <div class="bg-white rounded-xl shadow-md p-3 md:p-6">
+                    <h2 class="text-lg md:text-xl font-semibold text-gray-900 mb-2 md:mb-4 flex items-center">
+                        <i class="fas fa-sticky-note text-blue-600 mr-2"></i>Notes
                     </h2>
                     {{ form.notes }}
                 </div>
 
             </div>
 
-            <!-- Résumé et actions -->
+            <!-- Résumé et actions (Sticky sur PC, à la suite sur Mobile) -->
             <div class="lg:col-span-1">
-                <div class="bg-white rounded-xl shadow-md p-6 sticky top-4 border-t-4 border-blue-600">
-                    <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                        <i class="fas fa-receipt text-blue-600 mr-2"></i>Total à payer
+                <div class="bg-white rounded-xl shadow-md p-4 md:p-6 sticky top-4 border-t-4 border-blue-600">
+                    <h2 class="text-lg md:text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-receipt text-blue-600 mr-2"></i>Résumé
                     </h2>
 
                     <div class="space-y-3 mb-6">
-                        <div class="flex justify-between items-center pb-2 border-b">
-                            <span class="text-gray-600">Sous-total articles:</span>
-                            <span class="font-semibold text-lg text-gray-900" id="totalFourniture">0.00 FC</span>
+                        <div class="flex justify-between items-center pb-2 border-b text-sm md:text-base">
+                            <span class="text-gray-600">Articles:</span>
+                            <span class="font-semibold text-gray-900" id="totalFourniture">0 FC</span>
                         </div>
 
                         <!-- Bascule Main d'œuvre -->
-                        <div class="bg-gray-50 p-3 rounded-lg mb-2">
-                            <div class="flex items-center justify-between mb-2">
-                                <label for="inclureMO" class="text-sm font-medium text-gray-700">Inclure Main d'œuvre (25%)</label>
+                        <div class="bg-gray-50 p-2 md:p-3 rounded-lg mb-2">
+                            <div class="flex items-center justify-between mb-1 md:mb-2">
+                                <label for="inclureMO" class="text-[10px] md:text-sm font-medium text-gray-700">Inclure M.O (25%)</label>
                                 {{ form.inclure_main_oeuvre }}
                             </div>
-                            <div class="flex justify-between items-center" id="rowMO">
-                                <span class="text-gray-500 text-sm italic">Montant M.O:</span>
-                                <span class="font-semibold text-gray-900" id="mainOeuvre">0.00 FC</span>
+                            <div class="flex justify-between items-center text-[10px] md:text-sm" id="rowMO">
+                                <span class="text-gray-500 italic">Montant:</span>
+                                <span class="font-semibold text-gray-900" id="mainOeuvre">0 FC</span>
                             </div>
                         </div>
 
-                        <div class="flex justify-between items-center pt-2 bg-blue-600 p-4 rounded-xl text-white shadow-inner">
-                            <span class="font-bold text-lg">TOTAL GÉNÉRAL:</span>
-                            <span class="font-extrabold text-2xl" id="totalGeneral">0.00 FC</span>
+                        <div class="flex justify-between items-center pt-2 bg-blue-600 p-3 md:p-4 rounded-xl text-white shadow-inner">
+                            <span class="font-bold text-sm md:text-lg uppercase">Total:</span>
+                            <span class="font-extrabold text-xl md:text-2xl" id="totalGeneral">0 FC</span>
                         </div>
                     </div>
 
-                    <div class="bg-green-50 p-4 rounded-lg mb-6 border border-green-200">
-                        <div class="flex justify-between mb-2">
-                            <span class="text-sm font-medium text-green-800">Statut de la vente:</span>
-                            <span class="text-sm font-bold text-green-700 uppercase">Payé</span>
+                    <div class="bg-green-50 p-3 rounded-lg mb-6 border border-green-100 flex flex-row justify-between lg:flex-col gap-2">
+                        <div class="flex justify-between gap-2">
+                            <span class="text-[10px] md:text-xs font-medium text-green-800">Statut:</span>
+                            <span class="text-[10px] md:text-xs font-bold text-green-700 uppercase">Payé</span>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-sm font-medium text-blue-800">Mode de paiement:</span>
-                            <span class="text-sm font-bold text-blue-700 uppercase">Espèces</span>
+                        <div class="flex justify-between gap-2">
+                            <span class="text-[10px] md:text-xs font-medium text-blue-800">Mode:</span>
+                            <span class="text-[10px] md:text-xs font-bold text-blue-700 uppercase">Espèces</span>
                         </div>
                     </div>
 
-                    <div class="space-y-3">
-                        <button type="submit" class="w-full bg-blue-600 text-white px-6 py-4 rounded-xl hover:bg-blue-700 transition shadow-lg hover:shadow-xl font-bold text-lg flex items-center justify-center">
-                            <i class="fas fa-check-double mr-2"></i>Valider la vente
+                    <div class="space-y-2 md:space-y-3">
+                        <button type="submit" class="w-full bg-blue-600 text-white px-4 py-3 md:py-4 rounded-xl hover:bg-blue-700 transition shadow-lg font-bold text-base md:text-lg flex items-center justify-center">
+                            <i class="fas fa-check-double mr-2"></i>Valider
                         </button>
 
-                        <a href="{% url 'dashboard' %}" class="block w-full text-center bg-gray-100 text-gray-600 px-6 py-3 rounded-xl hover:bg-gray-200 transition font-medium">
-                            <i class="fas fa-times mr-2"></i>Annuler
+                        <a href="{% url 'dashboard' %}" class="block w-full text-center bg-gray-50 text-gray-500 px-4 py-2 md:py-3 rounded-xl hover:bg-gray-100 transition font-medium text-sm">
+                            Annuler
                         </a>
                     </div>
                 </div>
@@ -164,11 +166,14 @@ let lignes = [];
 const unites = [
     {value: 'gramme', label: 'g'},
     {value: 'kg', label: 'Kg'},
-    {value: 'litre', label: 'Litre'}
+    {value: 'litre', label: 'L'}
 ];
 
 const checkboxMO = document.getElementById('inclureMO');
 const rowMO = document.getElementById('rowMO');
+
+// Forcer le style du checkbox MO pour mobile
+checkboxMO.className = "w-4 h-4 text-blue-600 rounded focus:ring-blue-500";
 
 checkboxMO.addEventListener('change', function() {
     if (this.checked) {
@@ -182,7 +187,7 @@ checkboxMO.addEventListener('change', function() {
 function ajouterLigne() {
     ligneCounter++;
     const ligne = {
-        id: Date.now() + Math.random(), // ID unique pour JS
+        id: Date.now() + Math.random(),
         numero: lignes.length + 1,
         libelle: '',
         unite: 'gramme',
@@ -196,15 +201,10 @@ function ajouterLigne() {
 }
 
 function supprimerLigne(id) {
+    if (lignes.length <= 1) return; // Garder au moins une ligne
     lignes = lignes.filter(l => l.id !== id);
-    // Recalculer les numéros de ligne
     lignes.forEach((l, index) => l.numero = index + 1);
-
     afficherLignes();
-
-    if (lignes.length === 0) {
-        document.getElementById('emptyMessage').classList.remove('hidden');
-    }
 }
 
 function afficherLignes() {
@@ -215,39 +215,39 @@ function afficherLignes() {
         const prixTotal = (parseFloat(ligne.quantite) || 0) * (parseFloat(ligne.prix_unitaire) || 0);
 
         const tr = document.createElement('tr');
-        tr.className = 'border-b hover:bg-gray-50';
+        tr.className = 'hover:bg-gray-50';
         tr.innerHTML = `
-            <td class="px-3 py-4 text-gray-500 font-medium">
+            <td class="px-1 py-3 text-gray-400 text-[10px] md:text-xs font-medium text-center">
                 ${ligne.numero}
             </td>
-            <td class="px-3 py-2">
-                <input type="text" value="${ligne.libelle}" placeholder="Nom de l'article..."
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            <td class="px-1 py-2">
+                <input type="text" value="${ligne.libelle}" placeholder="Article..."
+                       class="w-full px-2 py-1.5 text-[11px] md:text-sm border border-gray-200 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                        oninput="updateLigne(${ligne.id}, 'libelle', this.value)">
             </td>
-            <td class="px-3 py-2">
-                <select class="px-2 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            <td class="px-1 py-2">
+                <select class="px-1 py-1.5 text-[10px] md:text-sm border border-gray-200 rounded-md bg-white outline-none"
                         onchange="updateLigne(${ligne.id}, 'unite', this.value)">
                     ${unites.map(u => `<option value="${u.value}" ${ligne.unite === u.value ? 'selected' : ''}>${u.label}</option>`).join('')}
                 </select>
             </td>
-            <td class="px-3 py-2">
+            <td class="px-1 py-2">
                 <input type="number" value="${ligne.quantite}" min="0.01" step="0.01"
-                       class="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                       class="w-12 md:w-20 px-1 py-1.5 text-[11px] md:text-sm border border-gray-200 rounded-md text-center outline-none"
                        oninput="updateLigne(${ligne.id}, 'quantite', this.value)">
             </td>
-            <td class="px-3 py-2">
-                <input type="number" value="${ligne.prix_unitaire}" min="0" step="0.01"
-                       class="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            <td class="px-1 py-2">
+                <input type="number" value="${ligne.prix_unitaire}" min="0" step="1"
+                       class="w-16 md:w-28 px-1 py-1.5 text-[11px] md:text-sm border border-gray-200 rounded-md text-right outline-none"
                        oninput="updateLigne(${ligne.id}, 'prix_unitaire', this.value)">
             </td>
-            <td class="px-3 py-4 font-bold text-gray-900 text-right">
-                ${prixTotal.toLocaleString('fr-FR', {minimumFractionDigits: 2})} FC
+            <td class="px-1 py-3 font-bold text-gray-900 text-right text-[11px] md:text-sm whitespace-nowrap">
+                ${prixTotal.toLocaleString('fr-FR', {maximumFractionDigits: 0})}
             </td>
-            <td class="px-3 py-4 text-center">
+            <td class="px-1 py-3 text-center">
                 <button type="button" onclick="supprimerLigne(${ligne.id})"
-                        class="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition">
-                    <i class="fas fa-trash-alt"></i>
+                        class="text-red-400 hover:text-red-600 p-1 transition">
+                    <i class="fas fa-times-circle"></i>
                 </button>
             </td>
         `;
@@ -261,12 +261,11 @@ function updateLigne(id, field, value) {
     const ligne = lignes.find(l => l.id === id);
     if (ligne) {
         ligne[field] = value;
-        // Si on change la quantité ou le prix, on met à jour les totaux sans tout reafficher pour garder le focus
         if (field === 'quantite' || field === 'prix_unitaire') {
             const tr = document.querySelector(`button[onclick="supprimerLigne(${id})"]`).closest('tr');
             const ptCell = tr.querySelector('td:nth-last-child(2)');
             const pt = (parseFloat(ligne.quantite) || 0) * (parseFloat(ligne.prix_unitaire) || 0);
-            ptCell.textContent = pt.toLocaleString('fr-FR', {minimumFractionDigits: 2}) + ' FC';
+            ptCell.textContent = pt.toLocaleString('fr-FR', {maximumFractionDigits: 0});
             calculerTotaux();
         }
     }
@@ -274,37 +273,30 @@ function updateLigne(id, field, value) {
 
 function calculerTotaux() {
     let totalFourniture = 0;
-
     lignes.forEach(ligne => {
-        const pt = (parseFloat(ligne.quantite) || 0) * (parseFloat(ligne.prix_unitaire) || 0);
-        totalFourniture += pt;
+        totalFourniture += (parseFloat(ligne.quantite) || 0) * (parseFloat(ligne.prix_unitaire) || 0);
     });
 
     const mainOeuvre = checkboxMO.checked ? (totalFourniture * 0.25) : 0;
     const totalGeneral = totalFourniture + mainOeuvre;
 
-    document.getElementById('totalFourniture').textContent = totalFourniture.toLocaleString('fr-FR', {minimumFractionDigits: 2}) + ' FC';
-    document.getElementById('mainOeuvre').textContent = mainOeuvre.toLocaleString('fr-FR', {minimumFractionDigits: 2}) + ' FC';
-    document.getElementById('totalGeneral').textContent = totalGeneral.toLocaleString('fr-FR', {minimumFractionDigits: 2}) + ' FC';
+    document.getElementById('totalFourniture').textContent = Math.round(totalFourniture).toLocaleString('fr-FR') + ' FC';
+    document.getElementById('mainOeuvre').textContent = Math.round(mainOeuvre).toLocaleString('fr-FR') + ' FC';
+    document.getElementById('totalGeneral').textContent = Math.round(totalGeneral).toLocaleString('fr-FR') + ' FC';
 }
 
-// Soumettre le formulaire
 document.getElementById('devisForm').addEventListener('submit', function(e) {
     if (lignes.length === 0) {
         e.preventDefault();
-        alert('Veuillez ajouter au moins un article à la vente.');
+        alert('Veuillez ajouter un article.');
         return;
     }
-
-    // Vérifier si toutes les lignes ont une désignation
     const invalidLigne = lignes.find(l => !l.libelle.trim());
     if (invalidLigne) {
         e.preventDefault();
-        alert('Veuillez remplir la désignation pour tous les articles.');
+        alert('Veuillez remplir la désignation.');
         return;
     }
-
-    // Préparer les données des lignes
     const lignesData = lignes.map(l => ({
         numero: l.numero,
         libelle: l.libelle,
@@ -312,15 +304,25 @@ document.getElementById('devisForm').addEventListener('submit', function(e) {
         quantite: parseFloat(l.quantite) || 0,
         prix_unitaire: parseFloat(l.prix_unitaire) || 0
     }));
-
     document.getElementById('lignesData').value = JSON.stringify(lignesData);
 });
 
-// Ajouter la première ligne au chargement
 document.addEventListener('DOMContentLoaded', function() {
     ajouterLigne();
-    // Initialiser l'état visuel de la MO
     if (!checkboxMO.checked) rowMO.classList.add('opacity-30');
 });
 </script>
+
+<style>
+/* Ajustements spécifiques pour le formulaire responsive sans empilement */
+@media (max-width: 640px) {
+    input[type="text"], input[type="number"], select, textarea {
+        font-size: 11px !important;
+        padding: 4px 6px !important;
+    }
+    .receipt-container {
+        padding: 8px !important;
+    }
+}
+</style>
 {% endblock %}
