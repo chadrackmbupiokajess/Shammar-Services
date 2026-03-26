@@ -5,82 +5,123 @@
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-    <!-- En-tête simplifié -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-900">
-                <i class="fas fa-chart-line text-blue-600 mr-2"></i>Tableau de bord
-            </h1>
-            <p class="text-sm text-gray-500">Suivi des performances de vente</p>
+    <!-- En-tête -->
+    <div class="mb-6 md:mb-8">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-900">
+            <i class="fas fa-chart-line text-blue-600 mr-2"></i>Tableau de bord
+        </h1>
+        <p class="text-sm text-gray-600 mt-2">Suivi des ventes et performances</p>
+    </div>
+
+    <!-- Statistiques Globales -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-600">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 mb-1 italic">Ventes Globales</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ total_devis }}</p>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-full text-blue-600">
+                    <i class="fas fa-shopping-cart text-2xl"></i>
+                </div>
+            </div>
         </div>
 
-        <!-- Stats de période compactes (Fusionnées) -->
-        <div class="mt-4 md:mt-0 bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden flex divide-x divide-gray-100">
-            <div class="px-4 py-2 text-center">
-                <p class="text-[10px] uppercase font-bold text-gray-400">Aujourd'hui</p>
-                <p class="text-sm font-bold text-blue-600">{{ ca_aujourdhui|floatformat:0 }} FC</p>
+        <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 mb-1 italic">Transactions OK</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ devis_paye }}</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded-full text-green-600">
+                    <i class="fas fa-check-double text-2xl"></i>
+                </div>
             </div>
-            <div class="px-4 py-2 text-center">
-                <p class="text-[10px] uppercase font-bold text-gray-400">Semaine</p>
-                <p class="text-sm font-bold text-green-600">{{ ca_semaine|floatformat:0 }} FC</p>
-            </div>
-            <div class="px-4 py-2 text-center">
-                <p class="text-[10px] uppercase font-bold text-gray-400">Mois</p>
-                <p class="text-sm font-bold text-orange-600">{{ ca_mois|floatformat:0 }} FC</p>
-            </div>
-            <div class="px-4 py-2 text-center">
-                <p class="text-[10px] uppercase font-bold text-gray-400">Année</p>
-                <p class="text-sm font-bold text-purple-600">{{ ca_annee|floatformat:0 }} FC</p>
+        </div>
+
+        <!-- Couleur de carte modifiée (Indigo/Sombre) -->
+        <div class="bg-indigo-900 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition duration-300">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-indigo-200 text-xs uppercase font-bold tracking-wider mb-1">Chiffre d'Affaires</p>
+                    <p class="text-2xl font-black text-yellow-400">{{ chiffre_affaires_total|floatformat:2 }} FC</p>
+                    <div class="mt-2 flex items-center text-xs text-indigo-300">
+                        <i class="fas fa-wallet mr-1"></i> Total cumulé
+                    </div>
+                </div>
+                <div class="bg-white/10 p-4 rounded-xl">
+                    <i class="fas fa-money-bill-wave text-2xl text-yellow-400"></i>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Barre de Recettes -->
+    <div class="bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden flex divide-x divide-gray-100 mb-8">
+        <div class="flex-1 px-4 py-3 text-center hover:bg-gray-50 transition">
+            <p class="text-[10px] uppercase font-black text-gray-400">Aujourd'hui</p>
+            <p class="text-sm font-bold text-blue-600">{{ ca_aujourdhui|floatformat:0 }} FC</p>
+        </div>
+        <div class="flex-1 px-4 py-3 text-center hover:bg-gray-50 transition">
+            <p class="text-[10px] uppercase font-black text-gray-400">7 derniers jours</p>
+            <p class="text-sm font-bold text-green-600">{{ ca_semaine|floatformat:0 }} FC</p>
+        </div>
+        <div class="flex-1 px-4 py-3 text-center hover:bg-gray-50 transition">
+            <p class="text-[10px] uppercase font-black text-gray-400">Ce mois</p>
+            <p class="text-sm font-bold text-orange-600">{{ ca_mois|floatformat:0 }} FC</p>
+        </div>
+        <div class="flex-1 px-4 py-3 text-center hover:bg-gray-50 transition">
+            <p class="text-[10px] uppercase font-black text-gray-400">Année {{ now.year }}</p>
+            <p class="text-sm font-bold text-purple-600">{{ ca_annee|floatformat:0 }} FC</p>
+        </div>
+    </div>
+
     <!-- Actions rapides -->
-    <div class="bg-white rounded-xl shadow-md p-6 mb-8 border border-gray-100">
-        <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
-            <i class="fas fa-bolt text-yellow-500 mr-2"></i>Actions rapides
+    <div class="mb-8">
+        <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center">
+            <span class="bg-blue-600 w-2 h-2 rounded-full mr-2"></span> Actions Rapides
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <a href="{% url 'devis_create' %}" class="flex items-center p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition border border-blue-100 group">
-                <div class="bg-blue-600 rounded-lg p-3 mr-4 shadow-sm group-hover:scale-110 transition-transform">
-                    <i class="fas fa-cart-plus text-white text-lg"></i>
+            <a href="{% url 'devis_create' %}" class="group bg-blue-600 p-4 rounded-2xl text-white hover:bg-blue-700 transition shadow-lg flex items-center">
+                <div class="bg-white/20 p-3 rounded-xl mr-4 group-hover:rotate-12 transition">
+                    <i class="fas fa-plus-circle text-xl"></i>
                 </div>
                 <div>
-                    <p class="font-bold text-gray-900 leading-tight">Nouvelle Vente</p>
-                    <p class="text-xs text-gray-500 mt-1">Enregistrer une transaction directe</p>
+                    <p class="font-bold">Nouvelle Vente</p>
+                    <p class="text-xs text-blue-100">Enregistrer un client présent</p>
                 </div>
             </a>
 
-            <a href="{% url 'devis_list' %}" class="flex items-center p-4 bg-green-50 rounded-xl hover:bg-green-100 transition border border-green-100 group">
-                <div class="bg-green-600 rounded-lg p-3 mr-4 shadow-sm group-hover:scale-110 transition-transform">
-                    <i class="fas fa-history text-white text-lg"></i>
+            <a href="{% url 'devis_list' %}" class="group bg-white p-4 rounded-2xl border border-gray-200 hover:border-green-500 transition shadow-sm flex items-center">
+                <div class="bg-green-50 p-3 rounded-xl mr-4 text-green-600 group-hover:scale-110 transition">
+                    <i class="fas fa-list-ul text-xl"></i>
                 </div>
                 <div>
-                    <p class="font-bold text-gray-900 leading-tight">Historique</p>
-                    <p class="text-xs text-gray-500 mt-1">Consulter les ventes archivées</p>
+                    <p class="font-bold text-gray-800">Historique</p>
+                    <p class="text-xs text-gray-500">Voir toutes les transactions</p>
                 </div>
             </a>
 
-            <a href="/admin/" class="flex items-center p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition border border-purple-100 group">
-                <div class="bg-purple-600 rounded-lg p-3 mr-4 shadow-sm group-hover:scale-110 transition-transform">
-                    <i class="fas fa-cog text-white text-lg"></i>
+            <a href="/admin/" class="group bg-white p-4 rounded-2xl border border-gray-200 hover:border-purple-500 transition shadow-sm flex items-center">
+                <div class="bg-purple-50 p-3 rounded-xl mr-4 text-purple-600 group-hover:rotate-90 transition duration-500">
+                    <i class="fas fa-tools text-xl"></i>
                 </div>
                 <div>
-                    <p class="font-bold text-gray-900 leading-tight">Admin</p>
-                    <p class="text-xs text-gray-500 mt-1">Gérer les utilisateurs et paramètres</p>
+                    <p class="font-bold text-gray-800">Paramètres</p>
+                    <p class="text-xs text-gray-500">Configuration du système</p>
                 </div>
             </a>
         </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-        <!-- Graphique des ventes -->
-        <div class="lg:col-span-2 bg-white rounded-xl shadow-md p-6 border border-gray-100">
-            <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-                <h2 class="text-lg font-bold text-gray-800">Analyse des 7 derniers jours</h2>
-                <form id="filterForm" method="get" class="flex items-center">
+        <!-- Graphique -->
+        <div class="lg:col-span-2 bg-white rounded-2xl shadow-md p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="font-bold text-gray-800">Analyse des 7 derniers jours</h2>
+                <form method="get">
                     <input type="date" name="date_filter" value="{{ date_filter_val }}"
-                           class="text-xs border border-gray-300 rounded-lg px-2 py-1 focus:ring-2 focus:ring-blue-500"
+                           class="text-xs border border-gray-300 rounded-lg px-2 py-1 bg-gray-50"
                            onchange="this.form.submit()">
                 </form>
             </div>
@@ -89,67 +130,34 @@
             </div>
         </div>
 
-        <!-- Résumé Global (Couleur modifiée en Bleu Marine Foncé) -->
-        <div class="bg-gradient-to-br from-indigo-900 via-blue-900 to-indigo-950 rounded-2xl shadow-xl p-8 text-white flex flex-col justify-center border border-blue-800 relative overflow-hidden">
-            <!-- Décoration en arrière-plan -->
-            <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/5 rounded-full blur-3xl"></div>
-
-            <div class="mb-6 relative z-10">
-                <p class="text-blue-300 text-xs uppercase font-black tracking-widest mb-2">Chiffre d'Affaires Global</p>
-                <p class="text-4xl font-black text-white leading-none">{{ chiffre_affaires_total|floatformat:2 }} <span class="text-sm font-medium text-blue-200">FC</span></p>
+        <!-- Ventes récentes (Limitées à 3) -->
+        <div class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
+                <h2 class="font-bold text-gray-800">Dernières ventes</h2>
+                <a href="{% url 'devis_list' %}" class="text-blue-600 text-[10px] font-black uppercase hover:underline">Voir tout</a>
             </div>
-
-            <div class="pt-6 border-t border-white/10 relative z-10">
-                <div class="flex justify-between items-end">
-                    <div>
-                        <p class="text-blue-300 text-[10px] uppercase font-bold tracking-wider mb-1">Total Transactions</p>
-                        <p class="text-3xl font-black text-blue-100">{{ total_devis }}</p>
+            <div class="divide-y divide-gray-100">
+                {% for devis in devis_list|slice:":3" %}
+                <div class="p-4 hover:bg-gray-50 transition flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xs font-bold mr-3">
+                            {{ forloop.counter }}
+                        </div>
+                        <div>
+                            <p class="text-xs font-black text-blue-600">{{ devis.numero }}</p>
+                            <p class="text-sm font-bold text-gray-800 truncate w-32">{{ devis.client_nom }}</p>
+                        </div>
                     </div>
-                    <div class="bg-white/10 p-3 rounded-xl">
-                        <i class="fas fa-wallet text-2xl text-blue-200"></i>
+                    <div class="text-right">
+                        <p class="text-sm font-black text-gray-900">{{ devis.total_general|floatformat:0 }} FC</p>
+                        <a href="{% url 'devis_detail' devis.pk %}" class="text-[10px] text-blue-500 font-bold hover:text-blue-700">Détails <i class="fas fa-chevron-right ml-1"></i></a>
                     </div>
                 </div>
+                {% empty %}
+                <div class="p-8 text-center text-gray-400 italic text-sm">Aucune vente.</div>
+                {% endfor %}
             </div>
         </div>
-    </div>
-
-    <!-- Ventes récentes -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-            <h2 class="font-bold text-gray-800 text-lg">Dernières transactions</h2>
-            <a href="{% url 'devis_list' %}" class="text-blue-600 hover:underline text-sm font-semibold">Voir l'historique complet</a>
-        </div>
-
-        {% if devis_list %}
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">N° Vente</th>
-                        <th class="px-6 py-3 text-left text-[10px] font-bold text-gray-400 uppercase tracking-wider">Client</th>
-                        <th class="px-6 py-3 text-right text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total</th>
-                        <th class="px-6 py-3 text-center text-[10px] font-bold text-gray-400 uppercase tracking-wider">Action</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-100">
-                    {% for devis in devis_list|slice:":3" %}
-                    <tr class="hover:bg-blue-50/30 transition">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-black text-blue-600">{{ devis.numero }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-700">{{ devis.client_nom }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-black text-gray-900 text-right">{{ devis.total_general|floatformat:0 }} FC</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center">
-                            <a href="{% url 'devis_detail' devis.pk %}" class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white transition shadow-sm">
-                                <i class="fas fa-eye text-xs"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <div class="p-8 text-center text-gray-400 italic text-sm">Aucune vente enregistrée.</div>
-        {% endif %}
     </div>
 </div>
 {% endblock %}
@@ -167,10 +175,12 @@
                 data: {{ graph_data|safe }},
                 borderColor: '#2563eb',
                 backgroundColor: 'rgba(37, 99, 235, 0.05)',
-                borderWidth: 2,
+                borderWidth: 3,
                 fill: true,
                 tension: 0.4,
-                pointRadius: 3
+                pointRadius: 4,
+                pointBackgroundColor: '#fff',
+                pointBorderWidth: 2
             }]
         },
         options: {

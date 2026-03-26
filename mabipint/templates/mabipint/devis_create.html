@@ -107,9 +107,16 @@
                             <span class="font-semibold text-lg text-gray-900" id="totalFourniture">0.00 FC</span>
                         </div>
 
-                        <div class="flex justify-between items-center pb-2 border-b">
-                            <span class="text-gray-600">Main d'œuvre (25%):</span>
-                            <span class="font-semibold text-lg text-gray-900" id="mainOeuvre">0.00 FC</span>
+                        <!-- Bascule Main d'œuvre -->
+                        <div class="bg-gray-50 p-3 rounded-lg mb-2">
+                            <div class="flex items-center justify-between mb-2">
+                                <label for="inclureMO" class="text-sm font-medium text-gray-700">Inclure Main d'œuvre (25%)</label>
+                                {{ form.inclure_main_oeuvre }}
+                            </div>
+                            <div class="flex justify-between items-center" id="rowMO">
+                                <span class="text-gray-500 text-sm italic">Montant M.O:</span>
+                                <span class="font-semibold text-gray-900" id="mainOeuvre">0.00 FC</span>
+                            </div>
                         </div>
 
                         <div class="flex justify-between items-center pt-2 bg-blue-600 p-4 rounded-xl text-white shadow-inner">
@@ -159,6 +166,18 @@ const unites = [
     {value: 'kg', label: 'Kg'},
     {value: 'litre', label: 'Litre'}
 ];
+
+const checkboxMO = document.getElementById('inclureMO');
+const rowMO = document.getElementById('rowMO');
+
+checkboxMO.addEventListener('change', function() {
+    if (this.checked) {
+        rowMO.classList.remove('opacity-30');
+    } else {
+        rowMO.classList.add('opacity-30');
+    }
+    calculerTotaux();
+});
 
 function ajouterLigne() {
     ligneCounter++;
@@ -261,7 +280,7 @@ function calculerTotaux() {
         totalFourniture += pt;
     });
 
-    const mainOeuvre = totalFourniture * 0.25;
+    const mainOeuvre = checkboxMO.checked ? (totalFourniture * 0.25) : 0;
     const totalGeneral = totalFourniture + mainOeuvre;
 
     document.getElementById('totalFourniture').textContent = totalFourniture.toLocaleString('fr-FR', {minimumFractionDigits: 2}) + ' FC';
@@ -300,6 +319,8 @@ document.getElementById('devisForm').addEventListener('submit', function(e) {
 // Ajouter la première ligne au chargement
 document.addEventListener('DOMContentLoaded', function() {
     ajouterLigne();
+    // Initialiser l'état visuel de la MO
+    if (!checkboxMO.checked) rowMO.classList.add('opacity-30');
 });
 </script>
 {% endblock %}

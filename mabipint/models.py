@@ -25,6 +25,9 @@ class Devis(models.Model):
     statut = models.CharField(max_length=20, choices=STATUS_CHOICES, default='paye', verbose_name="Statut")
     notes = models.TextField(blank=True, null=True, verbose_name="Notes/Observations")
 
+    # Main d'œuvre
+    inclure_main_oeuvre = models.BooleanField(default=True, verbose_name="Inclure la main d'œuvre (25%)")
+
     # Mode de paiement
     MODE_PAIEMENT_CHOICES = [
         ('especes', 'Espèces'),
@@ -50,8 +53,10 @@ class Devis(models.Model):
 
     @property
     def main_oeuvre(self):
-        """Calcule la main d'œuvre (25% du total fourniture)"""
-        return self.total_fourniture * Decimal('0.25')
+        """Calcule la main d'œuvre (25% du total fourniture si activé)"""
+        if self.inclure_main_oeuvre:
+            return self.total_fourniture * Decimal('0.25')
+        return Decimal('0.00')
 
     @property
     def total_general(self):
@@ -59,12 +64,12 @@ class Devis(models.Model):
         return self.total_fourniture + self.main_oeuvre
 
     def save(self, *args, **kwargs):
-        # Générer automatiquement un numéro de devis si non fourni
+        # Générer automatiquement un numéro de vente si non fourni
         if not self.numero:
             from django.utils import timezone
             year = timezone.now().year
             count = Devis.objects.filter(date_creation__year=year).count() + 1
-            self.numero = f"DEV-{year}-{count:04d}"
+            self.numero = f"VEN-{year}-{count:04d}"
         super().save(*args, **kwargs)
 
 
