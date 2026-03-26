@@ -16,8 +16,8 @@
         </button>
     </div>
 
-    <!-- Document Reçu (Layout Fixe qui s'adapte) -->
-    <div class="bg-white shadow-2xl pdf-container" style="min-height: 297mm; position: relative; overflow: hidden; width: 100%;">
+    <!-- Document Reçu -->
+    <div id="printable-receipt" class="bg-white shadow-2xl pdf-container" style="min-height: 297mm; position: relative; overflow: hidden; width: 100%;">
 
         <!-- Filigrane -->
         <div class="watermark">
@@ -48,9 +48,8 @@
                 </div>
             </div>
 
-            <!-- Informations Client & Reçu (Toujours en 2 colonnes) -->
+            <!-- Informations Client & Reçu -->
             <div class="info-row">
-                <!-- Client -->
                 <div class="info-col">
                     <h3 class="info-title"><i class="fas fa-user"></i>CLIENT</h3>
                     <div class="info-box">
@@ -60,7 +59,6 @@
                     </div>
                 </div>
 
-                <!-- Détails -->
                 <div class="info-col">
                     <h3 class="info-title"><i class="fas fa-info-circle"></i>DÉTAILS</h3>
                     <div class="info-box">
@@ -99,7 +97,7 @@
                 </table>
             </div>
 
-            <!-- Totaux (Toujours à droite) -->
+            <!-- Totaux -->
             <div class="footer-row">
                 <div class="spacer-col"></div>
                 <div class="totals-col">
@@ -127,7 +125,7 @@
 </div>
 
 <style>
-/* --- CONFIGURATION DES TAILLES (PC par défaut, Mobile réduit) --- */
+/* --- CONFIGURATION DES TAILLES --- */
 :root {
     --base-padding: 40px;
     --font-h1: 32px;
@@ -150,7 +148,6 @@
 
 .pdf-content { padding: var(--base-padding); font-size: var(--font-body); }
 
-/* --- HEADER (Horizontal même sur mobile) --- */
 .pdf-header {
     display: flex; justify-content: space-between; align-items: start;
     border-bottom: 3px solid #1E40AF; padding-bottom: 15px; margin-bottom: 20px;
@@ -170,7 +167,6 @@
 .doc-number { font-size: calc(var(--font-body) + 3px); font-weight: bold; color: #3B82F6; margin: 0; }
 .doc-date { color: #6B7280; margin: 0; }
 
-/* --- INFO GRID (Toujours 2 colonnes) --- */
 .info-row { display: flex; gap: 15px; margin-bottom: 20px; width: 100%; }
 .info-col { flex: 1; }
 .info-title { font-size: var(--font-h3); font-weight: bold; border-bottom: 2px solid #3B82F6; padding-bottom: 5px; margin-bottom: 8px; }
@@ -182,7 +178,6 @@
 .detail-line { display: flex; justify-content: space-between; margin-bottom: 2px; }
 .status-paid { color: #059669; font-weight: bold; }
 
-/* --- TABLE --- */
 .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; table-layout: fixed; }
 .pdf-table th { background: #1E40AF; color: white; padding: 8px 4px; font-size: 0.9em; text-align: center; }
 .pdf-table td { padding: 6px 4px; border: 1px solid #E5E7EB; text-align: center; word-wrap: break-word; }
@@ -190,7 +185,6 @@
 .pdf-table .text-right { text-align: right; }
 .bg-gray { background: #F9FAFB; }
 
-/* --- TOTALS (À droite même sur mobile) --- */
 .footer-row { display: flex; margin-bottom: 20px; }
 .spacer-col { flex: 1; }
 @media (max-width: 640px) { .spacer-col { flex: 0.2; } }
@@ -200,16 +194,43 @@
 .grand-total-box { background: #1E40AF; color: white; padding: 10px; border-radius: 4px; margin-top: 10px; }
 .grand-total-line { display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
 
-/* --- AUTRE --- */
 .watermark {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg);
     opacity: 0.05; font-size: 80px; font-weight: bold; color: #1E40AF; white-space: nowrap; pointer-events: none;
 }
 .pdf-footer { border-top: 1px solid #D1D5DB; padding-top: 15px; text-align: center; color: #6B7280; }
 
+/* --- OPTIMISATION IMPRESSION POUR ÉVITER LA PAGE VIDE --- */
 @media print {
-    .no-print { display: none !important; }
-    .pdf-container { shadow: none !important; }
+    @page {
+        size: A4;
+        margin: 0;
+    }
+    body {
+        margin: 0;
+        padding: 0;
+        background: white;
+    }
+    nav, .no-print, footer {
+        display: none !important;
+    }
+    .max-w-5xl {
+        max-width: none !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    #printable-receipt {
+        min-height: auto !important; /* Enlever la hauteur fixe qui cause la page vide */
+        box-shadow: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        position: relative !important;
+    }
+    .pdf-content {
+        padding: 10mm !important; /* Ajuster les marges intérieures pour l'impression */
+    }
 }
 </style>
 {% endblock %}
