@@ -8,7 +8,7 @@ from django.db import transaction
 from django.utils import timezone
 from datetime import datetime, timedelta
 from .models import Devis, LigneDevis
-from .forms import DevisForm, LigneDevisForm
+from .forms import DevisForm, LigneDevisForm, UserCreateForm
 import json
 from decimal import Decimal
 from django.db.models import Sum
@@ -117,6 +117,24 @@ def user_list(request):
         })
         
     return render(request, 'mabipint/user_list.html', {'user_data': user_data})
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def user_create(request):
+    """Créer un nouvel agent (Admin seulement)"""
+    if request.method == 'POST':
+        form = UserCreateForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data['password'])
+            user.save()
+            messages.success(request, f"L'agent {user.username} a été créé avec succès.")
+            return redirect('user_list')
+    else:
+        form = UserCreateForm()
+    
+    return render(request, 'mabipint/user_create.html', {'form': form})
 
 
 @login_required

@@ -1,5 +1,50 @@
 from django import forms
+from django.contrib.auth.models import User
 from .models import Devis, LigneDevis
+
+
+class UserCreateForm(forms.ModelForm):
+    """Formulaire pour créer un nouvel agent"""
+    password = forms.CharField(
+        label="Mot de passe",
+        widget=forms.PasswordInput(attrs={
+            'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+            'placeholder': 'Mot de passe'
+        })
+    )
+    confirm_password = forms.CharField(
+        label="Confirmer le mot de passe",
+        widget=forms.PasswordInput(attrs={
+            'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+            'placeholder': 'Confirmer le mot de passe'
+        })
+    )
+
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email', 'is_superuser']
+        labels = {
+            'username': "Nom d'utilisateur",
+            'first_name': "Prénom",
+            'last_name': "Nom",
+            'email': "Email",
+            'is_superuser': "Accès Administrateur",
+        }
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'}),
+            'first_name': forms.TextInput(attrs={'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'}),
+            'last_name': forms.TextInput(attrs={'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'}),
+            'email': forms.EmailInput(attrs={'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent'}),
+            'is_superuser': forms.CheckboxInput(attrs={'class': 'w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500'}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get("password")
+        confirm_password = cleaned_data.get("confirm_password")
+        if password != confirm_password:
+            raise forms.ValidationError("Les mots de passe ne correspondent pas.")
+        return cleaned_data
 
 
 class DevisForm(forms.ModelForm):
