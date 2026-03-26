@@ -43,22 +43,12 @@ def dashboard(request):
 
     # Statistiques
     total_devis = Devis.objects.count()
-    devis_en_cours = Devis.objects.filter(statut='en_cours').count()
     devis_paye = Devis.objects.filter(statut='paye').count()
-    devis_annule = Devis.objects.filter(statut='annule').count()
-
-    # Calcul du chiffre d'affaires (total des devis payés)
-    from django.db.models import Sum
-    chiffre_affaires = Devis.objects.filter(statut='paye').aggregate(
-        total=Sum('lignes__quantite') * Sum('lignes__prix_unitaire')
-    )
 
     context = {
         'devis_list': devis_list,
         'total_devis': total_devis,
-        'devis_en_cours': devis_en_cours,
         'devis_paye': devis_paye,
-        'devis_annule': devis_annule,
     }
     return render(request, 'mabipint/dashboard.html', context)
 
@@ -116,11 +106,6 @@ def devis_edit(request, pk):
     """Modifier un devis existant"""
     devis = get_object_or_404(Devis, pk=pk)
 
-    # Vérifier si le devis peut être modifié selon son statut
-    if devis.statut == 'paye':
-        messages.error(request, f'Impossible de modifier un devis payé. Le devis est verrouillé.')
-        return redirect('devis_detail', pk=devis.pk)
-
     if request.method == 'POST':
         form = DevisForm(request.POST, instance=devis)
 
@@ -170,11 +155,6 @@ def devis_edit(request, pk):
 def devis_delete(request, pk):
     """Supprimer un devis"""
     devis = get_object_or_404(Devis, pk=pk)
-
-    # Vérifier si le devis peut être supprimé selon son statut
-    if devis.statut == 'paye':
-        messages.error(request, 'Impossible de supprimer un devis payé. Veuillez d\'abord changer son statut.')
-        return redirect('devis_detail', pk=devis.pk)
 
     if request.method == 'POST':
         numero = devis.numero

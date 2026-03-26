@@ -1,271 +1,82 @@
 {% extends 'mabipint/base.html' %}
 
-{% block title %}Aide - Statuts des Devis - MABIPINT{% endblock %}
+{% block title %}Aide - Vente Directe - MABIPINT{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
     <!-- En-tête -->
-    <div class="mb-6 md:mb-8">
-        <h1 class="text-2xl md:text-3xl font-bold text-gray-900">
-            <i class="fas fa-question-circle text-blue-600 mr-2 md:mr-3"></i>Guide de Vente Directe
+    <div class="mb-6 md:mb-8 text-center">
+        <h1 class="text-3xl font-bold text-gray-900">
+            <i class="fas fa-question-circle text-blue-600 mr-3"></i>Guide Rapide - MABIPINT
         </h1>
-        <p class="text-sm md:text-base text-gray-600 mt-2">Comprendre le workflow de vente directe et les statuts simplifiés</p>
+        <p class="text-gray-600 mt-2">Le système est optimisé pour la vente directe en espèces.</p>
     </div>
 
-    <!-- Alerte Info -->
-    <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg mb-8">
-        <div class="flex items-start">
-            <i class="fas fa-info-circle text-blue-600 text-2xl mr-4 mt-1"></i>
+    <!-- Instructions -->
+    <div class="bg-white rounded-xl shadow-md p-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
-                <h3 class="text-lg font-semibold text-blue-900 mb-2">Application de Vente Directe</h3>
-                <p class="text-blue-800">
-                    Cette application est conçue pour la <strong>vente directe</strong> : le client vient au magasin,
-                    vous créez le devis, imprimez la facture, et le client paie sur place.
-                    <strong>Pas d'envoi ni d'attente de réponse!</strong>
-                </p>
-            </div>
-        </div>
-    </div>
+                <h2 class="text-2xl font-bold text-blue-600 mb-6 flex items-center">
+                    <i class="fas fa-shopping-cart mr-3"></i>Processus de vente
+                </h2>
 
-    <!-- Tableau récapitulatif -->
-    <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
-        <div class="px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-700">
-            <h2 class="text-xl font-semibold text-white">
-                <i class="fas fa-table mr-2"></i>Tableau Récapitulatif des Protections
-            </h2>
-        </div>
+                <div class="space-y-6">
+                    <div class="flex items-start">
+                        <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 shrink-0 mt-1">1</div>
+                        <div>
+                            <p class="font-bold text-gray-900">Créer le devis</p>
+                            <p class="text-gray-600">Entrez les coordonnées du client et ajoutez les articles demandés.</p>
+                        </div>
+                    </div>
 
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Modification</th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Suppression</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Raison</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    <tr class="hover:bg-orange-50">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
-                                <i class="fas fa-clock mr-1"></i>EN COURS
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center">
-                            <span class="text-green-600 font-bold text-lg">✅</span>
-                            <p class="text-xs text-gray-600">Autorisée</p>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center">
-                            <span class="text-green-600 font-bold text-lg">✅</span>
-                            <p class="text-xs text-gray-600">Autorisée</p>
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-700">
-                            Devis en cours de création - Client présent - Liberté totale
-                        </td>
-                    </tr>
+                    <div class="flex items-start">
+                        <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 shrink-0 mt-1">2</div>
+                        <div>
+                            <p class="font-bold text-gray-900">Imprimer la facture</p>
+                            <p class="text-gray-600">Une fois enregistré, vous pouvez imprimer ou générer un PDF pour le client.</p>
+                        </div>
+                    </div>
 
-                    <tr class="hover:bg-green-50">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                <i class="fas fa-money-bill-wave mr-1"></i>PAYÉ
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center">
-                            <span class="text-red-600 font-bold text-lg">❌</span>
-                            <p class="text-xs text-gray-600">Verrouillée</p>
-                            <i class="fas fa-lock text-gray-400 mt-1"></i>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center">
-                            <span class="text-red-600 font-bold text-lg">❌</span>
-                            <p class="text-xs text-gray-600">Verrouillée</p>
-                            <i class="fas fa-ban text-gray-400 mt-1"></i>
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-700">
-                            <strong>Client a payé - Transaction finalisée - Protection maximale</strong>
-                        </td>
-                    </tr>
-
-                    <tr class="hover:bg-red-50">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                <i class="fas fa-times-circle mr-1"></i>ANNULÉ
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center">
-                            <span class="text-red-600 font-bold text-lg">❌</span>
-                            <p class="text-xs text-gray-600">Verrouillée</p>
-                            <i class="fas fa-lock text-gray-400 mt-1"></i>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center">
-                            <span class="text-green-600 font-bold text-lg">✅</span>
-                            <p class="text-xs text-gray-600">Autorisée</p>
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-700">
-                            Vente non aboutie - Client a changé d'avis
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Workflow -->
-    <div class="bg-white rounded-xl shadow-md p-6 mb-8">
-        <h2 class="text-xl font-semibold text-gray-900 mb-6">
-            <i class="fas fa-shopping-cart text-blue-600 mr-2"></i>Workflow de Vente Directe
-        </h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-8 gap-4 items-center">
-            <!-- Étape 1 -->
-            <div class="md:col-span-2 text-center">
-                <div class="bg-orange-100 border-2 border-orange-400 rounded-lg p-4 mb-2">
-                    <i class="fas fa-clock text-3xl text-orange-600 mb-2"></i>
-                    <p class="font-semibold text-orange-800">EN COURS</p>
-                    <p class="text-xs text-orange-700 mt-1">Création du devis</p>
-                </div>
-                <p class="text-xs text-gray-600">✏️ Client présent</p>
-                <p class="text-xs text-gray-600">Ajouter articles</p>
-            </div>
-
-            <div class="md:col-span-1 text-center">
-                <i class="fas fa-arrow-right text-2xl text-gray-400 hidden md:block"></i>
-                <i class="fas fa-arrow-down text-2xl text-gray-400 md:hidden"></i>
-            </div>
-
-            <!-- Étape 2 -->
-            <div class="md:col-span-2 text-center">
-                <div class="bg-blue-100 border-2 border-blue-400 rounded-lg p-4 mb-2">
-                    <i class="fas fa-print text-3xl text-blue-600 mb-2"></i>
-                    <p class="font-semibold text-blue-800">IMPRIMER</p>
-                    <p class="text-xs text-blue-700 mt-1">Facture</p>
-                </div>
-                <p class="text-xs text-gray-600">🖨️ Donner au client</p>
-            </div>
-
-            <div class="md:col-span-1 text-center">
-                <i class="fas fa-arrow-right text-2xl text-gray-400 hidden md:block"></i>
-                <i class="fas fa-arrow-down text-2xl text-gray-400 md:hidden"></i>
-            </div>
-
-            <!-- Étape 3 -->
-            <div class="md:col-span-2 text-center">
-                <div class="bg-green-100 border-2 border-green-400 rounded-lg p-4 mb-2">
-                    <i class="fas fa-money-bill-wave text-3xl text-green-600 mb-2"></i>
-                    <p class="font-semibold text-green-800">PAYÉ</p>
-                    <p class="text-xs text-green-700 mt-1">Transaction OK</p>
-                </div>
-                <p class="text-xs text-gray-600">💵 Client paie</p>
-                <p class="text-xs text-gray-600">🔒 Verrouillé</p>
-            </div>
-        </div>
-
-        <!-- Alternative: Annulation -->
-        <div class="mt-6 pt-6 border-t border-gray-200">
-            <p class="text-sm text-gray-600 mb-3 text-center">
-                <i class="fas fa-info-circle text-blue-500 mr-2"></i>
-                Si le client change d'avis ou la vente n'aboutit pas:
-            </p>
-            <div class="flex justify-center">
-                <div class="bg-red-100 border-2 border-red-400 rounded-lg p-3 inline-block">
-                    <i class="fas fa-times-circle text-2xl text-red-600 mr-2"></i>
-                    <span class="font-semibold text-red-800">ANNULÉ</span>
+                    <div class="flex items-start">
+                        <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 shrink-0 mt-1">3</div>
+                        <div>
+                            <p class="font-bold text-gray-900">Encaisser en espèces</p>
+                            <p class="text-gray-600">Le client paie directement en espèces. La transaction est finalisée et enregistrée.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Bonnes pratiques -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <!-- À faire -->
-        <div class="bg-green-50 border-l-4 border-green-500 rounded-r-lg p-6">
-            <h3 class="text-lg font-semibold text-green-800 mb-4">
-                <i class="fas fa-check-circle mr-2"></i>✅ Bonnes Pratiques
-            </h3>
-            <ul class="space-y-2 text-sm text-green-700">
-                <li class="flex items-start">
-                    <i class="fas fa-check text-green-600 mr-2 mt-1"></i>
-                    <span>Vérifier le devis avant de l'envoyer</span>
-                </li>
-                <li class="flex items-start">
-                    <i class="fas fa-check text-green-600 mr-2 mt-1"></i>
-                    <span>Garder les devis acceptés intacts</span>
-                </li>
-                <li class="flex items-start">
-                    <i class="fas fa-check text-green-600 mr-2 mt-1"></i>
-                    <span>Utiliser les statuts correctement</span>
-                </li>
-                <li class="flex items-start">
-                    <i class="fas fa-check text-green-600 mr-2 mt-1"></i>
-                    <span>Créer un nouveau devis si besoin de modifier un accepté</span>
-                </li>
-            </ul>
-        </div>
-
-        <!-- À éviter -->
-        <div class="bg-red-50 border-l-4 border-red-500 rounded-r-lg p-6">
-            <h3 class="text-lg font-semibold text-red-800 mb-4">
-                <i class="fas fa-times-circle mr-2"></i>❌ À Éviter
-            </h3>
-            <ul class="space-y-2 text-sm text-red-700">
-                <li class="flex items-start">
-                    <i class="fas fa-times text-red-600 mr-2 mt-1"></i>
-                    <span>Ne pas laisser des devis EN COURS indéfiniment</span>
-                </li>
-                <li class="flex items-start">
-                    <i class="fas fa-times text-red-600 mr-2 mt-1"></i>
-                    <span>Ne pas modifier un devis payé (créer un nouveau si besoin)</span>
-                </li>
-                <li class="flex items-start">
-                    <i class="fas fa-times text-red-600 mr-2 mt-1"></i>
-                    <span>Ne pas oublier de changer le statut après paiement</span>
-                </li>
-                <li class="flex items-start">
-                    <i class="fas fa-times text-red-600 mr-2 mt-1"></i>
-                    <span>Ne pas supprimer les devis payés (protection activée)</span>
-                </li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- FAQ -->
-    <div class="bg-white rounded-xl shadow-md p-6">
-        <h2 class="text-xl font-semibold text-gray-900 mb-6">
-            <i class="fas fa-question-circle text-blue-600 mr-2"></i>Questions Fréquentes
-        </h2>
-
-        <div class="space-y-4">
-            <div class="border-l-4 border-blue-500 pl-4 py-2">
-                <p class="font-semibold text-gray-900 mb-2">Q: Le client est là, comment créer rapidement un devis?</p>
-                <p class="text-sm text-gray-700">R: Cliquez sur "Nouveau Devis", ajoutez le nom du client et les articles. Le statut est automatiquement "EN COURS". Enregistrez, imprimez, encaissez, puis changez en "PAYÉ".</p>
-            </div>
-
-            <div class="border-l-4 border-blue-500 pl-4 py-2">
-                <p class="font-semibold text-gray-900 mb-2">Q: Le client a changé d'avis, que faire?</p>
-                <p class="text-sm text-gray-700">R: Changez le statut du devis en "ANNULÉ" ou supprimez-le directement. Utilisez ANNULÉ pour garder une trace dans les statistiques.</p>
-            </div>
-
-            <div class="border-l-4 border-blue-500 pl-4 py-2">
-                <p class="font-semibold text-gray-900 mb-2">Q: Pourquoi je ne peux pas modifier un devis payé?</p>
-                <p class="text-sm text-gray-700">R: C'est une transaction finalisée qui doit rester intacte pour l'historique comptable et la traçabilité. Si besoin, créez un nouveau devis.</p>
-            </div>
-
-            <div class="border-l-4 border-blue-500 pl-4 py-2">
-                <p class="font-semibold text-gray-900 mb-2">Q: Quels modes de paiement sont disponibles?</p>
-                <p class="text-sm text-gray-700">R: Espèces, Mobile Money, Carte bancaire, Virement et Chèque. Sélectionnez le mode utilisé lors du paiement pour un meilleur suivi.</p>
-            </div>
-
-            <div class="border-l-4 border-blue-500 pl-4 py-2">
-                <p class="font-semibold text-gray-900 mb-2">Q: Comment débloquer un devis payé si vraiment nécessaire?</p>
-                <p class="text-sm text-gray-700">R: Changez temporairement le statut vers "EN COURS" via l'interface, effectuez vos modifications, puis remettez en "PAYÉ". ⚠️ À utiliser avec précaution!</p>
+            <div class="bg-blue-50 p-8 rounded-2xl border-2 border-blue-100">
+                <h3 class="text-xl font-bold text-blue-900 mb-4 flex items-center">
+                    <i class="fas fa-info-circle mr-2 text-blue-600"></i>À savoir
+                </h3>
+                <ul class="space-y-4 text-blue-800">
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-green-600 mr-2 mt-1"></i>
+                        <span>Tous les devis sont automatiquement marqués comme <strong>Payés</strong>.</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-green-600 mr-2 mt-1"></i>
+                        <span>Le mode de paiement unique est <strong>Espèces</strong>.</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-green-600 mr-2 mt-1"></i>
+                        <span>Vous pouvez modifier ou supprimer un devis en cas d'erreur de saisie.</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-green-600 mr-2 mt-1"></i>
+                        <span>Le système calcule automatiquement la Main d'œuvre (25%).</span>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
 
     <!-- Retour -->
     <div class="mt-8 text-center">
-        <a href="{% url 'dashboard' %}" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+        <a href="{% url 'dashboard' %}" class="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition font-bold shadow-lg">
             <i class="fas fa-arrow-left mr-2"></i>Retour au tableau de bord
         </a>
     </div>

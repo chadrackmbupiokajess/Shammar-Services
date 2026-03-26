@@ -8,9 +8,7 @@ class Devis(models.Model):
     """Modèle pour les devis/factures"""
 
     STATUS_CHOICES = [
-        ('en_cours', 'En cours'),
         ('paye', 'Payé'),
-        ('annule', 'Annulé'),
     ]
 
     numero = models.CharField(max_length=50, unique=True, verbose_name="Numéro de devis")
@@ -24,18 +22,14 @@ class Devis(models.Model):
     client_adresse = models.TextField(blank=True, null=True, verbose_name="Adresse du client")
 
     # Statut et notes
-    statut = models.CharField(max_length=20, choices=STATUS_CHOICES, default='en_cours', verbose_name="Statut")
+    statut = models.CharField(max_length=20, choices=STATUS_CHOICES, default='paye', verbose_name="Statut")
     notes = models.TextField(blank=True, null=True, verbose_name="Notes/Observations")
 
     # Mode de paiement
     MODE_PAIEMENT_CHOICES = [
         ('especes', 'Espèces'),
-        ('mobile_money', 'Mobile Money'),
-        ('carte', 'Carte bancaire'),
-        ('virement', 'Virement'),
-        ('cheque', 'Chèque'),
     ]
-    mode_paiement = models.CharField(max_length=20, choices=MODE_PAIEMENT_CHOICES, blank=True, null=True, verbose_name="Mode de paiement")
+    mode_paiement = models.CharField(max_length=20, choices=MODE_PAIEMENT_CHOICES, default='especes', verbose_name="Mode de paiement")
 
     # Utilisateur qui a créé le devis
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='devis_crees', verbose_name="Créé par")

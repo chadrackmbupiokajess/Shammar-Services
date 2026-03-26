@@ -28,19 +28,6 @@
             </div>
         </div>
 
-        <!-- En cours -->
-        <div class="bg-white rounded-xl shadow-md p-6 card-hover border-l-4 border-orange-500">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600 mb-1">En cours</p>
-                    <p class="text-3xl font-bold text-gray-900">{{ devis_en_cours }}</p>
-                </div>
-                <div class="bg-orange-100 rounded-full p-4">
-                    <i class="fas fa-clock text-2xl text-orange-600"></i>
-                </div>
-            </div>
-        </div>
-
         <!-- Payés -->
         <div class="bg-white rounded-xl shadow-md p-6 card-hover border-l-4 border-green-500">
             <div class="flex items-center justify-between">
@@ -50,19 +37,6 @@
                 </div>
                 <div class="bg-green-100 rounded-full p-4">
                     <i class="fas fa-money-bill-wave text-2xl text-green-600"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Annulés -->
-        <div class="bg-white rounded-xl shadow-md p-6 card-hover border-l-4 border-red-500">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-gray-600 mb-1">Annulés</p>
-                    <p class="text-3xl font-bold text-gray-900">{{ devis_annule }}</p>
-                </div>
-                <div class="bg-red-100 rounded-full p-4">
-                    <i class="fas fa-times-circle text-2xl text-red-600"></i>
                 </div>
             </div>
         </div>
@@ -140,23 +114,9 @@
                             {{ devis.date_creation|date:"d/m/Y" }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            {% if devis.statut == 'en_cours' %}
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
-                                <i class="fas fa-clock mr-1"></i>En cours
-                            </span>
-                            {% elif devis.statut == 'paye' %}
                             <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                 <i class="fas fa-money-bill-wave mr-1"></i>Payé
                             </span>
-                            {% elif devis.statut == 'annule' %}
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                <i class="fas fa-times-circle mr-1"></i>Annulé
-                            </span>
-                            {% else %}
-                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                {{ devis.get_statut_display }}
-                            </span>
-                            {% endif %}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
                             {{ devis.total_general|floatformat:2 }} FC
@@ -165,15 +125,9 @@
                             <a href="{% url 'devis_detail' devis.pk %}" class="text-blue-600 hover:text-blue-900 mr-3" title="Voir">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            {% if devis.statut == 'en_cours' %}
-                            <a href="{% url 'devis_edit' devis.pk %}" class="text-green-600 hover:text-green-900" title="Modifier">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            {% else %}
                             <span class="text-gray-400 cursor-not-allowed" title="Modification verrouillée">
                                 <i class="fas fa-lock"></i>
                             </span>
-                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
