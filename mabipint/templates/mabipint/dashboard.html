@@ -102,13 +102,13 @@
             </a>
 
             {% if user.is_superuser %}
-            <a href="/admin/" class="group bg-white p-4 rounded-2xl border border-gray-200 hover:border-purple-500 transition shadow-sm flex items-center">
+            <a href="{% url 'user_list' %}" class="group bg-white p-4 rounded-2xl border border-gray-200 hover:border-purple-500 transition shadow-sm flex items-center">
                 <div class="bg-purple-50 p-3 rounded-xl mr-4 text-purple-600 group-hover:rotate-90 transition duration-500">
-                    <i class="fas fa-tools text-xl"></i>
+                    <i class="fas fa-users text-xl"></i>
                 </div>
                 <div>
-                    <p class="font-bold text-gray-800 text-sm md:text-base">Paramètres</p>
-                    <p class="text-[10px] md:text-xs text-gray-500">Configuration du système</p>
+                    <p class="font-bold text-gray-800 text-sm md:text-base">Gestion des utilisateurs</p>
+                    <p class="text-[10px] md:text-xs text-gray-500">Gérer les accès et les agents</p>
                 </div>
             </a>
             {% endif %}
