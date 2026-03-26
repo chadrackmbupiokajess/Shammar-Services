@@ -4,10 +4,13 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.http import HttpResponse
 from django.db import transaction
+from django.utils import timezone
+from datetime import datetime, timedelta
 from .models import Devis, LigneDevis
 from .forms import DevisForm, LigneDevisForm
 import json
 from decimal import Decimal
+from django.db.models import Sum
 
 
 def login_view(request):
@@ -41,21 +44,68 @@ def logout_view(request):
 def dashboard(request):
     """Tableau de bord principal"""
     devis_list = Devis.objects.all()[:10]
+    now = timezone.now()
+    
+    # Récupérer la date de filtrage si elle existe
+    date_filter_str = request.GET.get('date_filter')
+    if date_filter_str:
+        try:
+            target_date = datetime.strptime(date_filter_str, '%Y-%m-%d').date()
+            # On crée un datetime à partir de la date pour les calculs
+            reference_date = timezone.make_aware(datetime.combine(target_date, datetime.max.time()))
+        except ValueError:
+            reference_date = now
+    else:
+        reference_date = now
 
-    # Statistiques
+    # Statistiques de base (toujours globales)
     total_devis = Devis.objects.count()
     devis_paye = Devis.objects.filter(statut='paye').count()
 
-    # Calcul du chiffre d'affaires total
-    # Comme on a des propriétés calculées dans le modèle, on doit boucler sur les objets
+    # Chiffre d'affaires total
     toutes_les_ventes = Devis.objects.all()
     chiffre_affaires_total = sum(v.total_general for v in toutes_les_ventes)
+
+    # Chiffre d'affaires par période
+    # Aujourd'hui
+    ventes_aujourdhui = Devis.objects.filter(date_creation__date=now.date())
+    ca_aujourdhui = sum(v.total_general for v in ventes_aujourdhui)
+
+    # Cette semaine
+    debut_semaine = now - timedelta(days=now.weekday())
+    ventes_semaine = Devis.objects.filter(date_creation__gte=debut_semaine)
+    ca_semaine = sum(v.total_general for v in ventes_semaine)
+
+    # Ce mois-ci
+    ventes_mois = Devis.objects.filter(date_creation__month=now.month, date_creation__year=now.year)
+    ca_mois = sum(v.total_general for v in ventes_mois)
+
+    # Cette année
+    ventes_annee = Devis.objects.filter(date_creation__year=now.year)
+    ca_annee = sum(v.total_general for v in ventes_annee)
+
+    # Données pour le graphique (7 jours à partir de la date de référence)
+    graph_labels = []
+    graph_data = []
+    for i in range(6, -1, -1):
+        day = reference_date - timedelta(days=i)
+        graph_labels.append(day.strftime('%d/%m'))
+        ventes_jour = Devis.objects.filter(date_creation__date=day.date())
+        total_jour = sum(v.total_general for v in ventes_jour)
+        graph_data.append(float(total_jour))
 
     context = {
         'devis_list': devis_list,
         'total_devis': total_devis,
         'devis_paye': devis_paye,
         'chiffre_affaires_total': chiffre_affaires_total,
+        'ca_aujourdhui': ca_aujourdhui,
+        'ca_semaine': ca_semaine,
+        'ca_mois': ca_mois,
+        'ca_annee': ca_annee,
+        'graph_labels': json.dumps(graph_labels),
+        'graph_data': json.dumps(graph_data),
+        'date_filter_val': date_filter_str or now.strftime('%Y-%m-%d'),
     }
     return render(request, 'mabipint/dashboard.html', context)
 
