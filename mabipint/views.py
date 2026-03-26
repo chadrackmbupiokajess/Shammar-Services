@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import HttpResponse, Http404
 from django.db import transaction
@@ -44,7 +45,6 @@ def logout_view(request):
 @login_required
 def dashboard(request):
     """Tableau de bord principal (Filtré par rôle)"""
-    # Si superutilisateur, voir tout. Sinon, voir uniquement ses propres ventes.
     if request.user.is_superuser:
         user_devis = Devis.objects.all()
     else:
@@ -53,7 +53,6 @@ def dashboard(request):
     devis_list = user_devis.order_by('-date_creation')[:10]
     now = timezone.now()
     
-    # Récupérer la date de filtrage si elle existe
     date_filter_str = request.GET.get('date_filter')
     if date_filter_str:
         try:
@@ -64,28 +63,16 @@ def dashboard(request):
     else:
         reference_date = now
 
-    # Statistiques de base
     total_devis = user_devis.count()
     devis_paye = user_devis.filter(statut='paye').count()
-
-    # Chiffre d'affaires total
     chiffre_affaires_total = sum(v.total_general for v in user_devis)
 
-    # Chiffre d'affaires par période
-    # Aujourd'hui
     ca_aujourdhui = sum(v.total_general for v in user_devis.filter(date_creation__date=now.date()))
-
-    # Cette semaine
     debut_semaine = now - timedelta(days=now.weekday())
     ca_semaine = sum(v.total_general for v in user_devis.filter(date_creation__gte=debut_semaine))
-
-    # Ce mois-ci
     ca_mois = sum(v.total_general for v in user_devis.filter(date_creation__month=now.month, date_creation__year=now.year))
-
-    # Cette année
     ca_annee = sum(v.total_general for v in user_devis.filter(date_creation__year=now.year))
 
-    # Données pour le graphique
     graph_labels = []
     graph_data = []
     for i in range(6, -1, -1):
@@ -112,6 +99,27 @@ def dashboard(request):
 
 
 @login_required
+@user_passes_test(lambda u: u.is_superuser)
+def user_list(request):
+    """Liste des utilisateurs et leurs performances (Admin seulement)"""
+    users = User.objects.all().order_by('-date_joined')
+    user_data = []
+    
+    for user in users:
+        ventes = Devis.objects.filter(created_by=user)
+        total_ventes = ventes.count()
+        ca_total = sum(v.total_general for v in ventes)
+        
+        user_data.append({
+            'user': user,
+            'total_ventes': total_ventes,
+            'ca_total': ca_total
+        })
+        
+    return render(request, 'mabipint/user_list.html', {'user_data': user_data})
+
+
+@login_required
 def devis_list(request):
     """Liste de tous les devis (Filtrée par rôle) avec pagination et recherche AJAX"""
     if request.user.is_superuser:
@@ -119,7 +127,6 @@ def devis_list(request):
     else:
         devis_queryset = Devis.objects.filter(created_by=request.user).order_by('-date_creation')
     
-    # Paramètre de recherche
     search_query = request.GET.get('search')
     if search_query:
         from django.db.models import Q
@@ -128,7 +135,6 @@ def devis_list(request):
             Q(client_nom__icontains=search_query)
         )
     
-    # Pagination
     paginator = Paginator(devis_queryset, 10)
     page_number = request.GET.get('page')
     devis_list = paginator.get_page(page_number)
@@ -148,7 +154,6 @@ def devis_list(request):
 def devis_detail(request, pk):
     """Détail d'un devis (Sécurisé par rôle)"""
     devis = get_object_or_404(Devis, pk=pk)
-    # Sécurité : vérifier que le devis appartient à l'utilisateur OU que l'utilisateur est admin
     if not request.user.is_superuser and devis.created_by != request.user:
         raise Http404("Vous n'avez pas l'autorisation de voir cette vente.")
     return render(request, 'mabipint/devis_detail.html', {'devis': devis})
@@ -191,7 +196,6 @@ def devis_create(request):
 def devis_edit(request, pk):
     """Modifier un devis existant (Sécurisé par rôle)"""
     devis = get_object_or_404(Devis, pk=pk)
-    # Sécurité : Admin peut tout modifier, sinon seulement ses propres ventes
     if not request.user.is_superuser and devis.created_by != request.user:
         raise Http404("Modification interdite.")
 
@@ -240,7 +244,6 @@ def devis_edit(request, pk):
 def devis_delete(request, pk):
     """Supprimer un devis (Sécurisé par rôle)"""
     devis = get_object_or_404(Devis, pk=pk)
-    # Sécurité
     if not request.user.is_superuser and devis.created_by != request.user:
         raise Http404("Suppression interdite.")
 
@@ -257,7 +260,6 @@ def devis_delete(request, pk):
 def devis_pdf(request, pk):
     """Générer un PDF du devis (Sécurisé par rôle)"""
     devis = get_object_or_404(Devis, pk=pk)
-    # Sécurité
     if not request.user.is_superuser and devis.created_by != request.user:
         raise Http404("Visualisation interdite.")
 
