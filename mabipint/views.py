@@ -11,6 +11,7 @@ from .forms import DevisForm, LigneDevisForm
 import json
 from decimal import Decimal
 from django.db.models import Sum
+from django.core.paginator import Paginator
 
 
 def login_view(request):
@@ -112,9 +113,27 @@ def dashboard(request):
 
 @login_required
 def devis_list(request):
-    """Liste de tous les devis"""
-    devis_list = Devis.objects.all()
-    return render(request, 'mabipint/devis_list.html', {'devis_list': devis_list})
+    """Liste de tous les devis avec pagination"""
+    devis_queryset = Devis.objects.all().order_by('-date_creation')
+    
+    # Paramètre de recherche
+    search_query = request.GET.get('search')
+    if search_query:
+        from django.db.models import Q
+        devis_queryset = devis_queryset.filter(
+            Q(numero__icontains=search_query) |
+            Q(client_nom__icontains=search_query)
+        )
+    
+    # Pagination : 10 ventes par page
+    paginator = Paginator(devis_queryset, 10)
+    page_number = request.GET.get('page')
+    devis_list = paginator.get_page(page_number)
+    
+    return render(request, 'mabipint/devis_list.html', {
+        'devis_list': devis_list,
+        'search_query': search_query
+    })
 
 
 @login_required
