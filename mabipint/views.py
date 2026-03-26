@@ -125,7 +125,7 @@ def devis_list(request):
             Q(client_nom__icontains=search_query)
         )
     
-    # Pagination : 10 ventes par page
+    # Pagination
     paginator = Paginator(devis_queryset, 10)
     page_number = request.GET.get('page')
     devis_list = paginator.get_page(page_number)
@@ -135,10 +135,10 @@ def devis_list(request):
         'search_query': search_query
     }
     
-    # Détecter si c'est une requête AJAX
+    # Si c'est une requête AJAX, on renvoie juste le tableau partiel
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return render(request, 'mabipint/partials/devis_table_partial.html', context)
-    
+
     return render(request, 'mabipint/devis_list.html', context)
 
 
