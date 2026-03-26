@@ -113,7 +113,7 @@ def dashboard(request):
 
 @login_required
 def devis_list(request):
-    """Liste de tous les devis avec pagination"""
+    """Liste de tous les devis avec pagination et recherche AJAX"""
     devis_queryset = Devis.objects.all().order_by('-date_creation')
     
     # Paramètre de recherche
@@ -130,10 +130,16 @@ def devis_list(request):
     page_number = request.GET.get('page')
     devis_list = paginator.get_page(page_number)
     
-    return render(request, 'mabipint/devis_list.html', {
+    context = {
         'devis_list': devis_list,
         'search_query': search_query
-    })
+    }
+    
+    # Détecter si c'est une requête AJAX
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'mabipint/partials/devis_table_partial.html', context)
+    
+    return render(request, 'mabipint/devis_list.html', context)
 
 
 @login_required
