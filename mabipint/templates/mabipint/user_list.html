@@ -26,7 +26,7 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-blue-600">
                     <tr>
-                        <th class="px-2 py-3 text-left text-[10px] md:text-xs font-semibold text-white uppercase tracking-wider whitespace-nowrap">Utilisateur</th>
+                        <th class="px-4 py-3 text-left text-[10px] md:text-xs font-semibold text-white uppercase tracking-wider whitespace-nowrap">Utilisateur</th>
                         <th class="px-2 py-3 text-center text-[10px] md:text-xs font-semibold text-white uppercase tracking-wider whitespace-nowrap">Rôle</th>
                         <th class="px-2 py-3 text-center text-[10px] md:text-xs font-semibold text-white uppercase tracking-wider whitespace-nowrap">Ventes</th>
                         <th class="px-2 py-3 text-right text-[10px] md:text-xs font-semibold text-white uppercase tracking-wider whitespace-nowrap">C.A Total</th>
@@ -35,32 +35,41 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     {% for item in user_data %}
                     <tr class="hover:bg-blue-50 transition">
-                        <td class="px-2 py-3 whitespace-nowrap">
+                        <td class="px-4 py-3 whitespace-nowrap">
                             <div class="flex items-center">
-                                <div class="h-8 w-8 md:h-10 md:w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs md:text-sm flex-shrink-0">
+                                <div class="h-8 w-8 md:h-12 md:w-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs md:text-base flex-shrink-0 border-2 border-white shadow-sm">
                                     {{ item.user.username|first|upper }}
                                 </div>
-                                <div class="ml-2 md:ml-4 overflow-hidden">
-                                    <div class="text-[10px] md:text-sm font-bold text-gray-900 truncate">{{ item.user.get_full_name|default:item.user.username }}</div>
+                                <div class="ml-3 md:ml-4 overflow-hidden">
+                                    <div class="text-xs md:text-sm font-bold text-gray-900 truncate">{{ item.user.get_full_name|default:item.user.username }}</div>
                                     {% if item.user.email %}
-                                    <div class="text-[8px] md:text-[10px] text-gray-500 truncate">{{ item.user.email }}</div>
+                                    <div class="text-[10px] md:text-xs text-gray-500 truncate">{{ item.user.email }}</div>
                                     {% endif %}
-                                    <div class="text-[8px] md:text-[10px] text-gray-500 truncate">Inscrit le {{ item.user.date_joined|date:"d/m/Y" }}</div>
+
+                                    {% if item.user.profile.telephone %}
+                                    <div class="text-[10px] md:text-xs text-blue-600 font-bold flex items-center mt-0.5">
+                                        <i class="fas fa-phone-alt mr-1.5 text-[8px] md:text-[10px]"></i>{{ item.user.profile.telephone }}
+                                    </div>
+                                    {% endif %}
+
+                                    <div class="text-[9px] md:text-[10px] text-gray-400 italic mt-0.5">Inscrit le {{ item.user.date_joined|date:"d/m/Y" }}</div>
                                 </div>
                             </div>
                         </td>
                         <td class="px-2 py-3 whitespace-nowrap text-center">
                             {% if item.user.is_superuser %}
-                            <span class="px-1.5 py-0.5 text-[8px] md:text-[10px] font-bold rounded-full bg-purple-100 text-purple-700">Admin</span>
+                            <span class="px-2 py-0.5 text-[8px] md:text-[10px] font-bold rounded-full bg-purple-100 text-purple-700 border border-purple-200 uppercase">Admin</span>
                             {% else %}
-                            <span class="px-1.5 py-0.5 text-[8px] md:text-[10px] font-bold rounded-full bg-gray-100 text-gray-600">User</span>
+                            <span class="px-2 py-0.5 text-[8px] md:text-[10px] font-bold rounded-full bg-gray-100 text-gray-600 border border-gray-200 uppercase">Agent</span>
                             {% endif %}
                         </td>
                         <td class="px-2 py-3 whitespace-nowrap text-center">
-                            <div class="text-[10px] md:text-sm font-bold text-gray-900">{{ item.total_ventes }}</div>
+                            <div class="text-xs md:text-sm font-bold text-gray-900">{{ item.total_ventes }}</div>
+                            <div class="text-[8px] text-gray-400 uppercase font-medium">Ventes</div>
                         </td>
-                        <td class="px-2 py-3 whitespace-nowrap text-right text-[10px] md:text-sm font-black text-blue-600">
-                            {{ item.ca_total|floatformat:0 }} FC
+                        <td class="px-2 py-3 whitespace-nowrap text-right">
+                            <div class="text-xs md:text-sm font-black text-blue-600">{{ item.ca_total|floatformat:0 }} FC</div>
+                            <div class="text-[8px] text-gray-400 uppercase font-medium">Total C.A</div>
                         </td>
                     </tr>
                     {% endfor %}

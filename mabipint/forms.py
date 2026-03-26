@@ -5,18 +5,28 @@ from .models import Devis, LigneDevis
 
 class UserCreateForm(forms.ModelForm):
     """Formulaire pour créer un nouvel agent"""
+    telephone = forms.CharField(
+        label="Téléphone",
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+            'placeholder': '+243 XXX XXX XXX'
+        })
+    )
     password = forms.CharField(
         label="Mot de passe",
         widget=forms.PasswordInput(attrs={
-            'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-            'placeholder': 'Mot de passe'
+            'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-10',
+            'placeholder': 'Mot de passe',
+            'id': 'id_password'
         })
     )
     confirm_password = forms.CharField(
         label="Confirmer le mot de passe",
         widget=forms.PasswordInput(attrs={
-            'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
-            'placeholder': 'Confirmer le mot de passe'
+            'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-10',
+            'placeholder': 'Confirmer le mot de passe',
+            'id': 'id_confirm_password'
         })
     )
 

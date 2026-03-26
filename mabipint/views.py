@@ -7,7 +7,7 @@ from django.http import HttpResponse, Http404
 from django.db import transaction
 from django.utils import timezone
 from datetime import datetime, timedelta
-from .models import Devis, LigneDevis
+from .models import Devis, LigneDevis, UserProfile
 from .forms import DevisForm, LigneDevisForm, UserCreateForm
 import json
 from decimal import Decimal
@@ -32,7 +32,7 @@ def login_view(request):
         else:
             messages.error(request, 'Nom d\'utilisateur ou mot de passe incorrect.')
 
-    return render(request, 'mabipint/login.html')
+    return render(request, 'mabipint/login.html', {'show_eye': True})
 
 
 def logout_view(request):
@@ -126,11 +126,19 @@ def user_create(request):
     if request.method == 'POST':
         form = UserCreateForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password'])
-            user.save()
-            messages.success(request, f"L'agent {user.username} a été créé avec succès.")
-            return redirect('user_list')
+            with transaction.atomic():
+                user = form.save(commit=False)
+                user.set_password(form.cleaned_data['password'])
+                user.save()
+                
+                # Créer le profil avec le téléphone
+                UserProfile.objects.create(
+                    user=user,
+                    telephone=form.cleaned_data['telephone']
+                )
+                
+                messages.success(request, f"L'agent {user.username} a été créé avec succès.")
+                return redirect('user_list')
     else:
         form = UserCreateForm()
     
