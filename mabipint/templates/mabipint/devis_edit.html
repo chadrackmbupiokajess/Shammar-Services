@@ -1,6 +1,6 @@
 {% extends 'mabipint/base.html' %}
 
-{% block title %}Modifier Vente {{ devis.numero }} - MABIPINT{% endblock %}
+{% block title %}Modifier Vente {{ devis.numero }} - {{ service|upper }}{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -10,7 +10,7 @@
         <h1 class="text-2xl md:text-3xl font-bold text-gray-900">
             <i class="fas fa-edit text-blue-600 mr-2 md:mr-3"></i>Modifier la vente {{ devis.numero }}
         </h1>
-        <p class="text-sm md:text-base text-gray-600 mt-2">Rectifiez les informations de la vente.</p>
+        <p class="text-sm md:text-base text-gray-600 mt-2">Rectifiez les informations de la vente (Système: {{ service|upper }}).</p>
     </div>
 
     <form method="post" id="devisForm">
@@ -64,13 +64,19 @@
                         <table class="min-w-full" id="lignesTable">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">N°</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase w-12">N°</th>
+                                    {% if service == 'cleaning' %}
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type & Marque Engin</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">N° Matricule</th>
+                                    <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Montant</th>
+                                    {% else %}
                                     <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Désignation</th>
                                     <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Unité</th>
                                     <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Qté</th>
                                     <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Prix Unit.</th>
-                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
-                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                                    <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Total</th>
+                                    {% endif %}
+                                    <th class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase w-12">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="lignesBody">
@@ -99,18 +105,18 @@
 
                     <div class="space-y-3 mb-6">
                         <div class="flex justify-between items-center pb-2 border-b">
-                            <span class="text-gray-600">Sous-total articles:</span>
-                            <span class="font-semibold text-lg text-gray-900" id="totalFourniture">0.00 FC</span>
+                            <span class="text-gray-600">{% if service == 'cleaning' %}Sous-total:{% else %}Sous-total articles:{% endif %}</span>
+                            <span class="font-semibold text-lg text-gray-900" id="totalFourniture">0 FC</span>
                         </div>
 
-                        <div class="flex justify-between items-center pb-2 border-b">
+                        <div class="flex justify-between items-center pb-2 border-b {% if service == 'cleaning' %}hidden{% endif %}">
                             <span class="text-gray-600">Main d'œuvre (25%):</span>
-                            <span class="font-semibold text-lg text-gray-900" id="mainOeuvre">0.00 FC</span>
+                            <span class="font-semibold text-lg text-gray-900" id="mainOeuvre">0 FC</span>
                         </div>
 
                         <div class="flex justify-between items-center pt-2 bg-blue-600 p-4 rounded-xl text-white shadow-inner">
                             <span class="font-bold text-lg">TOTAL GÉNÉRAL:</span>
-                            <span class="font-extrabold text-2xl" id="totalGeneral">0.00 FC</span>
+                            <span class="font-extrabold text-2xl" id="totalGeneral">0 FC</span>
                         </div>
                     </div>
 
@@ -149,6 +155,7 @@
 <script>
 let ligneCounter = 0;
 let lignes = {{ lignes_json|safe }};
+const CURRENT_SERVICE = "{{ service }}";
 
 const unites = [
     {value: 'gramme', label: 'g'},
@@ -159,7 +166,10 @@ const unites = [
 // Initialiser les données pour JS
 lignes = lignes.map((l, index) => ({
     ...l,
-    id: Date.now() + index + Math.random() // ID unique pour JS
+    id: Date.now() + index + Math.random(), // ID unique pour JS
+    // S'assurer que les nombres sont des types Number
+    quantite: parseFloat(l.quantite) || 0,
+    prix_unitaire: parseFloat(l.prix_unitaire) || 0
 }));
 
 function ajouterLigne() {
@@ -168,7 +178,7 @@ function ajouterLigne() {
         id: Date.now() + Math.random(),
         numero: lignes.length + 1,
         libelle: '',
-        unite: 'gramme',
+        unite: CURRENT_SERVICE === 'cleaning' ? 'unite' : 'gramme',
         quantite: 1,
         prix_unitaire: 0
     };
@@ -178,6 +188,7 @@ function ajouterLigne() {
 }
 
 function supprimerLigne(id) {
+    if (lignes.length <= 1) return;
     lignes = lignes.filter(l => l.id !== id);
     // Recalculer les numéros de ligne
     lignes.forEach((l, index) => l.numero = index + 1);
@@ -194,41 +205,71 @@ function afficherLignes() {
 
         const tr = document.createElement('tr');
         tr.className = 'border-b hover:bg-gray-50';
-        tr.innerHTML = `
-            <td class="px-3 py-4 text-gray-500 font-medium">
-                ${ligne.numero}
-            </td>
-            <td class="px-3 py-2">
-                <input type="text" value="${ligne.libelle}" placeholder="Nom de l'article..."
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                       oninput="updateLigne(${ligne.id}, 'libelle', this.value)">
-            </td>
-            <td class="px-3 py-2">
-                <select class="px-2 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                        onchange="updateLigne(${ligne.id}, 'unite', this.value)">
-                    ${unites.map(u => `<option value="${u.value}" ${ligne.unite === u.value ? 'selected' : ''}>${u.label}</option>`).join('')}
-                </select>
-            </td>
-            <td class="px-3 py-2">
-                <input type="number" value="${ligne.quantite}" min="0.01" step="0.01"
-                       class="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                       oninput="updateLigne(${ligne.id}, 'quantite', this.value)">
-            </td>
-            <td class="px-3 py-2">
-                <input type="number" value="${ligne.prix_unitaire}" min="0" step="0.01"
-                       class="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                       oninput="updateLigne(${ligne.id}, 'prix_unitaire', this.value)">
-            </td>
-            <td class="px-3 py-4 font-bold text-gray-900 text-right">
-                ${prixTotal.toLocaleString('fr-FR', {minimumFractionDigits: 2})} FC
-            </td>
-            <td class="px-3 py-4 text-center">
-                <button type="button" onclick="supprimerLigne(${ligne.id})"
-                        class="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-            </td>
-        `;
+
+        if (CURRENT_SERVICE === 'cleaning') {
+            tr.innerHTML = `
+                <td class="px-3 py-4 text-gray-500 font-medium">
+                    ${ligne.numero}
+                </td>
+                <td class="px-3 py-2">
+                    <input type="text" value="${ligne.libelle}" placeholder="Ex: Toyota Hilux..."
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                           oninput="updateLigne(${ligne.id}, 'libelle', this.value)">
+                </td>
+                <td class="px-3 py-2">
+                    <input type="text" value="${ligne.unite === 'unite' ? '' : ligne.unite}" placeholder="N° Matricule..."
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                           oninput="updateLigne(${ligne.id}, 'unite', this.value)">
+                </td>
+                <td class="px-3 py-2">
+                    <input type="number" value="${ligne.prix_unitaire}" min="0" step="1"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-right font-bold"
+                           oninput="updateLigne(${ligne.id}, 'prix_unitaire', this.value)">
+                </td>
+                <td class="px-3 py-4 text-center">
+                    <button type="button" onclick="supprimerLigne(${ligne.id})"
+                            class="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            `;
+        } else {
+            tr.innerHTML = `
+                <td class="px-3 py-4 text-gray-500 font-medium">
+                    ${ligne.numero}
+                </td>
+                <td class="px-3 py-2">
+                    <input type="text" value="${ligne.libelle}" placeholder="Nom de l'article..."
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           oninput="updateLigne(${ligne.id}, 'libelle', this.value)">
+                </td>
+                <td class="px-3 py-2">
+                    <select class="px-2 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                            onchange="updateLigne(${ligne.id}, 'unite', this.value)">
+                        ${unites.map(u => `<option value="${u.value}" ${ligne.unite === u.value ? 'selected' : ''}>${u.label}</option>`).join('')}
+                    </select>
+                </td>
+                <td class="px-3 py-2">
+                    <input type="number" value="${ligne.quantite}" min="0.01" step="0.01"
+                           class="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                           oninput="updateLigne(${ligne.id}, 'quantite', this.value)">
+                </td>
+                <td class="px-3 py-2">
+                    <input type="number" value="${ligne.prix_unitaire}" min="0" step="1"
+                           class="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                           oninput="updateLigne(${ligne.id}, 'prix_unitaire', this.value)">
+                </td>
+                <td class="px-3 py-4 font-bold text-gray-900 text-right">
+                    ${Math.round(prixTotal).toLocaleString('fr-FR')} FC
+                </td>
+                <td class="px-3 py-4 text-center">
+                    <button type="button" onclick="supprimerLigne(${ligne.id})"
+                            class="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            `;
+        }
         tbody.appendChild(tr);
     });
 
@@ -239,12 +280,13 @@ function updateLigne(id, field, value) {
     const ligne = lignes.find(l => l.id === id);
     if (ligne) {
         ligne[field] = value;
-        // Si on change la quantité ou le prix, on met à jour les totaux sans tout reafficher pour garder le focus
         if (field === 'quantite' || field === 'prix_unitaire') {
-            const tr = document.querySelector(`button[onclick="supprimerLigne(${id})"]`).closest('tr');
-            const ptCell = tr.querySelector('td:nth-last-child(2)');
-            const pt = (parseFloat(ligne.quantite) || 0) * (parseFloat(ligne.prix_unitaire) || 0);
-            ptCell.textContent = pt.toLocaleString('fr-FR', {minimumFractionDigits: 2}) + ' FC';
+            if (CURRENT_SERVICE !== 'cleaning') {
+                const tr = document.querySelector(`button[onclick="supprimerLigne(${id})"]`).closest('tr');
+                const ptCell = tr.querySelector('td:nth-last-child(2)');
+                const pt = (parseFloat(ligne.quantite) || 0) * (parseFloat(ligne.prix_unitaire) || 0);
+                ptCell.textContent = Math.round(pt).toLocaleString('fr-FR') + ' FC';
+            }
             calculerTotaux();
         }
     }
@@ -258,12 +300,23 @@ function calculerTotaux() {
         totalFourniture += pt;
     });
 
-    const mainOeuvre = totalFourniture * 0.25;
+    let mainOeuvre = 0;
+    // On suppose que pour cleaning, on ne veut jamais de main d'oeuvre 25% additionnelle affichée
+    if (CURRENT_SERVICE !== 'cleaning') {
+        // Ici on pourrait vérifier l'état de la checkbox si elle existait dans edit,
+        // mais le modèle Devis a inclure_main_oeuvre, on peut l'utiliser
+        {% if devis.inclure_main_oeuvre %}
+        mainOeuvre = totalFourniture * 0.25;
+        {% endif %}
+    }
+
     const totalGeneral = totalFourniture + mainOeuvre;
 
-    document.getElementById('totalFourniture').textContent = totalFourniture.toLocaleString('fr-FR', {minimumFractionDigits: 2}) + ' FC';
-    document.getElementById('mainOeuvre').textContent = mainOeuvre.toLocaleString('fr-FR', {minimumFractionDigits: 2}) + ' FC';
-    document.getElementById('totalGeneral').textContent = totalGeneral.toLocaleString('fr-FR', {minimumFractionDigits: 2}) + ' FC';
+    document.getElementById('totalFourniture').textContent = Math.round(totalFourniture).toLocaleString('fr-FR') + ' FC';
+    if (document.getElementById('mainOeuvre')) {
+        document.getElementById('mainOeuvre').textContent = Math.round(mainOeuvre).toLocaleString('fr-FR') + ' FC';
+    }
+    document.getElementById('totalGeneral').textContent = Math.round(totalGeneral).toLocaleString('fr-FR') + ' FC';
 }
 
 // Soumettre le formulaire
@@ -274,15 +327,13 @@ document.getElementById('devisForm').addEventListener('submit', function(e) {
         return;
     }
 
-    // Vérifier si toutes les lignes ont une désignation
     const invalidLigne = lignes.find(l => !l.libelle.trim());
     if (invalidLigne) {
         e.preventDefault();
-        alert('Veuillez remplir la désignation pour tous les articles.');
+        alert(CURRENT_SERVICE === 'cleaning' ? 'Veuillez remplir le type & marque engin.' : 'Veuillez remplir la désignation.');
         return;
     }
 
-    // Préparer les données des lignes
     const lignesData = lignes.map(l => ({
         numero: l.numero,
         libelle: l.libelle,

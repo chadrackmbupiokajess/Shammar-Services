@@ -269,7 +269,12 @@ def devis_edit(request, pk):
                 return redirect('devis_detail', pk=devis.pk)
     else: form = DevisForm(instance=devis)
     lignes_json = json.dumps([{'numero': l.numero_ligne, 'libelle': l.libelle, 'unite': l.unite, 'quantite': str(l.quantite), 'prix_unitaire': str(l.prix_unitaire)} for l in devis.lignes.all()])
-    return render(request, 'mabipint/devis_edit.html', {'form': form, 'devis': devis, 'lignes_json': lignes_json})
+    return render(request, 'mabipint/devis_edit.html', {
+        'form': form, 
+        'devis': devis, 
+        'lignes_json': lignes_json,
+        'service': devis.service  # Ajout du service
+    })
 
 @login_required
 def devis_delete(request, pk):
