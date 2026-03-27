@@ -81,7 +81,7 @@
         <h2 class="text-xs md:text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center">
             <span class="{% if service == 'cleaning' %}bg-green-600{% else %}bg-blue-600{% endif %} w-2 h-2 rounded-full mr-2"></span> Actions Rapides
         </h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
             <a href="{% url 'devis_create' %}" class="group {% if service == 'cleaning' %}bg-green-600 hover:bg-green-700{% else %}bg-blue-600 hover:bg-blue-700{% endif %} p-4 rounded-2xl text-white transition shadow-lg flex items-center">
                 <div class="bg-white/20 p-3 rounded-xl mr-4 group-hover:rotate-12 transition">
                     <i class="fas {% if service == 'cleaning' %}fa-plus-circle{% else %}fa-cart-plus{% endif %} text-xl"></i>
@@ -102,20 +102,33 @@
                 </div>
             </a>
 
+            {% if service == 'cleaning' and user.is_superuser %}
+            <button onclick="openPrestationModal()" class="group bg-white p-4 rounded-2xl border border-gray-200 hover:border-orange-500 transition shadow-sm flex items-center text-left">
+                <div class="bg-orange-50 p-3 rounded-xl mr-4 text-orange-600 group-hover:rotate-12 transition">
+                    <i class="fas fa-tags text-xl"></i>
+                </div>
+                <div>
+                    <p class="font-bold text-gray-800 text-sm md:text-base">Gérer les prix</p>
+                    <p class="text-[10px] md:text-xs text-gray-500">Modifier types et tarifs</p>
+                </div>
+            </button>
+            {% endif %}
+
             {% if user.is_superuser %}
             <a href="{% url 'user_list' %}" class="group bg-white p-4 rounded-2xl border border-gray-200 hover:border-purple-500 transition shadow-sm flex items-center">
                 <div class="bg-purple-50 p-3 rounded-xl mr-4 text-purple-600 group-hover:rotate-90 transition duration-500">
                     <i class="fas fa-users text-xl"></i>
                 </div>
                 <div>
-                    <p class="font-bold text-gray-800 text-sm md:text-base">Gestion des utilisateurs</p>
-                    <p class="text-[10px] md:text-xs text-gray-500">Gérer les accès et les agents</p>
+                    <p class="font-bold text-gray-800 text-sm md:text-base">Équipe</p>
+                    <p class="text-[10px] md:text-xs text-gray-500">Gérer les accès agents</p>
                 </div>
             </a>
             {% endif %}
         </div>
     </div>
 
+    <!-- Graphique et Ventes récentes -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
         <!-- Graphique -->
         <div class="lg:col-span-2 bg-white rounded-2xl shadow-md p-4 md:p-6 border border-gray-100">
@@ -162,11 +175,96 @@
         </div>
     </div>
 </div>
+
+<!-- Fenêtre Modale pour ajouter une prestation (Cleaning Admin seulement) -->
+<div id="prestationModal" class="fixed inset-0 z-[1000] hidden">
+    <!-- Overlay -->
+    <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="closePrestationModal()"></div>
+
+    <!-- Modal Content -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-4">
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in duration-200">
+            <div class="bg-green-600 p-6 text-white flex justify-between items-center">
+                <h3 class="text-xl font-bold flex items-center">
+                    <i class="fas fa-plus-circle mr-3"></i>Ajouter une Prestation
+                </h3>
+                <button onclick="closePrestationModal()" class="text-white/80 hover:text-white transition">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <form id="prestationForm" class="p-6 space-y-6">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Nom de la prestation</label>
+                    {{ prestation_form.nom }}
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">Prix par défaut (FC)</label>
+                    {{ prestation_form.prix_par_defaut }}
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="button" onclick="closePrestationModal()" class="flex-1 bg-gray-100 text-gray-600 font-bold py-3 rounded-xl hover:bg-gray-200 transition">
+                        Annuler
+                    </button>
+                    <button type="submit" class="flex-1 bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700 shadow-lg shadow-green-200 transition flex items-center justify-center">
+                        <i class="fas fa-check mr-2"></i>Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    // --- GESTION DE LA MODALE ---
+    const modal = document.getElementById('prestationModal');
+    const prestationForm = document.getElementById('prestationForm');
+
+    function openPrestationModal() {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closePrestationModal() {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        prestationForm.reset();
+    }
+
+    prestationForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        fetch("{% url 'add_prestation_ajax' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Prestation ajoutée : ' + data.nom);
+                closePrestationModal();
+                // Optionnel : Recharger la page ou mettre à jour une liste
+            } else {
+                alert('Erreur lors de l\'enregistrement. Vérifiez les données.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Une erreur est survenue.');
+        });
+    });
+
+    // --- GRAPHIQUE ---
     const ctx = document.getElementById('salesChart').getContext('2d');
     const accentColor = "{{ service }}" === "cleaning" ? "#059669" : "#2563eb";
     const accentColorLight = "{{ service }}" === "cleaning" ? "rgba(5, 150, 105, 0.05)" : "rgba(37, 99, 235, 0.05)";

@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Devis, LigneDevis
+from .models import Devis, LigneDevis, PrestationCleaning
 
 
 class UserCreateForm(forms.ModelForm):
@@ -115,6 +115,23 @@ class UserEditForm(forms.ModelForm):
         if password and password != confirm_password:
             raise forms.ValidationError("Les mots de passe ne correspondent pas.")
         return cleaned_data
+
+
+class PrestationCleaningForm(forms.ModelForm):
+    """Formulaire pour ajouter une prestation Cleaning"""
+    class Meta:
+        model = PrestationCleaning
+        fields = ['nom', 'prix_par_defaut']
+        widgets = {
+            'nom': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none',
+                'placeholder': 'Ex: Poliching'
+            }),
+            'prix_par_defaut': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none',
+                'placeholder': 'Ex: 4000'
+            }),
+        }
 
 
 class DevisForm(forms.ModelForm):

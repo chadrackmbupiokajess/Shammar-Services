@@ -11,6 +11,7 @@ urlpatterns = [
 
     # Dashboard
     path('', views.dashboard, name='dashboard'),
+    path('ajax/add-prestation/', views.add_prestation_ajax, name='add_prestation_ajax'), # Nouvelle URL
 
     # Utilisateurs (Admin seulement)
     path('utilisateurs/', views.user_list, name='user_list'),

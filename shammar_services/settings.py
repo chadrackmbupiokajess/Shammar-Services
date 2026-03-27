@@ -106,11 +106,14 @@ USE_I18N = True
 
 USE_TZ = True
 
-# Formatage des nombres (Force l'espace pour les milliers et la virgule pour les décimales)
+# Formatage des nombres
 USE_THOUSAND_SEPARATOR = True
 THOUSAND_SEPARATOR = ' '
 DECIMAL_SEPARATOR = ','
 NUMBER_GROUPING = 3
+
+# Autoriser l'iframe pour l'admin sur le même domaine
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 
 # Static files (CSS, JavaScript, Images)

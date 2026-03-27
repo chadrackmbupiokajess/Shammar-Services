@@ -14,7 +14,7 @@ from django.core.paginator import Paginator
 
 # Imports des modèles et formulaires locaux
 from .models import Devis, LigneDevis, UserProfile, PrestationCleaning
-from .forms import DevisForm, LigneDevisForm, UserCreateForm, UserEditForm
+from .forms import DevisForm, LigneDevisForm, UserCreateForm, UserEditForm, PrestationCleaningForm
 
 
 # --- Utilitaire pour JSON ---
@@ -124,8 +124,25 @@ def dashboard(request):
         'graph_data': json.dumps(graph_data),
         'date_filter_val': target_date.strftime('%Y-%m-%d'),
         'now': now,
+        'prestation_form': PrestationCleaningForm(), # Pour la modale
     }
     return render(request, 'mabipint/dashboard.html', context)
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def add_prestation_ajax(request):
+    """Ajoute une prestation via AJAX depuis la modale du dashboard"""
+    if request.method == 'POST':
+        form = PrestationCleaningForm(request.POST)
+        if form.is_valid():
+            prestation = form.save()
+            return JsonResponse({
+                'success': True, 
+                'nom': prestation.nom, 
+                'prix': str(prestation.prix_par_defaut)
+            })
+        return JsonResponse({'success': False, 'errors': form.errors})
+    return JsonResponse({'success': False, 'message': 'Méthode non autorisée'})
 
 
 # --- Utilisateurs ---
@@ -317,6 +334,7 @@ def devis_edit(request, pk):
 @login_required
 def devis_delete(request, pk):
     devis = get_object_or_404(Devis, pk=pk)
+    # PROTECTION : Un agent ne peut pas supprimer la vente d'un autre agent
     if not request.user.is_superuser and devis.created_by != request.user:
         raise Http404()
     devis.delete()
@@ -325,6 +343,7 @@ def devis_delete(request, pk):
 @login_required
 def devis_pdf(request, pk):
     devis = get_object_or_404(Devis, pk=pk)
+    # PROTECTION : Un agent ne peut pas générer le PDF d'un autre agent
     if not request.user.is_superuser and devis.created_by != request.user:
         raise Http404()
     return render(request, 'mabipint/devis_pdf.html', {'devis': devis})

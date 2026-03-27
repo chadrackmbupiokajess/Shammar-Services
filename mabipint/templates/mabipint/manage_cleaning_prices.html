@@ -1,0 +1,34 @@
+{% extends 'mabipint/base.html' %}
+
+{% block title %}Gérer les prix - CLEANING{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+    <!-- En-tête -->
+    <div class="mb-8 flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 flex items-center">
+                <div class="bg-green-600 p-2 rounded-lg mr-4 shadow-lg">
+                    <i class="fas fa-tags text-white"></i>
+                </div>
+                Gestion des Tarifs Cleaning
+            </h1>
+            <p class="text-sm text-gray-600 mt-2">Ajoutez, modifiez ou supprimez des prestations et leurs prix.</p>
+        </div>
+        <a href="{% url 'dashboard' %}" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition flex items-center shadow-sm">
+            <i class="fas fa-arrow-left mr-2"></i>Retour
+        </a>
+    </div>
+
+    <!-- Container de l'iframe -->
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 mb-8" style="height: 800px;">
+        <iframe
+            src="/admin/mabipint/prestationcleaning/"
+            class="w-full h-full border-none"
+            title="Gestion des prestations cleaning">
+        </iframe>
+    </div>
+
+</div>
+{% endblock %}
