@@ -73,7 +73,7 @@
                                         <th class="px-2 py-2 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase w-8">N°</th>
                                         {% if service == 'cleaning' %}
                                         <th class="px-2 py-2 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase">Type & Marque Engin</th>
-                                        <th class="px-2 py-2 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase">N° Matricule</th>
+                                        <th class="px-2 py-2 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase">Plaque d'immatriculation</th>
                                         <th class="px-2 py-2 text-right text-[10px] md:text-xs font-medium text-gray-500 uppercase">Montant</th>
                                         {% else %}
                                         <th class="px-2 py-2 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase">Désignation</th>
@@ -242,7 +242,7 @@ function afficherLignes() {
                            oninput="updateLigne(${ligne.id}, 'libelle', this.value)">
                 </td>
                 <td class="px-1 py-2">
-                    <input type="text" value="${ligne.unite === 'unite' ? '' : ligne.unite}" placeholder="N° Matricule..."
+                    <input type="text" value="${ligne.unite === 'unite' ? '' : ligne.unite}" placeholder="Plaque..."
                            class="w-full px-2 py-1.5 text-[11px] md:text-sm border border-gray-200 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
                            oninput="updateLigne(${ligne.id}, 'unite', this.value)">
                 </td>

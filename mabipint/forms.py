@@ -14,16 +14,6 @@ class UserCreateForm(forms.ModelForm):
         })
     )
 
-    # Ajout du choix du système via Radio Buttons
-    default_service = forms.ChoiceField(
-        label="Système d'affectation",
-        choices=[('mabipeint', 'MABIPEINT'), ('cleaning', 'SHAMMAR CLEANING')],
-        initial='mabipeint',
-        widget=forms.RadioSelect(attrs={
-            'class': 'flex space-x-4'
-        })
-    )
-
     password = forms.CharField(
         label="Mot de passe",
         widget=forms.PasswordInput(attrs={
@@ -76,14 +66,6 @@ class UserEditForm(forms.ModelForm):
         widget=forms.TextInput(attrs={
             'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
             'placeholder': '+243 XXX XXX XXX'
-        })
-    )
-
-    default_service = forms.ChoiceField(
-        label="Système d'affectation",
-        choices=[('mabipeint', 'MABIPEINT'), ('cleaning', 'SHAMMAR CLEANING')],
-        widget=forms.RadioSelect(attrs={
-            'class': 'flex space-x-4'
         })
     )
 

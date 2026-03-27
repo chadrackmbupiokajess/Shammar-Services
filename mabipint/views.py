@@ -18,18 +18,12 @@ from django.core.paginator import Paginator
 # --- Gestion des Sessions Services ---
 
 def get_current_service(request):
-    """Récupère le service actif (Session pour admin, Profil pour Agent)"""
-    if request.user.is_authenticated and not request.user.is_superuser:
-        return request.user.profile.default_service
+    """Récupère le service actif en session pour tous les utilisateurs."""
     return request.session.get('current_service', 'mabipeint')
 
 @login_required
 def switch_service(request, service_name):
-    """Change de service (Seulement pour Admin)"""
-    if not request.user.is_superuser:
-        messages.error(request, "Accès refusé.")
-        return redirect('dashboard')
-        
+    """Permet à tous les utilisateurs authentifiés de changer de service."""
     if service_name in ['mabipeint', 'cleaning']:
         request.session['current_service'] = service_name
         messages.success(request, f"Système basculé vers {service_name.upper()}.")
@@ -51,7 +45,7 @@ def login_view(request):
             login(request, user)
             profile, _ = UserProfile.objects.get_or_create(user=user)
             request.session['current_service'] = profile.default_service
-            messages.success(request, f'Bienvenue {user.username}!')
+            messages.success(request, f'Bienvenue {user.get_full_name() or user.username}!')
             return redirect('dashboard')
         else:
             messages.error(request, 'Identifiants incorrects.')
@@ -69,11 +63,11 @@ def logout_view(request):
 def dashboard(request):
     service = get_current_service(request)
     
-    # Filtrage de base par service et utilisateur
+    # FILTRAGE : Admin voit TOUT, Utilisateur voit SEULEMENT SES activités
     if request.user.is_superuser:
-        base_queryset = Devis.objects.filter(service=service)
+        user_devis = Devis.objects.filter(service=service)
     else:
-        base_queryset = Devis.objects.filter(service=service, created_by=request.user)
+        user_devis = Devis.objects.filter(service=service, created_by=request.user)
         
     # Gestion du filtre de date pour le graphique
     date_filter = request.GET.get('date_filter')
@@ -85,30 +79,30 @@ def dashboard(request):
     else:
         target_date = timezone.now().date()
 
-    # Statistiques globales (Toujours sur tout l'historique du service)
-    total_devis = base_queryset.count()
-    devis_paye = base_queryset.filter(statut='paye').count()
-    chiffre_affaires_total = sum(v.total_general for v in base_queryset)
+    # Statistiques basées sur le filtrage ci-dessus
+    total_devis = user_devis.count()
+    devis_paye = user_devis.filter(statut='paye').count()
+    chiffre_affaires_total = sum(v.total_general for v in user_devis)
 
     # Calcul des recettes temporelles
     now = timezone.now()
-    ca_aujourdhui = sum(v.total_general for v in base_queryset.filter(date_creation__date=now.date()))
-    ca_semaine = sum(v.total_general for v in base_queryset.filter(date_creation__gte=now-timedelta(days=7)))
-    ca_mois = sum(v.total_general for v in base_queryset.filter(date_creation__month=now.month, date_creation__year=now.year))
-    ca_annee = sum(v.total_general for v in base_queryset.filter(date_creation__year=now.year))
+    ca_aujourdhui = sum(v.total_general for v in user_devis.filter(date_creation__date=now.date()))
+    ca_semaine = sum(v.total_general for v in user_devis.filter(date_creation__gte=now-timedelta(days=7)))
+    ca_mois = sum(v.total_general for v in user_devis.filter(date_creation__month=now.month, date_creation__year=now.year))
+    ca_annee = sum(v.total_general for v in user_devis.filter(date_creation__year=now.year))
 
-    # Préparation des données du graphique (7 jours à partir de target_date)
+    # Préparation des données du graphique
     graph_labels = []
     graph_data = []
     for i in range(6, -1, -1):
         day = target_date - timedelta(days=i)
-        graph_labels.append(day.strftime('%d/%m/%Y'))  # Format demandé jj/mm/aaaa
-        ventes_jour = base_queryset.filter(date_creation__date=day)
+        graph_labels.append(day.strftime('%d/%m/%Y'))
+        ventes_jour = user_devis.filter(date_creation__date=day)
         graph_data.append(float(sum(v.total_general for v in ventes_jour)))
 
     context = {
         'service': service,
-        'devis_list': base_queryset.order_by('-date_creation')[:10],
+        'devis_list': user_devis.order_by('-date_creation')[:10],
         'total_devis': total_devis,
         'devis_paye': devis_paye,
         'chiffre_affaires_total': chiffre_affaires_total,
@@ -131,7 +125,7 @@ def dashboard(request):
 def user_list(request):
     service = get_current_service(request)
     search_query = request.GET.get('search', '')
-    users = User.objects.filter(profile__default_service=service)
+    users = User.objects.all()
     
     if search_query:
         users = users.filter(Q(username__icontains=search_query) | Q(first_name__icontains=search_query))
@@ -157,10 +151,8 @@ def user_create(request):
                 user = form.save(commit=False)
                 user.set_password(form.cleaned_data['password'])
                 user.save()
-                UserProfile.objects.create(
-                    user=user, telephone=form.cleaned_data['telephone'],
-                    default_service=form.cleaned_data['default_service']
-                )
+                UserProfile.objects.create(user=user, telephone=form.cleaned_data['telephone'])
+                messages.success(request, f"L'agent {user.username} a été ajouté.")
                 return redirect('user_list')
     else: form = UserCreateForm()
     return render(request, 'mabipint/user_create.html', {'form': form})
@@ -176,17 +168,14 @@ def user_edit(request, pk):
             with transaction.atomic():
                 user = form.save()
                 profile.telephone = form.cleaned_data['telephone']
-                profile.default_service = form.cleaned_data['default_service']
                 profile.save()
                 if form.cleaned_data.get('password'):
                     user.set_password(form.cleaned_data['password'])
                     user.save()
+                messages.success(request, "Informations mises à jour.")
                 return redirect('user_list')
     else: 
-        form = UserEditForm(instance=user_to_edit, initial={
-            'telephone': profile.telephone,
-            'default_service': profile.default_service
-        })
+        form = UserEditForm(instance=user_to_edit, initial={'telephone': profile.telephone})
     return render(request, 'mabipint/user_edit.html', {'form': form, 'user_to_edit': user_to_edit})
 
 @login_required
@@ -202,6 +191,7 @@ def user_delete(request, pk):
 @login_required
 def devis_list(request):
     service = get_current_service(request)
+    # FILTRAGE : Admin voit TOUT, Utilisateur voit SEULEMENT SES ventes
     if request.user.is_superuser:
         devis_queryset = Devis.objects.filter(service=service).order_by('-date_creation')
     else:
@@ -238,6 +228,7 @@ def devis_create(request):
                             devis=devis, numero_ligne=ligne['numero'], libelle=ligne['libelle'],
                             unite=ligne['unite'], quantite=ligne['quantite'], prix_unitaire=ligne['prix_unitaire']
                         )
+                messages.success(request, f'Enregistrement {devis.numero} réussi!')
                 return redirect('devis_detail', pk=devis.pk)
     else: form = DevisForm()
     return render(request, 'mabipint/devis_create.html', {'form': form, 'service': service})
@@ -245,15 +236,18 @@ def devis_create(request):
 @login_required
 def devis_detail(request, pk):
     devis = get_object_or_404(Devis, pk=pk)
-    if not request.user.is_superuser:
-        if devis.service != request.user.profile.default_service: raise Http404()
-        if devis.created_by != request.user: raise Http404()
+    # PROTECTION : Un agent ne peut pas voir les détails d'un autre agent
+    if not request.user.is_superuser and devis.created_by != request.user:
+        raise Http404()
     return render(request, 'mabipint/devis_detail.html', {'devis': devis})
 
 @login_required
 def devis_edit(request, pk):
     devis = get_object_or_404(Devis, pk=pk)
-    if not request.user.is_superuser and devis.created_by != request.user: raise Http404()
+    # PROTECTION : Un agent ne peut pas modifier la vente d'un autre agent
+    if not request.user.is_superuser and devis.created_by != request.user:
+        raise Http404()
+        
     if request.method == 'POST':
         form = DevisForm(request.POST, instance=devis)
         if form.is_valid():
@@ -267,6 +261,7 @@ def devis_edit(request, pk):
                             devis=devis, numero_ligne=ligne['numero'], libelle=ligne['libelle'],
                             unite=ligne['unite'], quantite=ligne['quantite'], prix_unitaire=ligne['prix_unitaire']
                         )
+                messages.success(request, "Modifié.")
                 return redirect('devis_detail', pk=devis.pk)
     else: form = DevisForm(instance=devis)
     lignes_json = json.dumps([{'numero': l.numero_ligne, 'libelle': l.libelle, 'unite': l.unite, 'quantite': str(l.quantite), 'prix_unitaire': str(l.prix_unitaire)} for l in devis.lignes.all()])
@@ -280,14 +275,17 @@ def devis_edit(request, pk):
 @login_required
 def devis_delete(request, pk):
     devis = get_object_or_404(Devis, pk=pk)
-    if not request.user.is_superuser and devis.created_by != request.user: raise Http404()
+    # PROTECTION : Un agent ne peut pas supprimer la vente d'un autre agent
+    if not request.user.is_superuser and devis.created_by != request.user:
+        raise Http404()
     devis.delete()
     return redirect('devis_list')
 
 @login_required
 def devis_pdf(request, pk):
     devis = get_object_or_404(Devis, pk=pk)
-    if not request.user.is_superuser and devis.service != request.user.profile.default_service:
+    # PROTECTION : Un agent ne peut pas générer le PDF d'un autre agent
+    if not request.user.is_superuser and devis.created_by != request.user:
         raise Http404()
     return render(request, 'mabipint/devis_pdf.html', {'devis': devis})
 
