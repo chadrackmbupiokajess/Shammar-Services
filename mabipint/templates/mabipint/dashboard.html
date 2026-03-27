@@ -1,6 +1,7 @@
 {% extends 'mabipint/base.html' %}
+{% load humanize %}
 
-{% block title %}Tableau de bord - MABIPEINT{% endblock %}
+{% block title %}Tableau de bord - {{ service|upper }}{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
@@ -8,43 +9,43 @@
     <!-- En-tête -->
     <div class="mb-6 md:mb-8">
         <h1 class="text-2xl md:text-3xl font-bold text-gray-900">
-            <i class="fas fa-chart-line text-blue-600 mr-2"></i>Tableau de bord
+            <i class="fas {% if service == 'cleaning' %}fa-chart-area text-green-600{% else %}fa-chart-line text-blue-600{% endif %} mr-2"></i>Tableau de bord
         </h1>
-        <p class="text-sm text-gray-600 mt-2">Suivi des ventes et performances</p>
+        <p class="text-sm text-gray-600 mt-2">Suivi des {% if service == 'cleaning' %}nettoyages{% else %}ventes{% endif %} et performances ({{ service|upper }})</p>
     </div>
 
     <!-- Statistiques Globales -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
-        <div class="bg-white rounded-xl shadow-md p-4 md:p-6 border-l-4 border-blue-600">
+        <div class="bg-white rounded-xl shadow-md p-4 md:p-6 border-l-4 {% if service == 'cleaning' %}border-green-600{% else %}border-blue-600{% endif %}">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs md:text-sm font-medium text-gray-500 mb-1 italic">Ventes Globales</p>
+                    <p class="text-xs md:text-sm font-medium text-gray-500 mb-1 italic">{% if service == 'cleaning' %}Total Nettoyages{% else %}Ventes Globales{% endif %}</p>
                     <p class="text-2xl md:text-3xl font-bold text-gray-900">{{ total_devis }}</p>
                 </div>
-                <div class="bg-blue-50 p-3 md:p-4 rounded-full text-blue-600">
-                    <i class="fas fa-shopping-cart text-xl md:text-2xl"></i>
+                <div class="{% if service == 'cleaning' %}bg-green-50 text-green-600{% else %}bg-blue-50 text-blue-600{% endif %} p-3 md:p-4 rounded-full">
+                    <i class="fas {% if service == 'cleaning' %}fa-broom{% else %}fa-shopping-cart{% endif %} text-xl md:text-2xl"></i>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-md p-4 md:p-6 border-l-4 border-green-500">
+        <div class="bg-white rounded-xl shadow-md p-4 md:p-6 border-l-4 border-emerald-500">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs md:text-sm font-medium text-gray-500 mb-1 italic">Transactions OK</p>
                     <p class="text-2xl md:text-3xl font-bold text-gray-900">{{ devis_paye }}</p>
                 </div>
-                <div class="bg-green-50 p-3 md:p-4 rounded-full text-green-600">
+                <div class="bg-emerald-50 p-3 md:p-4 rounded-full text-emerald-600">
                     <i class="fas fa-check-double text-xl md:text-2xl"></i>
                 </div>
             </div>
         </div>
 
-        <div class="bg-indigo-900 rounded-xl shadow-lg p-4 md:p-6 text-white transform hover:scale-105 transition duration-300">
+        <div class="{% if service == 'cleaning' %}bg-green-900{% else %}bg-indigo-900{% endif %} rounded-xl shadow-lg p-4 md:p-6 text-white transform hover:scale-105 transition duration-300">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-indigo-200 text-[10px] md:text-xs uppercase font-bold tracking-wider mb-1">Chiffre d'Affaires</p>
-                    <p class="text-xl md:text-2xl font-black text-yellow-400 whitespace-nowrap">{{ chiffre_affaires_total|floatformat:0 }} FC</p>
-                    <div class="mt-2 flex items-center text-[10px] md:text-xs text-indigo-300">
+                    <p class="{% if service == 'cleaning' %}text-green-200{% else %}text-indigo-200{% endif %} text-[10px] md:text-xs uppercase font-bold tracking-wider mb-1">Chiffre d'Affaires</p>
+                    <p class="text-xl md:text-2xl font-black text-yellow-400 whitespace-nowrap">{{ chiffre_affaires_total|floatformat:0|intcomma }} FC</p>
+                    <div class="mt-2 flex items-center {% if service == 'cleaning' %}text-green-300{% else %}text-indigo-300{% endif %}">
                         <i class="fas fa-wallet mr-1"></i> Total cumulé
                     </div>
                 </div>
@@ -59,40 +60,40 @@
     <div class="grid grid-cols-2 md:grid-cols-4 bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden mb-8 divide-x divide-y md:divide-y-0 divide-gray-100">
         <div class="px-2 py-4 text-center hover:bg-gray-50 transition border-b md:border-b-0">
             <p class="text-[9px] md:text-[10px] uppercase font-black text-gray-400 mb-1">Aujourd'hui</p>
-            <p class="text-xs md:text-sm font-bold text-blue-600 break-words">{{ ca_aujourdhui|floatformat:0 }} FC</p>
+            <p class="text-xs md:text-sm font-bold {% if service == 'cleaning' %}text-green-600{% else %}text-blue-600{% endif %} break-words">{{ ca_aujourdhui|floatformat:0|intcomma }} FC</p>
         </div>
         <div class="px-2 py-4 text-center hover:bg-gray-50 transition border-b md:border-b-0">
             <p class="text-[9px] md:text-[10px] uppercase font-black text-gray-400 mb-1">7 derniers jours</p>
-            <p class="text-xs md:text-sm font-bold text-green-600 break-words">{{ ca_semaine|floatformat:0 }} FC</p>
+            <p class="text-xs md:text-sm font-bold text-emerald-600 break-words">{{ ca_semaine|floatformat:0|intcomma }} FC</p>
         </div>
         <div class="px-2 py-4 text-center hover:bg-gray-50 transition">
             <p class="text-[9px] md:text-[10px] uppercase font-black text-gray-400 mb-1">Ce mois</p>
-            <p class="text-xs md:text-sm font-bold text-orange-600 break-words">{{ ca_mois|floatformat:0 }} FC</p>
+            <p class="text-xs md:text-sm font-bold text-orange-600 break-words">{{ ca_mois|floatformat:0|intcomma }} FC</p>
         </div>
         <div class="px-2 py-4 text-center hover:bg-gray-50 transition">
             <p class="text-[9px] md:text-[10px] uppercase font-black text-gray-400 mb-1">Année {{ now.year }}</p>
-            <p class="text-xs md:text-sm font-bold text-purple-600 break-words">{{ ca_annee|floatformat:0 }} FC</p>
+            <p class="text-xs md:text-sm font-bold text-purple-600 break-words">{{ ca_annee|floatformat:0|intcomma }} FC</p>
         </div>
     </div>
 
     <!-- Actions rapides -->
     <div class="mb-8">
         <h2 class="text-xs md:text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center">
-            <span class="bg-blue-600 w-2 h-2 rounded-full mr-2"></span> Actions Rapides
+            <span class="{% if service == 'cleaning' %}bg-green-600{% else %}bg-blue-600{% endif %} w-2 h-2 rounded-full mr-2"></span> Actions Rapides
         </h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <a href="{% url 'devis_create' %}" class="group bg-blue-600 p-4 rounded-2xl text-white hover:bg-blue-700 transition shadow-lg flex items-center">
+            <a href="{% url 'devis_create' %}" class="group {% if service == 'cleaning' %}bg-green-600 hover:bg-green-700{% else %}bg-blue-600 hover:bg-blue-700{% endif %} p-4 rounded-2xl text-white transition shadow-lg flex items-center">
                 <div class="bg-white/20 p-3 rounded-xl mr-4 group-hover:rotate-12 transition">
-                    <i class="fas fa-plus-circle text-xl"></i>
+                    <i class="fas {% if service == 'cleaning' %}fa-plus-circle{% else %}fa-cart-plus{% endif %} text-xl"></i>
                 </div>
                 <div>
-                    <p class="font-bold text-sm md:text-base">Nouvelle Vente</p>
-                    <p class="text-[10px] md:text-xs text-blue-100">Enregistrer un client présent</p>
+                    <p class="font-bold text-sm md:text-base">{% if service == 'cleaning' %}Nouveau Nettoyage{% else %}Nouvelle Vente{% endif %}</p>
+                    <p class="text-[10px] md:text-xs {% if service == 'cleaning' %}text-green-100{% else %}text-blue-100{% endif %}">Enregistrer une nouvelle opération</p>
                 </div>
             </a>
 
-            <a href="{% url 'devis_list' %}" class="group bg-white p-4 rounded-2xl border border-gray-200 hover:border-green-500 transition shadow-sm flex items-center">
-                <div class="bg-green-50 p-3 rounded-xl mr-4 text-green-600 group-hover:scale-110 transition">
+            <a href="{% url 'devis_list' %}" class="group bg-white p-4 rounded-2xl border border-gray-200 hover:{% if service == 'cleaning' %}border-green-500{% else %}border-blue-500{% endif %} transition shadow-sm flex items-center">
+                <div class="{% if service == 'cleaning' %}bg-green-50 text-green-600{% else %}bg-blue-50 text-blue-600{% endif %} p-3 rounded-xl mr-4 group-hover:scale-110 transition">
                     <i class="fas fa-list-ul text-xl"></i>
                 </div>
                 <div>
@@ -134,28 +135,28 @@
         <!-- Ventes récentes -->
         <div class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/30">
-                <h2 class="font-bold text-gray-800 text-sm md:text-base">Dernières ventes</h2>
-                <a href="{% url 'devis_list' %}" class="text-blue-600 text-[10px] font-black uppercase hover:underline">Voir tout</a>
+                <h2 class="font-bold text-gray-800 text-sm md:text-base">Dernières {% if service == 'cleaning' %}opérations{% else %}ventes{% endif %}</h2>
+                <a href="{% url 'devis_list' %}" class="{% if service == 'cleaning' %}text-green-600{% else %}text-blue-600{% endif %} text-[10px] font-black uppercase hover:underline">Voir tout</a>
             </div>
             <div class="divide-y divide-gray-100">
                 {% for devis in devis_list|slice:":3" %}
                 <div class="p-3 md:p-4 hover:bg-gray-50 transition flex items-center justify-between">
                     <div class="flex items-center">
-                        <div class="w-7 h-7 md:w-8 md:h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-[10px] md:text-xs font-bold mr-3">
+                        <div class="w-7 h-7 md:w-8 md:h-8 rounded-full {% if service == 'cleaning' %}bg-green-50 text-green-600{% else %}bg-blue-50 text-blue-600{% endif %} flex items-center justify-center text-[10px] md:text-xs font-bold mr-3">
                             {{ forloop.counter }}
                         </div>
                         <div>
-                            <p class="text-[10px] font-black text-blue-600">{{ devis.numero }}</p>
+                            <p class="text-[10px] font-black {% if service == 'cleaning' %}text-green-600{% else %}text-blue-600{% endif %}">{{ devis.numero }}</p>
                             <p class="text-xs md:text-sm font-bold text-gray-800 truncate w-24 md:w-32">{{ devis.client_nom }}</p>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-xs md:text-sm font-black text-gray-900">{{ devis.total_general|floatformat:0 }} FC</p>
-                        <a href="{% url 'devis_detail' devis.pk %}" class="text-[9px] md:text-[10px] text-blue-500 font-bold hover:text-blue-700">Détails</a>
+                        <p class="text-xs md:text-sm font-black text-gray-900">{{ devis.total_general|floatformat:0|intcomma }} FC</p>
+                        <a href="{% url 'devis_detail' devis.pk %}" class="text-[9px] md:text-[10px] {% if service == 'cleaning' %}text-green-500 hover:text-green-700{% else %}text-blue-500 hover:text-blue-700{% endif %} font-bold">Détails</a>
                     </div>
                 </div>
                 {% empty %}
-                <div class="p-8 text-center text-gray-400 italic text-sm">Aucune vente.</div>
+                <div class="p-8 text-center text-gray-400 italic text-sm">Aucun {% if service == 'cleaning' %}nettoyage{% else %}vente{% endif %}.</div>
                 {% endfor %}
             </div>
         </div>
@@ -167,6 +168,9 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const ctx = document.getElementById('salesChart').getContext('2d');
+    const accentColor = "{{ service }}" === "cleaning" ? "#059669" : "#2563eb";
+    const accentColorLight = "{{ service }}" === "cleaning" ? "rgba(5, 150, 105, 0.05)" : "rgba(37, 99, 235, 0.05)";
+
     new Chart(ctx, {
         type: 'line',
         data: {
@@ -174,8 +178,8 @@
             datasets: [{
                 label: 'FC',
                 data: {{ graph_data|safe }},
-                borderColor: '#2563eb',
-                backgroundColor: 'rgba(37, 99, 235, 0.05)',
+                borderColor: accentColor,
+                backgroundColor: accentColorLight,
                 borderWidth: 2,
                 fill: true,
                 tension: 0.4,

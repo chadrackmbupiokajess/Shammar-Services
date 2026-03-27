@@ -1,4 +1,5 @@
 {% extends 'mabipint/base.html' %}
+{% load humanize %}
 
 {% block title %}PDF - Reçu {{ devis.numero }} - {{ devis.get_service_display }}{% endblock %}
 
@@ -36,7 +37,7 @@
                         </div>
                         <div class="company-info">
                             <h1 class="company-name {% if devis.service == 'cleaning' %}text-green-700{% endif %}">SHAMMAR SERVICES</h1>
-                            <p class="company-tagline">{% if devis.service == 'cleaning' %}SHAMMAR CLEANING Expertise NETTOYAGE & ENTRETIEN{% else %}Écosystème MABIPEINT{% endif %}</p>
+                            <p class="company-tagline">{% if devis.service == 'cleaning' %}Expertise NETTOYAGE & ENTRETIEN{% else %}Écosystème MABIPEINT{% endif %}</p>
                         </div>
                     </div>
                     <p class="system-name">Système de Gestion des Ventes</p>
@@ -44,6 +45,7 @@
                 <div class="header-side">
                     <h2 class="doc-type">REÇU</h2>
                     <p class="doc-number">{{ devis.numero }}</p>
+                    <p class="doc-number" style="font-size: 0.7em; color: #9ca3af; margin-top: 2px;">{{ devis.get_service_display|upper }}</p>
                     <p class="doc-date">Date: {{ devis.date_creation|date:"d/m/Y" }}</p>
                 </div>
             </div>
@@ -95,13 +97,13 @@
                             {% if devis.service == 'cleaning' %}
                             <td class="text-left font-medium">{{ ligne.libelle }}</td>
                             <td>{{ ligne.unite }}</td>
-                            <td class="text-right font-bold">{{ ligne.prix_total|floatformat:0 }} FC</td>
+                            <td class="text-right font-bold">{{ ligne.prix_total|floatformat:0|intcomma }} FC</td>
                             {% else %}
                             <td class="text-left font-medium">{{ ligne.libelle }}</td>
                             <td>{{ ligne.get_unite_display }}</td>
                             <td>{{ ligne.quantite }}</td>
-                            <td class="text-right">{{ ligne.prix_unitaire|floatformat:0 }}</td>
-                            <td class="text-right font-bold">{{ ligne.prix_total|floatformat:0 }}</td>
+                            <td class="text-right">{{ ligne.prix_unitaire|floatformat:0|intcomma }}</td>
+                            <td class="text-right font-bold">{{ ligne.prix_total|floatformat:0|intcomma }}</td>
                             {% endif %}
                         </tr>
                         {% endfor %}
@@ -115,15 +117,15 @@
                 <div class="totals-col">
                     <div class="totals-box">
                         {% if devis.service == 'cleaning' %}
-                        <div class="total-line"><span>Sous-total:</span><span>{{ devis.total_fourniture|floatformat:0 }} FC</span></div>
+                        <div class="total-line"><span>Sous-total:</span><span>{{ devis.total_fourniture|floatformat:0|intcomma }} FC</span></div>
                         {% else %}
-                        <div class="total-line"><span>Total Articles:</span><span>{{ devis.total_fourniture|floatformat:0 }} FC</span></div>
-                        <div class="total-line"><span>Main d'œuvre (25%):</span><span>{{ devis.main_oeuvre|floatformat:0 }} FC</span></div>
+                        <div class="total-line"><span>Total Articles:</span><span>{{ devis.total_fourniture|floatformat:0|intcomma }} FC</span></div>
+                        <div class="total-line"><span>Main d'œuvre (25%):</span><span>{{ devis.main_oeuvre|floatformat:0|intcomma }} FC</span></div>
                         {% endif %}
                         <div class="grand-total-box {% if devis.service == 'cleaning' %}!bg-green-700{% endif %}">
                             <div class="grand-total-line">
                                 <span>TOTAL PAYÉ:</span>
-                                <span>{{ devis.total_general|floatformat:0 }} FC</span>
+                                <span>{{ devis.total_general|floatformat:0|intcomma }} FC</span>
                             </div>
                         </div>
                     </div>

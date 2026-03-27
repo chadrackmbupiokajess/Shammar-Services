@@ -1,3 +1,4 @@
+{% load humanize %}
 {% if devis_list %}
 <div class="overflow-x-auto">
     <table class="min-w-full divide-y divide-gray-200">
@@ -27,7 +28,7 @@
                     {% endif %}
                 </td>
                 <td class="px-2 md:px-6 py-3 whitespace-nowrap text-right">
-                    <div class="font-bold text-gray-900 text-[10px] md:text-sm">{{ devis.total_general|floatformat:0 }} FC</div>
+                    <div class="font-bold text-gray-900 text-[10px] md:text-sm">{{ devis.total_general|floatformat:0|intcomma }} FC</div>
                     <div class="px-1.5 md:px-3 py-0.5 inline-flex text-[8px] md:text-[10px] leading-5 font-semibold rounded-full bg-green-100 text-green-800 mt-1">
                         Payé
                     </div>
