@@ -80,7 +80,7 @@
                             <th width="8%" class="{% if devis.service == 'cleaning' %}bg-green-700{% endif %}">N°</th>
                             {% if devis.service == 'cleaning' %}
                             <th width="52%" class="bg-green-700">TYPE & MARQUE ENGIN</th>
-                            <th width="20%" class="bg-green-700">N° MATRICULE</th>
+                            <th width="20%" class="bg-green-700">PLAQUE D'IMMATRICULATION</th>
                             <th width="20%" class="bg-green-700">MONTANT</th>
                             {% else %}
                             <th width="42%">LIBELLÉ</th>
@@ -121,7 +121,9 @@
                         <div class="total-line"><span>Sous-total:</span><span>{{ devis.total_fourniture|floatformat:2|intcomma }} FC</span></div>
                         {% else %}
                         <div class="total-line"><span>Articles:</span><span>{{ devis.total_fourniture|floatformat:2|intcomma }} FC</span></div>
-                        <div class="total-line"><span>Main d'œuvre:</span><span>{{ devis.main_oeuvre|floatformat:2|intcomma }} FC</span></div>
+                        {% if devis.inclure_main_oeuvre %}
+                        <div class="total-line"><span>Main d'œuvre (25%):</span><span>{{ devis.main_oeuvre|floatformat:2|intcomma }} FC</span></div>
+                        {% endif %}
                         {% endif %}
                         <div class="grand-total-box {% if devis.service == 'cleaning' %}!bg-green-700{% endif %}">
                             <div class="grand-total-line">
@@ -133,17 +135,15 @@
                 </div>
             </div>
 
-            <!-- Section Signature (Identique au PDF) -->
-            <div class="flex justify-between gap-8 mt-10 no-print-flex">
-                <div class="flex-1 border-2 border-dashed border-gray-200 p-4 rounded-xl text-center">
-                    <p class="font-bold text-xs uppercase text-gray-500 mb-8">Signature Client</p>
-                    <div class="h-px bg-gray-200 w-3/4 mx-auto"></div>
-                </div>
-                <div class="flex-1 border-2 border-dashed border-gray-200 p-4 rounded-xl text-center">
-                    <p class="font-bold text-xs uppercase text-gray-500 mb-8">Pour Acquit (Caisse)</p>
+            <!-- Section Signature (Uniquement pour Mabipeint avec M.O) -->
+            {% if devis.service == 'mabipeint' and devis.inclure_main_oeuvre %}
+            <div class="flex justify-end mt-10 no-print-flex">
+                <div class="w-64 border-2 border-dashed border-gray-200 p-4 rounded-xl text-center">
+                    <p class="font-bold text-xs uppercase text-gray-500 mb-8">Signature Directeur</p>
                     <div class="h-px bg-gray-200 w-3/4 mx-auto"></div>
                 </div>
             </div>
+            {% endif %}
 
             <!-- Notes -->
             {% if devis.notes %}

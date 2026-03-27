@@ -188,6 +188,14 @@ def user_delete(request, pk):
 
 # --- Ventes ---
 
+# Définir les types de nettoyage et leurs prix
+CLEANING_SERVICE_TYPES = {
+    'Deteeling': 50000,
+    'Poliching': 40000,
+    'Lavage Complet': 20000,
+    'Nettoyage Intérieur': 30000,
+}
+
 @login_required
 def devis_list(request):
     service = get_current_service(request)
@@ -231,7 +239,11 @@ def devis_create(request):
                 messages.success(request, f'Enregistrement {devis.numero} réussi!')
                 return redirect('devis_detail', pk=devis.pk)
     else: form = DevisForm()
-    return render(request, 'mabipint/devis_create.html', {'form': form, 'service': service})
+    return render(request, 'mabipint/devis_create.html', {
+        'form': form,
+        'service': service,
+        'cleaning_service_types_json': json.dumps(CLEANING_SERVICE_TYPES) # Pass to template
+    })
 
 @login_required
 def devis_detail(request, pk):
@@ -269,7 +281,8 @@ def devis_edit(request, pk):
         'form': form, 
         'devis': devis, 
         'lignes_json': lignes_json,
-        'service': devis.service
+        'service': devis.service,
+        'cleaning_service_types_json': json.dumps(CLEANING_SERVICE_TYPES) # Pass to template
     })
 
 @login_required

@@ -79,7 +79,7 @@
                             <th width="5%">N°</th>
                             {% if devis.service == 'cleaning' %}
                             <th width="45%">TYPE & MARQUE ENGIN</th>
-                            <th width="30%">N° MATRICULE</th>
+                            <th width="30%">PLAQUE D'IMMATRICULATION</th>
                             <th width="20%">MONTANT</th>
                             {% else %}
                             <th width="45%">LIBELLÉ / DÉSIGNATION</th>
@@ -120,7 +120,9 @@
                         <div class="total-line"><span>Sous-total:</span><span>{{ devis.total_fourniture|floatformat:2|intcomma }} FC</span></div>
                         {% else %}
                         <div class="total-line"><span>Total Articles:</span><span>{{ devis.total_fourniture|floatformat:2|intcomma }} FC</span></div>
+                        {% if devis.inclure_main_oeuvre %}
                         <div class="total-line"><span>Main d'œuvre (25%):</span><span>{{ devis.main_oeuvre|floatformat:2|intcomma }} FC</span></div>
+                        {% endif %}
                         {% endif %}
                         <div class="grand-total-box {% if devis.service == 'cleaning' %}!bg-green-700{% endif %}">
                             <div class="grand-total-line">
@@ -132,17 +134,14 @@
                 </div>
             </div>
 
-            <!-- Section Signature / Validation -->
-            <div class="signature-section" style="margin-top: 40px; display: flex; justify-content: space-between; gap: 50px;">
-                <div class="signature-box" style="flex: 1; border: 1.5px dashed #D1D5DB; padding: 15px; border-radius: 8px; text-align: center;">
-                    <p style="font-weight: bold; font-size: 0.9em; text-transform: uppercase; color: #4B5563; margin-bottom: 30px;">Signature Client</p>
-                    <div style="height: 1px; background: #E5E7EB; width: 80%; margin: 0 auto;"></div>
-                </div>
-                <div class="signature-box" style="flex: 1; border: 1.5px dashed #D1D5DB; padding: 15px; border-radius: 8px; text-align: center;">
-                    <p style="font-weight: bold; font-size: 0.9em; text-transform: uppercase; color: #4B5563; margin-bottom: 30px;">Pour Acquit (Caisse)</p>
-                    <div style="height: 1px; background: #E5E7EB; width: 80%; margin: 0 auto;"></div>
+            <!-- Section Signature corrigée -->
+            {% if devis.service == 'mabipeint' and devis.inclure_main_oeuvre %}
+            <div class="signature-section" style="margin-top: 40px; display: flex; justify-content: flex-end;">
+                <div class="signature-box" style="width: 200px; border-bottom: 1.5px solid #000; text-align: center; padding-bottom: 5px;">
+                    <p style="font-weight: bold; font-size: 0.9em; text-transform: uppercase; color: #000; margin-bottom: 40px;">Le Directeur</p>
                 </div>
             </div>
+            {% endif %}
 
             <!-- Pied de page -->
             <div class="pdf-footer" style="margin-top: 50px;">

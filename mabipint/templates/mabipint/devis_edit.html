@@ -68,8 +68,8 @@
                                 <tr>
                                     <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase w-12">N°</th>
                                     {% if service == 'cleaning' %}
-                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type & Marque Engin</th>
-                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">N° Matricule</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Plaque d'immatriculation</th>
                                     <th class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Montant</th>
                                     {% else %}
                                     <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Désignation</th>
@@ -127,9 +127,9 @@
                             <span class="text-sm font-medium text-green-800">Statut:</span>
                             <span class="text-sm font-bold text-green-700 uppercase">Payé</span>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-sm font-medium text-blue-800">Mode:</span>
-                            <span class="text-sm font-bold text-blue-700 uppercase">Espèces</span>
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-blue-800 block">Mode de paiement:</label>
+                            {{ form.mode_paiement }}
                         </div>
                     </div>
 
@@ -158,6 +158,7 @@
 let ligneCounter = 0;
 let lignes = {{ lignes_json|safe }};
 const CURRENT_SERVICE = "{{ service }}";
+const CLEANING_TYPES = JSON.parse('{{ cleaning_service_types_json|safe }}');
 
 const unites = [
     {value: 'gramme', label: 'g'},
@@ -175,13 +176,14 @@ lignes = lignes.map((l, index) => ({
 
 function ajouterLigne() {
     ligneCounter++;
+    const firstType = Object.keys(CLEANING_TYPES)[0];
     const ligne = {
         id: Date.now() + Math.random(),
         numero: lignes.length + 1,
-        libelle: '',
+        libelle: CURRENT_SERVICE === 'cleaning' ? firstType : '',
         unite: CURRENT_SERVICE === 'cleaning' ? 'unite' : 'gramme',
         quantite: 1,
-        prix_unitaire: 0
+        prix_unitaire: CURRENT_SERVICE === 'cleaning' ? CLEANING_TYPES[firstType] : 0
     };
 
     lignes.push(ligne);
@@ -206,17 +208,22 @@ function afficherLignes() {
         tr.className = 'border-b hover:bg-gray-50';
 
         if (CURRENT_SERVICE === 'cleaning') {
+            const options = Object.keys(CLEANING_TYPES).map(type =>
+                `<option value="${type}" ${ligne.libelle === type ? 'selected' : ''}>${type}</option>`
+            ).join('');
+
             tr.innerHTML = `
                 <td class="px-3 py-4 text-gray-500 font-medium">
                     ${ligne.numero}
                 </td>
                 <td class="px-3 py-2">
-                    <input type="text" value="${ligne.libelle}" placeholder="Ex: Toyota Hilux..."
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
-                           oninput="updateLigne(${ligne.id}, 'libelle', this.value)">
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none bg-white"
+                            onchange="updateCleaningType(${ligne.id}, this.value)">
+                        ${options}
+                    </select>
                 </td>
                 <td class="px-3 py-2">
-                    <input type="text" value="${ligne.unite === 'unite' ? '' : ligne.unite}" placeholder="N° Matricule..."
+                    <input type="text" value="${ligne.unite === 'unite' ? '' : ligne.unite}" placeholder="Plaque..."
                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
                            oninput="updateLigne(${ligne.id}, 'unite', this.value)">
                 </td>
@@ -275,6 +282,15 @@ function afficherLignes() {
     calculerTotaux();
 }
 
+function updateCleaningType(id, type) {
+    const ligne = lignes.find(l => l.id === id);
+    if (ligne) {
+        ligne.libelle = type;
+        ligne.prix_unitaire = CLEANING_TYPES[type] || 0;
+        afficherLignes();
+    }
+}
+
 function updateLigne(id, field, value) {
     const ligne = lignes.find(l => l.id === id);
     if (ligne) {
@@ -316,13 +332,13 @@ function calculerTotaux() {
 document.getElementById('devisForm').addEventListener('submit', function(e) {
     if (lignes.length === 0) {
         e.preventDefault();
-        alert('Veuillez ajouter au moins un élément.');
+        alert('Veuillez ajouter un élément.');
         return;
     }
     const invalidLigne = lignes.find(l => !l.libelle.trim());
     if (invalidLigne) {
         e.preventDefault();
-        alert(CURRENT_SERVICE === 'cleaning' ? 'Veuillez remplir le type & marque engin.' : 'Veuillez remplir la désignation.');
+        alert(CURRENT_SERVICE === 'cleaning' ? 'Veuillez choisir un type.' : 'Veuillez remplir la désignation.');
         return;
     }
     const lignesData = lignes.map(l => ({
