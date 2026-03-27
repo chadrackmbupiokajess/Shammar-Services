@@ -1,6 +1,6 @@
 {% extends 'mabipint/base.html' %}
 
-{% block title %}Aide - Vente Directe - MABIPINT{% endblock %}
+{% block title %}Aide - {% if service == 'cleaning' %}Nettoyage{% else %}Vente Directe{% endif %} - {{ service|upper }}{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -8,38 +8,51 @@
     <!-- En-tête -->
     <div class="mb-6 md:mb-8 text-center">
         <h1 class="text-3xl font-bold text-gray-900">
-            <i class="fas fa-question-circle text-blue-600 mr-3"></i>Guide Rapide
+            <i class="fas fa-question-circle {% if service == 'cleaning' %}text-green-600{% else %}text-blue-600{% endif %} mr-3"></i>Guide Rapide
         </h1>
-        <p class="text-gray-600 mt-2">Le système est optimisé pour la vente directe en espèces.</p>
+        <p class="text-gray-600 mt-2">
+            {% if service == 'cleaning' %}
+            Le système est optimisé pour l'enregistrement des prestations de nettoyage.
+            {% else %}
+            Le système est optimisé pour la vente directe de peinture et fournitures.
+            {% endif %}
+        </p>
     </div>
 
     <!-- Instructions -->
     <div class="bg-white rounded-xl shadow-md p-8">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
-                <h2 class="text-2xl font-bold text-blue-600 mb-6 flex items-center">
-                    <i class="fas fa-shopping-cart mr-3"></i>Processus de vente
+                <h2 class="text-2xl font-bold {% if service == 'cleaning' %}text-green-600{% else %}text-blue-600{% endif %} mb-6 flex items-center">
+                    <i class="fas {% if service == 'cleaning' %}fa-broom{% else %}fa-shopping-cart{% endif %} mr-3"></i>
+                    Processus {% if service == 'cleaning' %}de nettoyage{% else %}de vente{% endif %}
                 </h2>
 
                 <div class="space-y-6">
                     <div class="flex items-start">
-                        <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 shrink-0 mt-1">1</div>
+                        <div class="{% if service == 'cleaning' %}bg-green-600{% else %}bg-blue-600{% endif %} text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 shrink-0 mt-1">1</div>
                         <div>
-                            <p class="font-bold text-gray-900">Enregistrer la vente</p>
-                            <p class="text-gray-600">Entrez les coordonnées du client et ajoutez les articles demandés.</p>
+                            <p class="font-bold text-gray-900">Enregistrer {% if service == 'cleaning' %}le nettoyage{% else %}la vente{% endif %}</p>
+                            <p class="text-gray-600">
+                                {% if service == 'cleaning' %}
+                                Entrez les coordonnées du client, le type d'engin et son matricule.
+                                {% else %}
+                                Entrez les coordonnées du client et ajoutez les articles demandés.
+                                {% endif %}
+                            </p>
                         </div>
                     </div>
 
                     <div class="flex items-start">
-                        <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 shrink-0 mt-1">2</div>
+                        <div class="{% if service == 'cleaning' %}bg-green-600{% else %}bg-blue-600{% endif %} text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 shrink-0 mt-1">2</div>
                         <div>
-                            <p class="font-bold text-gray-900">Imprimer la facture</p>
+                            <p class="font-bold text-gray-900">Imprimer le reçu</p>
                             <p class="text-gray-600">Une fois enregistré, vous pouvez imprimer ou générer un PDF pour le client.</p>
                         </div>
                     </div>
 
                     <div class="flex items-start">
-                        <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 shrink-0 mt-1">3</div>
+                        <div class="{% if service == 'cleaning' %}bg-green-600{% else %}bg-blue-600{% endif %} text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 shrink-0 mt-1">3</div>
                         <div>
                             <p class="font-bold text-gray-900">Encaisser en espèces</p>
                             <p class="text-gray-600">Le client paie directement en espèces. La transaction est finalisée et enregistrée.</p>
@@ -48,14 +61,14 @@
                 </div>
             </div>
 
-            <div class="bg-blue-50 p-8 rounded-2xl border-2 border-blue-100">
-                <h3 class="text-xl font-bold text-blue-900 mb-4 flex items-center">
-                    <i class="fas fa-info-circle mr-2 text-blue-600"></i>À savoir
+            <div class="{% if service == 'cleaning' %}bg-green-50 border-green-100{% else %}bg-blue-50 border-blue-100{% endif %} p-8 rounded-2xl border-2">
+                <h3 class="text-xl font-bold {% if service == 'cleaning' %}text-green-900{% else %}text-blue-900{% endif %} mb-4 flex items-center">
+                    <i class="fas fa-info-circle mr-2 {% if service == 'cleaning' %}text-green-600{% else %}text-blue-600{% endif %}"></i>À savoir
                 </h3>
-                <ul class="space-y-4 text-blue-800">
+                <ul class="space-y-4 {% if service == 'cleaning' %}text-green-800{% else %}text-blue-800{% endif %}">
                     <li class="flex items-start">
                         <i class="fas fa-check-circle text-green-600 mr-2 mt-1"></i>
-                        <span>Toutes les ventes sont automatiquement marquées comme <strong>Payées</strong>.</span>
+                        <span>Toutes les transactions sont automatiquement marquées comme <strong>Payées</strong>.</span>
                     </li>
                     <li class="flex items-start">
                         <i class="fas fa-check-circle text-green-600 mr-2 mt-1"></i>
@@ -65,10 +78,17 @@
                         <i class="fas fa-check-circle text-green-600 mr-2 mt-1"></i>
                         <span>Vous pouvez modifier ou supprimer une transaction via le panneau d'administration en cas d'erreur.</span>
                     </li>
+                    {% if service == 'cleaning' %}
+                    <li class="flex items-start">
+                        <i class="fas fa-info-circle text-blue-600 mr-2 mt-1"></i>
+                        <span>Pour Shammar Cleaning, la main d'œuvre (25%) n'est <strong>pas appliquée</strong>.</span>
+                    </li>
+                    {% else %}
                     <li class="flex items-start">
                         <i class="fas fa-check-circle text-green-600 mr-2 mt-1"></i>
                         <span>Le système calcule automatiquement la Main d'œuvre (25%).</span>
                     </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
@@ -76,7 +96,7 @@
 
     <!-- Retour -->
     <div class="mt-8 text-center">
-        <a href="{% url 'dashboard' %}" class="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition font-bold shadow-lg">
+        <a href="{% url 'dashboard' %}" class="inline-block {% if service == 'cleaning' %}bg-green-600 hover:bg-green-700{% else %}bg-blue-600 hover:bg-blue-700{% endif %} text-white px-8 py-3 rounded-lg transition font-bold shadow-lg">
             <i class="fas fa-arrow-left mr-2"></i>Retour au tableau de bord
         </a>
     </div>

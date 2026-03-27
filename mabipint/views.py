@@ -292,4 +292,5 @@ def devis_pdf(request, pk):
 
 @login_required
 def aide_statuts(request):
-    return render(request, 'mabipint/aide_statuts.html')
+    service = get_current_service(request)
+    return render(request, 'mabipint/aide_statuts.html', {'service': service})
