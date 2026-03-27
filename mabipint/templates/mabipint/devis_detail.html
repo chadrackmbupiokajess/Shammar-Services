@@ -77,10 +77,11 @@
                 <table class="receipt-table">
                     <thead class="{% if devis.service == 'cleaning' %}!bg-green-700{% endif %}">
                         <tr>
-                            <th width="8%" class="{% if devis.service == 'cleaning' %}bg-green-700{% endif %}">N°</th>
+                            <th width="5%" class="{% if devis.service == 'cleaning' %}bg-green-700{% endif %}">N°</th>
                             {% if devis.service == 'cleaning' %}
-                            <th width="52%" class="bg-green-700">TYPE & MARQUE ENGIN</th>
-                            <th width="20%" class="bg-green-700">PLAQUE D'IMMATRICULATION</th>
+                            <th width="25%" class="bg-green-700">TYPE</th>
+                            <th width="35%" class="bg-green-700">TYPE & MARQUE ENGIN</th>
+                            <th width="15%" class="bg-green-700">PLAQUE</th>
                             <th width="20%" class="bg-green-700">MONTANT</th>
                             {% else %}
                             <th width="42%">LIBELLÉ</th>
@@ -96,6 +97,7 @@
                         <tr class="{% if forloop.counter|divisibleby:2 %}bg-gray{% endif %}">
                             <td class="text-center">{{ ligne.numero_ligne }}</td>
                             {% if devis.service == 'cleaning' %}
+                            <td class="text-left">{{ ligne.type_prestation }}</td>
                             <td class="text-left font-medium">{{ ligne.libelle }}</td>
                             <td class="text-center">{{ ligne.unite }}</td>
                             <td class="text-right font-bold">{{ ligne.prix_total|floatformat:2|intcomma }} FC</td>

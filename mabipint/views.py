@@ -7,12 +7,22 @@ from django.http import HttpResponse, Http404, JsonResponse
 from django.db import transaction
 from django.utils import timezone
 from datetime import datetime, timedelta
-from .models import Devis, LigneDevis, UserProfile
-from .forms import DevisForm, LigneDevisForm, UserCreateForm, UserEditForm
 import json
 from decimal import Decimal
 from django.db.models import Sum, Q
 from django.core.paginator import Paginator
+
+# Imports des modèles et formulaires locaux
+from .models import Devis, LigneDevis, UserProfile, PrestationCleaning
+from .forms import DevisForm, LigneDevisForm, UserCreateForm, UserEditForm
+
+
+# --- Utilitaire pour JSON ---
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        return super(DecimalEncoder, self).default(obj)
 
 
 # --- Gestion des Sessions Services ---
@@ -188,14 +198,6 @@ def user_delete(request, pk):
 
 # --- Ventes ---
 
-# Définir les types de nettoyage et leurs prix
-CLEANING_SERVICE_TYPES = {
-    'Deteeling': 50000,
-    'Poliching': 40000,
-    'Lavage Complet': 20000,
-    'Nettoyage Intérieur': 30000,
-}
-
 @login_required
 def devis_list(request):
     service = get_current_service(request)
@@ -220,6 +222,10 @@ def devis_list(request):
 @login_required
 def devis_create(request):
     service = get_current_service(request)
+    
+    # Récupérer les prestations de nettoyage pour le combobox
+    cleaning_prestations = list(PrestationCleaning.objects.values('nom', 'prix_par_defaut'))
+    
     if request.method == 'POST':
         form = DevisForm(request.POST)
         if form.is_valid():
@@ -233,8 +239,13 @@ def devis_create(request):
                 if lignes_data:
                     for ligne in json.loads(lignes_data):
                         LigneDevis.objects.create(
-                            devis=devis, numero_ligne=ligne['numero'], libelle=ligne['libelle'],
-                            unite=ligne['unite'], quantite=ligne['quantite'], prix_unitaire=ligne['prix_unitaire']
+                            devis=devis, 
+                            numero_ligne=ligne['numero'], 
+                            type_prestation=ligne.get('type_prestation', ''),
+                            libelle=ligne['libelle'],
+                            unite=ligne['unite'], 
+                            quantite=ligne['quantite'], 
+                            prix_unitaire=ligne['prix_unitaire']
                         )
                 messages.success(request, f'Enregistrement {devis.numero} réussi!')
                 return redirect('devis_detail', pk=devis.pk)
@@ -242,7 +253,7 @@ def devis_create(request):
     return render(request, 'mabipint/devis_create.html', {
         'form': form,
         'service': service,
-        'cleaning_service_types_json': json.dumps(CLEANING_SERVICE_TYPES) # Pass to template
+        'cleaning_prestations_json': json.dumps(cleaning_prestations, cls=DecimalEncoder)
     })
 
 @login_required
@@ -260,6 +271,9 @@ def devis_edit(request, pk):
     if not request.user.is_superuser and devis.created_by != request.user:
         raise Http404()
         
+    # Récupérer les prestations de nettoyage pour le combobox
+    cleaning_prestations = list(PrestationCleaning.objects.values('nom', 'prix_par_defaut'))
+
     if request.method == 'POST':
         form = DevisForm(request.POST, instance=devis)
         if form.is_valid():
@@ -270,25 +284,39 @@ def devis_edit(request, pk):
                 if lignes_data:
                     for ligne in json.loads(lignes_data):
                         LigneDevis.objects.create(
-                            devis=devis, numero_ligne=ligne['numero'], libelle=ligne['libelle'],
-                            unite=ligne['unite'], quantite=ligne['quantite'], prix_unitaire=ligne['prix_unitaire']
+                            devis=devis, 
+                            numero_ligne=ligne['numero'], 
+                            type_prestation=ligne.get('type_prestation', ''),
+                            libelle=ligne['libelle'],
+                            unite=ligne['unite'], 
+                            quantite=ligne['quantite'], 
+                            prix_unitaire=ligne['prix_unitaire']
                         )
                 messages.success(request, "Modifié.")
                 return redirect('devis_detail', pk=devis.pk)
     else: form = DevisForm(instance=devis)
-    lignes_json = json.dumps([{'numero': l.numero_ligne, 'libelle': l.libelle, 'unite': l.unite, 'quantite': str(l.quantite), 'prix_unitaire': str(l.prix_unitaire)} for l in devis.lignes.all()])
+    
+    lignes_json = json.dumps([
+        {
+            'numero': l.numero_ligne, 
+            'type_prestation': l.type_prestation,
+            'libelle': l.libelle, 
+            'unite': l.unite, 
+            'quantite': str(l.quantite), 
+            'prix_unitaire': str(l.prix_unitaire)
+        } for l in devis.lignes.all()
+    ])
     return render(request, 'mabipint/devis_edit.html', {
         'form': form, 
         'devis': devis, 
         'lignes_json': lignes_json,
         'service': devis.service,
-        'cleaning_service_types_json': json.dumps(CLEANING_SERVICE_TYPES) # Pass to template
+        'cleaning_prestations_json': json.dumps(cleaning_prestations, cls=DecimalEncoder)
     })
 
 @login_required
 def devis_delete(request, pk):
     devis = get_object_or_404(Devis, pk=pk)
-    # PROTECTION : Un agent ne peut pas supprimer la vente d'un autre agent
     if not request.user.is_superuser and devis.created_by != request.user:
         raise Http404()
     devis.delete()
@@ -297,7 +325,6 @@ def devis_delete(request, pk):
 @login_required
 def devis_pdf(request, pk):
     devis = get_object_or_404(Devis, pk=pk)
-    # PROTECTION : Un agent ne peut pas générer le PDF d'un autre agent
     if not request.user.is_superuser and devis.created_by != request.user:
         raise Http404()
     return render(request, 'mabipint/devis_pdf.html', {'devis': devis})

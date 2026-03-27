@@ -60,7 +60,7 @@
                             <i class="fas {% if service == 'cleaning' %}fa-list text-green-600{% else %}fa-shopping-basket text-blue-600{% endif %} mr-2"></i>
                             {% if service == 'cleaning' %}Éléments du nettoyage{% else %}Articles{% endif %}
                         </h2>
-                        <button type="button" onclick="ajouterLigne()" class="bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 transition text-xs md:text-base">
+                        <button type="button" onclick="ajouterLigne()" class="{% if service == 'cleaning' %}bg-green-600 hover:bg-green-700{% else %}bg-green-600 hover:bg-green-700{% endif %} text-white px-3 py-1.5 rounded-lg transition text-xs md:text-base">
                             <i class="fas fa-plus mr-1 md:mr-2"></i>Ajouter
                         </button>
                     </div>
@@ -73,7 +73,8 @@
                                         <th class="px-2 py-2 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase w-8">N°</th>
                                         {% if service == 'cleaning' %}
                                         <th class="px-2 py-2 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase">Type</th>
-                                        <th class="px-2 py-2 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase">Plaque d'immatriculation</th>
+                                        <th class="px-2 py-2 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase">Type & Marque Engin</th>
+                                        <th class="px-2 py-2 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase">Plaque</th>
                                         <th class="px-2 py-2 text-right text-[10px] md:text-xs font-medium text-gray-500 uppercase">Montant</th>
                                         {% else %}
                                         <th class="px-2 py-2 text-left text-[10px] md:text-xs font-medium text-gray-500 uppercase">Désignation</th>
@@ -175,7 +176,7 @@
 let ligneCounter = 0;
 let lignes = [];
 const CURRENT_SERVICE = "{{ service }}";
-const CLEANING_TYPES = JSON.parse('{{ cleaning_service_types_json|safe }}');
+const PRESTATIONS = JSON.parse('{{ cleaning_prestations_json|safe }}');
 
 const unites = [
     {value: 'gramme', label: 'g'},
@@ -201,14 +202,23 @@ if (checkboxMO) {
 
 function ajouterLigne() {
     ligneCounter++;
-    const firstType = Object.keys(CLEANING_TYPES)[0];
+
+    let defaultType = '';
+    let defaultPrix = 0;
+
+    if (CURRENT_SERVICE === 'cleaning' && PRESTATIONS.length > 0) {
+        defaultType = PRESTATIONS[0].nom;
+        defaultPrix = PRESTATIONS[0].prix_par_defaut;
+    }
+
     const ligne = {
         id: Date.now() + Math.random(),
         numero: lignes.length + 1,
-        libelle: CURRENT_SERVICE === 'cleaning' ? firstType : '',
+        type_prestation: defaultType,
+        libelle: '',
         unite: CURRENT_SERVICE === 'cleaning' ? 'unite' : 'gramme',
         quantite: 1,
-        prix_unitaire: CURRENT_SERVICE === 'cleaning' ? CLEANING_TYPES[firstType] : 0
+        prix_unitaire: defaultPrix
     };
 
     lignes.push(ligne);
@@ -234,8 +244,8 @@ function afficherLignes() {
         tr.className = 'hover:bg-gray-50';
 
         if (CURRENT_SERVICE === 'cleaning') {
-            const options = Object.keys(CLEANING_TYPES).map(type =>
-                `<option value="${type}" ${ligne.libelle === type ? 'selected' : ''}>${type}</option>`
+            const options = PRESTATIONS.map(p =>
+                `<option value="${p.nom}" ${ligne.type_prestation === p.nom ? 'selected' : ''}>${p.nom}</option>`
             ).join('');
 
             tr.innerHTML = `
@@ -244,9 +254,14 @@ function afficherLignes() {
                 </td>
                 <td class="px-1 py-2">
                     <select class="w-full px-2 py-1.5 text-[11px] md:text-sm border border-gray-200 rounded-md focus:ring-2 focus:ring-green-500 outline-none bg-white"
-                            onchange="updateCleaningType(${ligne.id}, this.value)">
+                            onchange="updatePrestation(${ligne.id}, this.value)">
                         ${options}
                     </select>
+                </td>
+                <td class="px-1 py-2">
+                    <input type="text" value="${ligne.libelle}" placeholder="Ex: Toyota Hilux..."
+                           class="w-full px-2 py-1.5 text-[11px] md:text-sm border border-gray-200 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
+                           oninput="updateLigne(${ligne.id}, 'libelle', this.value)">
                 </td>
                 <td class="px-1 py-2">
                     <input type="text" value="${ligne.unite === 'unite' ? '' : ligne.unite}" placeholder="Plaque..."
@@ -308,11 +323,12 @@ function afficherLignes() {
     calculerTotaux();
 }
 
-function updateCleaningType(id, type) {
+function updatePrestation(id, nom) {
     const ligne = lignes.find(l => l.id === id);
-    if (ligne) {
-        ligne.libelle = type;
-        ligne.prix_unitaire = CLEANING_TYPES[type] || 0;
+    const prestation = PRESTATIONS.find(p => p.nom === nom);
+    if (ligne && prestation) {
+        ligne.type_prestation = prestation.nom;
+        ligne.prix_unitaire = prestation.prix_par_defaut;
         afficherLignes();
     }
 }
@@ -359,14 +375,25 @@ document.getElementById('devisForm').addEventListener('submit', function(e) {
         alert('Veuillez ajouter un élément.');
         return;
     }
-    const invalidLigne = lignes.find(l => !l.libelle.trim());
+
+    // Vérifier selon le service
+    const invalidLigne = lignes.find(l => {
+        if (CURRENT_SERVICE === 'cleaning') {
+            return !l.type_prestation;
+        } else {
+            return !l.libelle.trim();
+        }
+    });
+
     if (invalidLigne) {
         e.preventDefault();
         alert(CURRENT_SERVICE === 'cleaning' ? 'Veuillez choisir un type.' : 'Veuillez remplir la désignation.');
         return;
     }
+
     const lignesData = lignes.map(l => ({
         numero: l.numero,
+        type_prestation: l.type_prestation,
         libelle: l.libelle,
         unite: l.unite,
         quantite: parseFloat(l.quantite) || 0,

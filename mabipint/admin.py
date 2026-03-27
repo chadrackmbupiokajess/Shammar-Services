@@ -1,26 +1,32 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from .models import Devis, LigneDevis
+from .models import Devis, LigneDevis, PrestationCleaning
 
 
 class LigneDevisInline(admin.TabularInline):
     model = LigneDevis
     extra = 1
-    fields = ['numero_ligne', 'libelle', 'unite', 'quantite', 'prix_unitaire']
+    fields = ['numero_ligne', 'type_prestation', 'libelle', 'unite', 'quantite', 'prix_unitaire']
+
+
+@admin.register(PrestationCleaning)
+class PrestationCleaningAdmin(admin.ModelAdmin):
+    list_display = ['nom', 'prix_par_defaut']
+    search_fields = ['nom']
 
 
 @admin.register(Devis)
 class DevisAdmin(admin.ModelAdmin):
-    list_display = ['numero', 'client_nom', 'date_creation', 'statut', 'total_general', 'created_by']
-    list_filter = ['statut', 'date_creation', 'created_by']
+    list_display = ['numero', 'service', 'client_nom', 'date_creation', 'statut', 'total_general', 'created_by']
+    list_filter = ['service', 'statut', 'date_creation', 'created_by']
     search_fields = ['numero', 'client_nom', 'client_email', 'created_by__username']
     readonly_fields = ['date_creation', 'date_modification', 'created_by']
     inlines = [LigneDevisInline]
 
     fieldsets = (
         ('Informations du devis', {
-            'fields': ('numero', 'statut', 'created_by', 'date_creation', 'date_modification')
+            'fields': ('numero', 'service', 'statut', 'mode_paiement', 'inclure_main_oeuvre', 'created_by', 'date_creation', 'date_modification')
         }),
         ('Informations client', {
             'fields': ('client_nom', 'client_email', 'client_telephone', 'client_adresse')
@@ -39,9 +45,9 @@ class DevisAdmin(admin.ModelAdmin):
 
 @admin.register(LigneDevis)
 class LigneDevisAdmin(admin.ModelAdmin):
-    list_display = ['devis', 'numero_ligne', 'libelle', 'quantite', 'unite', 'prix_unitaire', 'prix_total']
-    list_filter = ['devis', 'unite']
-    search_fields = ['libelle', 'devis__numero']
+    list_display = ['devis', 'numero_ligne', 'type_prestation', 'libelle', 'quantite', 'unite', 'prix_unitaire', 'prix_total']
+    list_filter = ['devis__service', 'unite']
+    search_fields = ['libelle', 'devis__numero', 'type_prestation']
 
 
 # Dé-enregistrer l'UserAdmin par défaut
@@ -55,12 +61,10 @@ class CustomUserAdmin(BaseUserAdmin):
     list_display = BaseUserAdmin.list_display + ('total_ventes', 'chiffre_affaires_total')
 
     def total_ventes(self, obj):
-        # Compte le nombre de ventes créées par cet utilisateur
         return obj.devis_crees.count()
     total_ventes.short_description = 'Nombre de Ventes'
 
     def chiffre_affaires_total(self, obj):
-        # Calcule la somme des totaux généraux de ses ventes
         ventes = obj.devis_crees.all()
         total = sum(v.total_general for v in ventes)
         return f"{total:,.0f} FC"

@@ -78,8 +78,9 @@
                         <tr>
                             <th width="5%">N°</th>
                             {% if devis.service == 'cleaning' %}
-                            <th width="45%">TYPE & MARQUE ENGIN</th>
-                            <th width="30%">PLAQUE D'IMMATRICULATION</th>
+                            <th width="25%">TYPE</th>
+                            <th width="35%">TYPE & MARQUE ENGIN</th>
+                            <th width="15%">PLAQUE</th>
                             <th width="20%">MONTANT</th>
                             {% else %}
                             <th width="45%">LIBELLÉ / DÉSIGNATION</th>
@@ -95,6 +96,7 @@
                         <tr class="{% if forloop.counter|divisibleby:2 %}bg-gray{% endif %}">
                             <td>{{ ligne.numero_ligne }}</td>
                             {% if devis.service == 'cleaning' %}
+                            <td class="text-left">{{ ligne.type_prestation }}</td>
                             <td class="text-left font-medium">{{ ligne.libelle }}</td>
                             <td>{{ ligne.unite }}</td>
                             <td class="text-right font-bold">{{ ligne.prix_total|floatformat:2|intcomma }} FC</td>

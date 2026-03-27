@@ -8,7 +8,6 @@ class UserProfile(models.Model):
     """Extension du modèle User"""
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     telephone = models.CharField(max_length=50, blank=True, null=True, verbose_name="Téléphone")
-    # On peut définir quel service l'utilisateur gère par défaut
     default_service = models.CharField(
         max_length=20, 
         choices=[('mabipeint', 'MABIPEINT'), ('cleaning', 'SHAMMAR CLEANING')],
@@ -17,6 +16,19 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"Profil de {self.user.username}"
+
+
+class PrestationCleaning(models.Model):
+    """Modèle pour les types de nettoyage gérés par l'admin"""
+    nom = models.CharField(max_length=100, verbose_name="Nom de la prestation")
+    prix_par_defaut = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Prix par défaut")
+
+    class Meta:
+        verbose_name = "Prestation Cleaning"
+        verbose_name_plural = "Prestations Cleaning"
+
+    def __str__(self):
+        return f"{self.nom} ({self.prix_par_defaut} FC)"
 
 
 class Devis(models.Model):
@@ -75,10 +87,8 @@ class Devis(models.Model):
 
     @property
     def main_oeuvre(self):
-        # Pas de main d'oeuvre pour Shammar Cleaning
         if self.service == 'cleaning':
             return Decimal('0.00')
-        
         if self.inclure_main_oeuvre:
             return self.total_fourniture * Decimal('0.25')
         return Decimal('0.00')
@@ -94,11 +104,8 @@ class Devis(models.Model):
             prefix = "MAB" if self.service == 'mabipeint' else "CLN"
             count = Devis.objects.filter(service=self.service, date_creation__year=year).count() + 1
             self.numero = f"{prefix}-{year}-{count:04d}"
-        
-        # Sécurité : forcer inclure_main_oeuvre à False pour cleaning
         if self.service == 'cleaning':
             self.inclure_main_oeuvre = False
-
         super().save(*args, **kwargs)
 
 
@@ -115,8 +122,16 @@ class LigneDevis(models.Model):
 
     devis = models.ForeignKey(Devis, on_delete=models.CASCADE, related_name='lignes', verbose_name="Devis")
     numero_ligne = models.PositiveIntegerField(verbose_name="N°")
+    
+    # Pour Mabipeint: Désignation. Pour Cleaning: Type & Marque Engin
     libelle = models.CharField(max_length=500, verbose_name="Libellé")
-    unite = models.CharField(max_length=20, choices=UNITE_CHOICES, default='unite', verbose_name="Unité")
+    
+    # Pour Mabipeint: Unité (choix). Pour Cleaning: Plaque d'immatriculation (texte libre)
+    unite = models.CharField(max_length=50, default='unite', verbose_name="Unité/Plaque")
+    
+    # Pour Cleaning: On stocke le type de prestation choisi ici
+    type_prestation = models.CharField(max_length=100, blank=True, null=True, verbose_name="Type de prestation")
+
     quantite = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], verbose_name="Quantité")
     prix_unitaire = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)], verbose_name="Prix Unitaire (P.U)")
 
