@@ -125,7 +125,7 @@ class PrestationCleaningForm(forms.ModelForm):
         widgets = {
             'nom': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none',
-                'placeholder': 'Ex: Poliching'
+                'placeholder': 'Ex: Deteeling'
             }),
             'prix_par_defaut': forms.NumberInput(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none',
