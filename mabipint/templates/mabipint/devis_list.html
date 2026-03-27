@@ -1,6 +1,6 @@
 {% extends 'mabipint/base.html' %}
 
-{% block title %}Historique des ventes - MABIPEINT{% endblock %}
+{% block title %}{% if service == 'cleaning' %}Historique Nettoyages{% else %}Historique des ventes{% endif %} - {{ service|upper }}{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -9,26 +9,28 @@
     <div class="mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
         <div>
             <h1 class="text-2xl md:text-3xl font-bold text-gray-900">
-                <i class="fas fa-history text-blue-600 mr-3"></i>Historique des ventes
+                <i class="fas {% if service == 'cleaning' %}fa-broom{% else %}fa-history{% endif %} {% if service == 'cleaning' %}text-green-600{% else %}text-blue-600{% endif %} mr-3"></i>
+                {% if service == 'cleaning' %}Historique Nettoyages{% else %}Historique des ventes{% endif %}
             </h1>
-            <p class="text-gray-600 mt-2">Gérez toutes vos ventes en un seul endroit</p>
+            <p class="text-gray-600 mt-2">{% if service == 'cleaning' %}Gérez tous vos nettoyages enregistrés{% else %}Gérez toutes vos ventes en un seul endroit{% endif %}</p>
         </div>
         <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
             <!-- Formulaire de recherche -->
             <div class="relative flex-grow">
                 <input type="text" id="search-input" value="{{ search_query|default:'' }}"
                        placeholder="Rechercher (N° ou Client)..."
-                       class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                       class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 {% if service == 'cleaning' %}focus:ring-green-500{% else %}focus:ring-blue-500{% endif %} outline-none text-sm">
                 <div class="absolute left-3 top-2.5 text-gray-400">
                     <i class="fas fa-search"></i>
                 </div>
                 <!-- Indicateur de chargement -->
-                <div id="search-loader" class="absolute right-3 top-2.5 text-blue-500 hidden">
+                <div id="search-loader" class="absolute right-3 top-2.5 {% if service == 'cleaning' %}text-green-500{% else %}text-blue-500{% endif %} hidden">
                     <i class="fas fa-spinner fa-spin"></i>
                 </div>
             </div>
-            <a href="{% url 'devis_create' %}" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition shadow-md flex items-center justify-center whitespace-nowrap">
-                <i class="fas fa-cart-plus mr-2"></i>Nouvelle Vente
+            <a href="{% url 'devis_create' %}" class="{% if service == 'cleaning' %}bg-green-600 hover:bg-green-700{% else %}bg-blue-600 hover:bg-blue-700{% endif %} text-white px-6 py-2 rounded-lg transition shadow-md flex items-center justify-center whitespace-nowrap">
+                <i class="fas {% if service == 'cleaning' %}fa-plus-circle{% else %}fa-cart-plus{% endif %} mr-2"></i>
+                {% if service == 'cleaning' %}Nouveau Nettoyage{% else %}Nouvelle Vente{% endif %}
             </a>
         </div>
     </div>
