@@ -140,7 +140,7 @@ class DevisForm(forms.ModelForm):
 
     class Meta:
         model = Devis
-        fields = ['client_nom', 'client_email', 'client_telephone', 'client_adresse', 'inclure_main_oeuvre', 'notes']
+        fields = ['client_nom', 'client_email', 'client_telephone', 'client_adresse', 'inclure_main_oeuvre', 'mode_paiement', 'notes']
         widgets = {
             'client_nom': forms.TextInput(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
@@ -162,6 +162,9 @@ class DevisForm(forms.ModelForm):
             'inclure_main_oeuvre': forms.CheckboxInput(attrs={
                 'class': 'w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500',
                 'id': 'inclureMO'
+            }),
+            'mode_paiement': forms.Select(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white',
             }),
             'notes': forms.Textarea(attrs={
                 'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',

@@ -138,14 +138,15 @@
                         </div>
                     </div>
 
-                    <div class="bg-green-50 p-3 rounded-lg mb-6 border border-green-100 flex flex-row justify-between lg:flex-col gap-2">
-                        <div class="flex justify-between gap-2">
+                    <!-- Mode de Paiement et Statut -->
+                    <div class="bg-green-50 p-3 rounded-lg mb-6 border border-green-100 space-y-3">
+                        <div class="flex items-center justify-between">
                             <span class="text-[10px] md:text-xs font-medium text-green-800">Statut:</span>
                             <span class="text-[10px] md:text-xs font-bold text-green-700 uppercase">Payé</span>
                         </div>
-                        <div class="flex justify-between gap-2">
-                            <span class="text-[10px] md:text-xs font-medium text-blue-800">Mode:</span>
-                            <span class="text-[10px] md:text-xs font-bold text-blue-700 uppercase">Espèces</span>
+                        <div class="space-y-1">
+                            <label class="text-[10px] md:text-xs font-medium text-blue-800 block">Mode de paiement:</label>
+                            {{ form.mode_paiement }}
                         </div>
                     </div>
 

@@ -65,7 +65,7 @@
                     <h3 class="info-title"><i class="fas fa-info-circle"></i>DÉTAILS</h3>
                     <div class="info-box">
                         <div class="detail-line"><span>Statut:</span><span class="status-paid">Payé</span></div>
-                        <div class="detail-line"><span>Paiement:</span><span>Espèces</span></div>
+                        <div class="detail-line"><span>Paiement:</span><span>{{ devis.get_mode_paiement_display }}</span></div>
                         <div class="detail-line"><span>Par:</span><span>{{ devis.created_by.username }}</span></div>
                     </div>
                 </div>

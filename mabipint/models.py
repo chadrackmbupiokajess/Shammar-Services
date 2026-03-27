@@ -31,6 +31,11 @@ class Devis(models.Model):
         ('paye', 'Payé'),
     ]
 
+    MODE_PAIEMENT_CHOICES = [
+        ('especes', 'Espèces'),
+        ('bancaire', 'Bancaire'),
+    ]
+
     service = models.CharField(max_length=20, choices=SERVICE_CHOICES, default='mabipeint', verbose_name="Service")
     numero = models.CharField(max_length=50, unique=True, verbose_name="Numéro de devis")
     date_creation = models.DateTimeField(auto_now_add=True, verbose_name="Date de création")
@@ -50,9 +55,6 @@ class Devis(models.Model):
     inclure_main_oeuvre = models.BooleanField(default=True, verbose_name="Inclure la main d'œuvre (25%)")
 
     # Mode de paiement
-    MODE_PAIEMENT_CHOICES = [
-        ('especes', 'Espèces'),
-    ]
     mode_paiement = models.CharField(max_length=20, choices=MODE_PAIEMENT_CHOICES, default='especes', verbose_name="Mode de paiement")
 
     # Utilisateur qui a créé le devis
