@@ -18,12 +18,20 @@ from django.core.paginator import Paginator
 # --- Gestion des Sessions Services ---
 
 def get_current_service(request):
-    """Récupère le service actif en session"""
+    """Récupère le service actif (Session pour admin, Profil pour Agent)"""
+    if request.user.is_authenticated and not request.user.is_superuser:
+        # Un agent est forcé sur son service par défaut
+        return request.user.profile.default_service
+    # Un admin peut utiliser la session
     return request.session.get('current_service', 'mabipeint')
 
 @login_required
 def switch_service(request, service_name):
-    """Change de service (Mabipeint ou Cleaning)"""
+    """Change de service (Seulement pour Admin)"""
+    if not request.user.is_superuser:
+        messages.error(request, "Accès refusé. Vous n'avez pas l'autorisation de changer de système.")
+        return redirect('dashboard')
+        
     if service_name in ['mabipeint', 'cleaning']:
         request.session['current_service'] = service_name
         messages.success(request, f"Système basculé vers {service_name.upper()}.")
@@ -44,6 +52,7 @@ def login_view(request):
         if user is not None:
             login(request, user)
             profile, _ = UserProfile.objects.get_or_create(user=user)
+            # On initialise la session avec le service par défaut
             request.session['current_service'] = profile.default_service
             messages.success(request, f'Bienvenue {user.get_full_name() or user.username}!')
             return redirect('dashboard')
@@ -237,7 +246,7 @@ def devis_create(request):
                             devis=devis, numero_ligne=ligne['numero'], libelle=ligne['libelle'],
                             unite=ligne['unite'], quantite=ligne['quantite'], prix_unitaire=ligne['prix_unitaire']
                         )
-                messages.success(request, f'Vente {devis.numero} enregistrée!')
+                messages.success(request, f'Enregistrement {devis.numero} réussi!')
                 return redirect('devis_detail', pk=devis.pk)
     else: form = DevisForm()
     return render(request, 'mabipint/devis_create.html', {'form': form, 'service': service})
@@ -245,7 +254,13 @@ def devis_create(request):
 @login_required
 def devis_detail(request, pk):
     devis = get_object_or_404(Devis, pk=pk)
-    if not request.user.is_superuser and devis.created_by != request.user: raise Http404()
+    # Protection: Un agent ne peut pas voir un devis d'un autre service
+    if not request.user.is_superuser:
+        if devis.service != request.user.profile.default_service:
+            raise Http404()
+        if devis.created_by != request.user:
+            raise Http404()
+            
     return render(request, 'mabipint/devis_detail.html', {'devis': devis})
 
 @login_required
@@ -273,7 +288,7 @@ def devis_edit(request, pk):
         'form': form, 
         'devis': devis, 
         'lignes_json': lignes_json,
-        'service': devis.service  # Ajout du service
+        'service': devis.service
     })
 
 @login_required
@@ -288,6 +303,8 @@ def devis_delete(request, pk):
 @login_required
 def devis_pdf(request, pk):
     devis = get_object_or_404(Devis, pk=pk)
+    if not request.user.is_superuser and devis.service != request.user.profile.default_service:
+        raise Http404()
     return render(request, 'mabipint/devis_pdf.html', {'devis': devis})
 
 @login_required

@@ -98,13 +98,13 @@
                             {% if devis.service == 'cleaning' %}
                             <td class="text-left font-medium">{{ ligne.libelle }}</td>
                             <td class="text-center">{{ ligne.unite }}</td>
-                            <td class="text-right font-bold">{{ ligne.prix_total|floatformat:0|intcomma }} FC</td>
+                            <td class="text-right font-bold">{{ ligne.prix_total|floatformat:2|intcomma }} FC</td>
                             {% else %}
                             <td class="text-left font-medium">{{ ligne.libelle }}</td>
                             <td class="text-center">{{ ligne.get_unite_display }}</td>
                             <td class="text-center">{{ ligne.quantite }}</td>
-                            <td class="text-right">{{ ligne.prix_unitaire|floatformat:0|intcomma }}</td>
-                            <td class="text-right font-bold">{{ ligne.prix_total|floatformat:0|intcomma }}</td>
+                            <td class="text-right">{{ ligne.prix_unitaire|floatformat:2|intcomma }}</td>
+                            <td class="text-right font-bold">{{ ligne.prix_total|floatformat:2|intcomma }}</td>
                             {% endif %}
                         </tr>
                         {% endfor %}
@@ -118,15 +118,15 @@
                 <div class="totals-col">
                     <div class="totals-box">
                         {% if devis.service == 'cleaning' %}
-                        <div class="total-line"><span>Sous-total:</span><span>{{ devis.total_fourniture|floatformat:0|intcomma }} FC</span></div>
+                        <div class="total-line"><span>Sous-total:</span><span>{{ devis.total_fourniture|floatformat:2|intcomma }} FC</span></div>
                         {% else %}
-                        <div class="total-line"><span>Articles:</span><span>{{ devis.total_fourniture|floatformat:0|intcomma }} FC</span></div>
-                        <div class="total-line"><span>Main d'œuvre:</span><span>{{ devis.main_oeuvre|floatformat:0|intcomma }} FC</span></div>
+                        <div class="total-line"><span>Articles:</span><span>{{ devis.total_fourniture|floatformat:2|intcomma }} FC</span></div>
+                        <div class="total-line"><span>Main d'œuvre:</span><span>{{ devis.main_oeuvre|floatformat:2|intcomma }} FC</span></div>
                         {% endif %}
                         <div class="grand-total-box {% if devis.service == 'cleaning' %}!bg-green-700{% endif %}">
                             <div class="grand-total-line">
                                 <span>TOTAL PAYÉ:</span>
-                                <span>{{ devis.total_general|floatformat:0|intcomma }} FC</span>
+                                <span>{{ devis.total_general|floatformat:2|intcomma }} FC</span>
                             </div>
                         </div>
                     </div>

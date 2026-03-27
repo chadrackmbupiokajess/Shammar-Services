@@ -40,11 +40,13 @@
                         </p>
                     </a>
 
-                    <!-- Switcher de Service -->
+                    <!-- Switcher de Service - RÉSERVÉ À L'ADMIN -->
+                    {% if user.is_superuser %}
                     <div class="ml-6 hidden sm:flex bg-white/10 rounded-lg p-1 border border-white/20">
                         <a href="{% url 'switch_service' 'mabipeint' %}" class="px-3 py-1 text-[10px] font-bold rounded {% if request.session.current_service != 'cleaning' %}bg-white text-blue-600{% else %}text-white hover:bg-white/10{% endif %} transition">MABIPEINT</a>
                         <a href="{% url 'switch_service' 'cleaning' %}" class="px-3 py-1 text-[10px] font-bold rounded {% if request.session.current_service == 'cleaning' %}bg-white text-emerald-600{% else %}text-white hover:bg-white/10{% endif %} transition ml-1">CLEANING</a>
                     </div>
+                    {% endif %}
 
                     <!-- Menu principal (Desktop) -->
                     <div class="hidden md:ml-8 md:flex md:space-x-2">
