@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, JsonResponse
 from django.db import transaction
 from django.utils import timezone
 from datetime import datetime, timedelta
@@ -15,8 +15,24 @@ from django.db.models import Sum, Q
 from django.core.paginator import Paginator
 
 
+# --- Gestion des Sessions Services ---
+
+def get_current_service(request):
+    """Récupère le service actif en session"""
+    return request.session.get('current_service', 'mabipeint')
+
+@login_required
+def switch_service(request, service_name):
+    """Change de service (Mabipeint ou Cleaning)"""
+    if service_name in ['mabipeint', 'cleaning']:
+        request.session['current_service'] = service_name
+        messages.success(request, f"Système basculé vers {service_name.upper()}.")
+    return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
+
+
+# --- Authentification ---
+
 def login_view(request):
-    """Vue de connexion"""
     if request.user.is_authenticated:
         return redirect('dashboard')
 
@@ -27,62 +43,54 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
+            profile, _ = UserProfile.objects.get_or_create(user=user)
+            request.session['current_service'] = profile.default_service
             messages.success(request, f'Bienvenue {user.get_full_name() or user.username}!')
             return redirect('dashboard')
         else:
             messages.error(request, 'Nom d\'utilisateur ou mot de passe incorrect.')
 
-    return render(request, 'mabipint/login.html', {'show_eye': True})
-
+    return render(request, 'mabipint/login.html')
 
 def logout_view(request):
-    """Vue de déconnexion"""
     logout(request)
-    messages.info(request, 'Vous avez été déconnecté avec succès.')
+    messages.info(request, 'Vous avez été déconnecté.')
     return redirect('login')
 
 
+# --- Dashboard ---
+
 @login_required
 def dashboard(request):
-    """Tableau de bord principal (Filtré par rôle)"""
+    service = get_current_service(request)
+    
     if request.user.is_superuser:
-        user_devis = Devis.objects.all()
+        user_devis = Devis.objects.filter(service=service)
     else:
-        user_devis = Devis.objects.filter(created_by=request.user)
+        user_devis = Devis.objects.filter(service=service, created_by=request.user)
         
     devis_list = user_devis.order_by('-date_creation')[:10]
     now = timezone.now()
     
-    date_filter_str = request.GET.get('date_filter')
-    if date_filter_str:
-        try:
-            target_date = datetime.strptime(date_filter_str, '%Y-%m-%d').date()
-            reference_date = timezone.make_aware(datetime.combine(target_date, datetime.max.time()))
-        except ValueError:
-            reference_date = now
-    else:
-        reference_date = now
-
     total_devis = user_devis.count()
     devis_paye = user_devis.filter(statut='paye').count()
     chiffre_affaires_total = sum(v.total_general for v in user_devis)
 
     ca_aujourdhui = sum(v.total_general for v in user_devis.filter(date_creation__date=now.date()))
-    debut_semaine = now - timedelta(days=now.weekday())
-    ca_semaine = sum(v.total_general for v in user_devis.filter(date_creation__gte=debut_semaine))
+    ca_semaine = sum(v.total_general for v in user_devis.filter(date_creation__gte=now-timedelta(days=7)))
     ca_mois = sum(v.total_general for v in user_devis.filter(date_creation__month=now.month, date_creation__year=now.year))
     ca_annee = sum(v.total_general for v in user_devis.filter(date_creation__year=now.year))
 
     graph_labels = []
     graph_data = []
     for i in range(6, -1, -1):
-        day = reference_date - timedelta(days=i)
+        day = now - timedelta(days=i)
         graph_labels.append(day.strftime('%d/%m'))
         ventes_jour = user_devis.filter(date_creation__date=day.date())
-        total_jour = sum(v.total_general for v in ventes_jour)
-        graph_data.append(float(total_jour))
+        graph_data.append(float(sum(v.total_general for v in ventes_jour)))
 
     context = {
+        'service': service,
         'devis_list': devis_list,
         'total_devis': total_devis,
         'devis_paye': devis_paye,
@@ -93,52 +101,40 @@ def dashboard(request):
         'ca_annee': ca_annee,
         'graph_labels': json.dumps(graph_labels),
         'graph_data': json.dumps(graph_data),
-        'date_filter_val': date_filter_str or now.strftime('%Y-%m-%d'),
     }
     return render(request, 'mabipint/dashboard.html', context)
 
 
+# --- Utilisateurs ---
+
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def user_list(request):
-    """Liste des utilisateurs et leurs performances (Admin seulement)"""
+    service = get_current_service(request)
     search_query = request.GET.get('search', '')
     
-    users = User.objects.all()
+    users = User.objects.filter(profile__default_service=service)
+    
     if search_query:
-        users = users.filter(
-            Q(username__icontains=search_query) |
-            Q(first_name__icontains=search_query) |
-            Q(last_name__icontains=search_query) |
-            Q(profile__telephone__icontains=search_query)
-        )
+        users = users.filter(Q(username__icontains=search_query) | Q(first_name__icontains=search_query) | Q(profile__telephone__icontains=search_query))
     
-    users = users.order_by('-date_joined')
     user_data = []
-    
     for user in users:
-        ventes = Devis.objects.filter(created_by=user)
-        total_ventes = ventes.count()
-        ca_total = sum(v.total_general for v in ventes)
-        
+        ventes = Devis.objects.filter(created_by=user, service=service)
         user_data.append({
             'user': user,
-            'total_ventes': total_ventes,
-            'ca_total': ca_total
+            'total_ventes': ventes.count(),
+            'ca_total': sum(v.total_general for v in ventes)
         })
     
-    context = {'user_data': user_data, 'search_query': search_query}
-    
+    context = {'user_data': user_data, 'search_query': search_query, 'service': service}
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return render(request, 'mabipint/partials/user_cards_partial.html', context)
-        
     return render(request, 'mabipint/user_list.html', context)
-
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def user_create(request):
-    """Créer un nouvel agent (Admin seulement)"""
     if request.method == 'POST':
         form = UserCreateForm(request.POST)
         if form.is_valid():
@@ -147,219 +143,148 @@ def user_create(request):
                 user.set_password(form.cleaned_data['password'])
                 user.save()
                 
-                # Créer le profil avec le téléphone
-                UserProfile.objects.create(
-                    user=user,
-                    telephone=form.cleaned_data['telephone']
-                )
+                # Récupération du service choisi dans le formulaire
+                chosen_service = form.cleaned_data['default_service']
                 
-                messages.success(request, f"L'agent {user.username} a été créé avec succès.")
+                UserProfile.objects.create(
+                    user=user, 
+                    telephone=form.cleaned_data['telephone'],
+                    default_service=chosen_service
+                )
+                messages.success(request, f"L'agent {user.username} a été ajouté à {chosen_service.upper()}.")
                 return redirect('user_list')
     else:
-        form = UserCreateForm()
-    
+        # Initialiser avec le service actif
+        current_service = get_current_service(request)
+        form = UserCreateForm(initial={'default_service': current_service})
+        
     return render(request, 'mabipint/user_create.html', {'form': form})
-
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def user_edit(request, pk):
-    """Modifier un agent (Admin seulement)"""
     user_to_edit = get_object_or_404(User, pk=pk)
-    profile, created = UserProfile.objects.get_or_create(user=user_to_edit)
-    
+    profile, _ = UserProfile.objects.get_or_create(user=user_to_edit)
     if request.method == 'POST':
         form = UserEditForm(request.POST, instance=user_to_edit)
         if form.is_valid():
             with transaction.atomic():
                 user = form.save()
-                
-                # Mettre à jour le téléphone dans le profil
                 profile.telephone = form.cleaned_data['telephone']
+                profile.default_service = form.cleaned_data['default_service']
                 profile.save()
-                
-                # Mettre à jour le mot de passe si fourni
-                new_password = form.cleaned_data.get('password')
-                if new_password:
-                    user.set_password(new_password)
+                if form.cleaned_data.get('password'):
+                    user.set_password(form.cleaned_data['password'])
                     user.save()
-                
-                messages.success(request, f"L'agent {user.username} a été mis à jour.")
+                messages.success(request, "Informations mises à jour.")
                 return redirect('user_list')
-    else:
-        initial_data = {'telephone': profile.telephone}
-        form = UserEditForm(instance=user_to_edit, initial=initial_data)
-    
+    else: 
+        form = UserEditForm(instance=user_to_edit, initial={
+            'telephone': profile.telephone,
+            'default_service': profile.default_service
+        })
     return render(request, 'mabipint/user_edit.html', {'form': form, 'user_to_edit': user_to_edit})
-
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def user_delete(request, pk):
-    """Supprimer un agent (Admin seulement)"""
-    user_to_delete = get_object_or_404(User, pk=pk)
-
-    if user_to_delete == request.user:
-        messages.error(request, "Vous ne pouvez pas supprimer votre propre compte administrateur.")
-        return redirect('user_list')
-
+    u = get_object_or_404(User, pk=pk)
+    if u == request.user: return redirect('user_list')
     if request.method == 'POST':
-        username = user_to_delete.username
-        user_to_delete.delete()
-        messages.success(request, f"L'agent {username} a été supprimé avec succès.")
+        u.delete()
         return redirect('user_list')
+    return render(request, 'mabipint/user_delete_confirm.html', {'user_to_delete': u})
 
-    return render(request, 'mabipint/user_delete_confirm.html', {'user_to_delete': user_to_delete})
 
+# --- Ventes ---
 
 @login_required
 def devis_list(request):
-    """Liste de tous les devis (Filtrée par rôle) avec pagination et recherche AJAX"""
+    service = get_current_service(request)
     if request.user.is_superuser:
-        devis_queryset = Devis.objects.all().order_by('-date_creation')
+        devis_queryset = Devis.objects.filter(service=service).order_by('-date_creation')
     else:
-        devis_queryset = Devis.objects.filter(created_by=request.user).order_by('-date_creation')
+        devis_queryset = Devis.objects.filter(service=service, created_by=request.user).order_by('-date_creation')
     
-    search_query = request.GET.get('search')
-    if search_query:
-        from django.db.models import Q
-        devis_queryset = devis_queryset.filter(
-            Q(numero__icontains=search_query) |
-            Q(client_nom__icontains=search_query)
-        )
+    search = request.GET.get('search')
+    if search:
+        devis_queryset = devis_queryset.filter(Q(numero__icontains=search) | Q(client_nom__icontains=search))
     
     paginator = Paginator(devis_queryset, 10)
-    page_number = request.GET.get('page')
-    devis_list = paginator.get_page(page_number)
+    devis_list = paginator.get_page(request.GET.get('page'))
     
-    context = {
-        'devis_list': devis_list,
-        'search_query': search_query
-    }
-    
+    context = {'devis_list': devis_list, 'search_query': search, 'service': service}
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return render(request, 'mabipint/partials/devis_table_partial.html', context)
-
     return render(request, 'mabipint/devis_list.html', context)
-
-
-@login_required
-def devis_detail(request, pk):
-    """Détail d'un devis (Sécurisé par rôle)"""
-    devis = get_object_or_404(Devis, pk=pk)
-    if not request.user.is_superuser and devis.created_by != request.user:
-        raise Http404("Vous n'avez pas l'autorisation de voir cette vente.")
-    return render(request, 'mabipint/devis_detail.html', {'devis': devis})
-
 
 @login_required
 def devis_create(request):
-    """Créer un nouveau devis"""
+    service = get_current_service(request)
     if request.method == 'POST':
         form = DevisForm(request.POST)
-
         if form.is_valid():
             with transaction.atomic():
                 devis = form.save(commit=False)
                 devis.created_by = request.user
+                devis.service = service
                 devis.save()
 
                 lignes_data = request.POST.get('lignes_data')
                 if lignes_data:
-                    lignes = json.loads(lignes_data)
-                    for ligne in lignes:
+                    for ligne in json.loads(lignes_data):
                         LigneDevis.objects.create(
-                            devis=devis,
-                            numero_ligne=ligne['numero'],
-                            libelle=ligne['libelle'],
-                            unite=ligne['unite'],
-                            quantite=ligne['quantite'],
-                            prix_unitaire=ligne['prix_unitaire']
+                            devis=devis, numero_ligne=ligne['numero'], libelle=ligne['libelle'],
+                            unite=ligne['unite'], quantite=ligne['quantite'], prix_unitaire=ligne['prix_unitaire']
                         )
-
-                messages.success(request, f'Vente {devis.numero} enregistrée avec succès!')
+                messages.success(request, f'Vente {devis.numero} enregistrée!')
                 return redirect('devis_detail', pk=devis.pk)
-    else:
-        form = DevisForm()
+    else: form = DevisForm()
+    return render(request, 'mabipint/devis_create.html', {'form': form, 'service': service})
 
-    return render(request, 'mabipint/devis_create.html', {'form': form})
-
+@login_required
+def devis_detail(request, pk):
+    devis = get_object_or_404(Devis, pk=pk)
+    if not request.user.is_superuser and devis.created_by != request.user: raise Http404()
+    return render(request, 'mabipint/devis_detail.html', {'devis': devis})
 
 @login_required
 def devis_edit(request, pk):
-    """Modifier un devis existant (Sécurisé par rôle)"""
     devis = get_object_or_404(Devis, pk=pk)
-    if not request.user.is_superuser and devis.created_by != request.user:
-        raise Http404("Modification interdite.")
-
+    if not request.user.is_superuser and devis.created_by != request.user: raise Http404()
     if request.method == 'POST':
         form = DevisForm(request.POST, instance=devis)
-
         if form.is_valid():
             with transaction.atomic():
                 devis = form.save()
                 devis.lignes.all().delete()
-
                 lignes_data = request.POST.get('lignes_data')
                 if lignes_data:
-                    lignes = json.loads(lignes_data)
-                    for ligne in lignes:
+                    for ligne in json.loads(lignes_data):
                         LigneDevis.objects.create(
-                            devis=devis,
-                            numero_ligne=ligne['numero'],
-                            libelle=ligne['libelle'],
-                            unite=ligne['unite'],
-                            quantite=ligne['quantite'],
-                            prix_unitaire=ligne['prix_unitaire']
+                            devis=devis, numero_ligne=ligne['numero'], libelle=ligne['libelle'],
+                            unite=ligne['unite'], quantite=ligne['quantite'], prix_unitaire=ligne['prix_unitaire']
                         )
-
-                messages.success(request, f'Vente {devis.numero} modifiée avec succès!')
+                messages.success(request, "Modifié.")
                 return redirect('devis_detail', pk=devis.pk)
-    else:
-        form = DevisForm(instance=devis)
-
-    lignes_json = json.dumps([{
-        'numero': ligne.numero_ligne,
-        'libelle': ligne.libelle,
-        'unite': ligne.unite,
-        'quantite': str(ligne.quantite),
-        'prix_unitaire': str(ligne.prix_unitaire)
-    } for ligne in devis.lignes.all()])
-
-    return render(request, 'mabipint/devis_edit.html', {
-        'form': form,
-        'devis': devis,
-        'lignes_json': lignes_json
-    })
-
+    else: form = DevisForm(instance=devis)
+    lignes_json = json.dumps([{'numero': l.numero_ligne, 'libelle': l.libelle, 'unite': l.unite, 'quantite': str(l.quantite), 'prix_unitaire': str(l.prix_unitaire)} for l in devis.lignes.all()])
+    return render(request, 'mabipint/devis_edit.html', {'form': form, 'devis': devis, 'lignes_json': lignes_json})
 
 @login_required
 def devis_delete(request, pk):
-    """Supprimer un devis (Sécurisé par rôle)"""
     devis = get_object_or_404(Devis, pk=pk)
-    if not request.user.is_superuser and devis.created_by != request.user:
-        raise Http404("Suppression interdite.")
-
+    if not request.user.is_superuser and devis.created_by != request.user: raise Http404()
     if request.method == 'POST':
-        numero = devis.numero
         devis.delete()
-        messages.success(request, f'Vente {numero} supprimée avec succès!')
         return redirect('devis_list')
-
     return render(request, 'mabipint/devis_delete.html', {'devis': devis})
-
 
 @login_required
 def devis_pdf(request, pk):
-    """Générer un PDF du devis (Sécurisé par rôle)"""
     devis = get_object_or_404(Devis, pk=pk)
-    if not request.user.is_superuser and devis.created_by != request.user:
-        raise Http404("Visualisation interdite.")
-
     return render(request, 'mabipint/devis_pdf.html', {'devis': devis})
-
 
 @login_required
 def aide_statuts(request):
-    """Page d'aide sur les statuts"""
     return render(request, 'mabipint/aide_statuts.html')

@@ -6,6 +6,9 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
 
+    # Changement de service (Multi-système)
+    path('switch-service/<str:service_name>/', views.switch_service, name='switch_service'),
+
     # Dashboard
     path('', views.dashboard, name='dashboard'),
 

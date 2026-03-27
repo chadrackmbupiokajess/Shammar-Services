@@ -1,6 +1,6 @@
 {% extends 'mabipint/base.html' %}
 
-{% block title %}Ajouter un agent - MABIPEINT{% endblock %}
+{% block title %}Ajouter un agent - SHAMMAR{% endblock %}
 
 {% block content %}
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -13,17 +13,38 @@
             </h1>
             <p class="text-gray-600 mt-2">Créez un compte pour un nouveau membre de l'équipe.</p>
         </div>
-        <a href="{% url 'user_list' %}" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition flex items-center">
+        <a href="{% url 'user_list' %}" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition flex items-center shadow-sm">
             <i class="fas fa-arrow-left mr-2"></i>Retour
         </a>
     </div>
 
     <!-- Formulaire -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 mb-8">
         <form method="POST" class="p-6 md:p-8">
             {% csrf_token %}
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- SÉLECTION DU SYSTÈME (RADIO) -->
+                <div class="md:col-span-2 bg-blue-50/50 p-6 rounded-2xl border border-blue-100">
+                    <label class="block text-sm font-bold text-blue-800 mb-4 uppercase tracking-wider">Affectation au Système</label>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        {% for radio in form.default_service %}
+                        <label class="flex-1 relative cursor-pointer group">
+                            {{ radio.tag }}
+                            <div class="p-4 border-2 border-gray-200 rounded-xl transition-all group-hover:border-blue-300 peer-checked:border-blue-600 peer-checked:bg-blue-600 peer-checked:text-white flex items-center justify-center font-bold">
+                                {% if radio.choice_value == 'mabipeint' %}
+                                <i class="fas fa-paint-roller mr-2"></i>
+                                {% else %}
+                                <i class="fas fa-broom mr-2"></i>
+                                {% endif %}
+                                {{ radio.choice_label }}
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
                 <!-- Username -->
                 <div class="md:col-span-2">
                     <label class="block text-sm font-semibold text-gray-700 mb-2">{{ form.username.label }} *</label>
@@ -64,9 +85,6 @@
                     <button type="button" onclick="togglePassword('id_password', 'eye_icon_1')" class="absolute right-3 top-[38px] text-gray-400 hover:text-blue-600 focus:outline-none">
                         <i id="eye_icon_1" class="fas fa-eye"></i>
                     </button>
-                    {% if form.password.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.password.errors.0 }}</p>
-                    {% endif %}
                 </div>
 
                 <!-- Confirm Password -->
@@ -76,23 +94,20 @@
                     <button type="button" onclick="togglePassword('id_confirm_password', 'eye_icon_2')" class="absolute right-3 top-[38px] text-gray-400 hover:text-blue-600 focus:outline-none">
                         <i id="eye_icon_2" class="fas fa-eye"></i>
                     </button>
-                    {% if form.confirm_password.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.confirm_password.errors.0 }}</p>
-                    {% endif %}
                 </div>
 
                 <!-- Admin Checkbox -->
-                <div class="md:col-span-2 flex items-center p-4 bg-blue-50 rounded-lg">
+                <div class="md:col-span-2 flex items-center p-4 bg-gray-50 rounded-lg">
                     {{ form.is_superuser }}
                     <div class="ml-3">
-                        <label for="{{ form.is_superuser.id_for_label }}" class="text-sm font-bold text-blue-800">Accès Administrateur</label>
-                        <p class="text-xs text-blue-600">L'administrateur peut voir toutes les ventes et gérer les utilisateurs.</p>
+                        <label for="{{ form.is_superuser.id_for_label }}" class="text-sm font-bold text-gray-800">Accès Administrateur Global</label>
+                        <p class="text-[10px] text-gray-500">L'administrateur peut voir toutes les ventes et gérer les utilisateurs.</p>
                     </div>
                 </div>
             </div>
 
             <div class="mt-8 pt-6 border-t border-gray-100 flex justify-end">
-                <button type="submit" class="bg-blue-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-700 shadow-lg transition transform hover:-translate-y-1">
+                <button type="submit" class="w-full sm:w-auto bg-blue-600 text-white px-10 py-4 rounded-xl font-bold hover:bg-blue-700 shadow-xl transition transform hover:-translate-y-1">
                     <i class="fas fa-save mr-2"></i>Enregistrer l'Agent
                 </button>
             </div>
@@ -100,22 +115,42 @@
     </div>
 
 </div>
+
+<style>
+    /* Masquer le bouton radio natif pour styliser la carte */
+    input[type="radio"].peer {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    /* Style pour les radios personnalisés */
+    .peer:checked + div {
+        background-color: #2563eb;
+        border-color: #1e40af;
+        color: white;
+        box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.4);
+    }
+</style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+    // Injection de la classe peer aux inputs radio générés par Django
+    document.querySelectorAll('input[name="default_service"]').forEach(input => {
+        input.classList.add('peer');
+    });
+
     function togglePassword(inputId, eyeId) {
         const passwordInput = document.getElementById(inputId);
         const eyeIcon = document.getElementById(eyeId);
-
         if (passwordInput.type === 'password') {
             passwordInput.type = 'text';
-            eyeIcon.classList.remove('fa-eye');
-            eyeIcon.classList.add('fa-eye-slash');
+            eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
         } else {
             passwordInput.type = 'password';
-            eyeIcon.classList.remove('fa-eye-slash');
-            eyeIcon.classList.add('fa-eye');
+            eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
         }
     }
 </script>
