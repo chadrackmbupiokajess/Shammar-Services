@@ -1,6 +1,6 @@
 {% extends 'mabipint/base.html' %}
 
-{% block title %}PDF - Reçu {{ devis.numero }} - MABIPEINT{% endblock %}
+{% block title %}PDF - Reçu {{ devis.numero }} - {{ devis.get_service_display }}{% endblock %}
 
 {% block content %}
 <div class="max-w-5xl mx-auto px-1 sm:px-6 lg:px-8">
@@ -31,12 +31,12 @@
             <div class="pdf-header">
                 <div class="header-main">
                     <div class="logo-section">
-                        <div class="logo-circle">
-                            <i class="fas fa-building text-white"></i>
+                        <div class="logo-circle {% if devis.service == 'cleaning' %}bg-green-600{% endif %}">
+                            <i class="fas {% if devis.service == 'cleaning' %}fa-shuttle-van{% else %}fa-fill-drip{% endif %} text-white"></i>
                         </div>
                         <div class="company-info">
-                            <h1 class="company-name">SHAMMAR SERVICES</h1>
-                            <p class="company-tagline">Écosystème MABIPEINT</p>
+                            <h1 class="company-name {% if devis.service == 'cleaning' %}text-green-700{% endif %}">SHAMMAR SERVICES</h1>
+                            <p class="company-tagline">{% if devis.service == 'cleaning' %}SHAMMAR CLEANING Expertise NETTOYAGE & ENTRETIEN{% else %}Écosystème MABIPEINT{% endif %}</p>
                         </div>
                     </div>
                     <p class="system-name">Système de Gestion des Ventes</p>
@@ -75,22 +75,34 @@
                     <thead>
                         <tr>
                             <th width="5%">N°</th>
-                            <th width="45%">LIBELLÉ</th>
+                            {% if devis.service == 'cleaning' %}
+                            <th width="45%">TYPE & MARQUE ENGIN</th>
+                            <th width="30%">N° MATRICULE</th>
+                            <th width="20%">MONTANT</th>
+                            {% else %}
+                            <th width="45%">LIBELLÉ / DÉSIGNATION</th>
                             <th width="10%">UNITÉ</th>
                             <th width="10%">QTÉ</th>
                             <th width="15%">P.U</th>
                             <th width="15%">P.T</th>
+                            {% endif %}
                         </tr>
                     </thead>
                     <tbody>
                         {% for ligne in devis.lignes.all %}
                         <tr class="{% if forloop.counter|divisibleby:2 %}bg-gray{% endif %}">
                             <td>{{ ligne.numero_ligne }}</td>
+                            {% if devis.service == 'cleaning' %}
+                            <td class="text-left font-medium">{{ ligne.libelle }}</td>
+                            <td>{{ ligne.unite }}</td>
+                            <td class="text-right font-bold">{{ ligne.prix_total|floatformat:0 }} FC</td>
+                            {% else %}
                             <td class="text-left font-medium">{{ ligne.libelle }}</td>
                             <td>{{ ligne.get_unite_display }}</td>
                             <td>{{ ligne.quantite }}</td>
                             <td class="text-right">{{ ligne.prix_unitaire|floatformat:0 }}</td>
                             <td class="text-right font-bold">{{ ligne.prix_total|floatformat:0 }}</td>
+                            {% endif %}
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -102,9 +114,13 @@
                 <div class="spacer-col"></div>
                 <div class="totals-col">
                     <div class="totals-box">
+                        {% if devis.service == 'cleaning' %}
+                        <div class="total-line"><span>Sous-total:</span><span>{{ devis.total_fourniture|floatformat:0 }} FC</span></div>
+                        {% else %}
                         <div class="total-line"><span>Total Articles:</span><span>{{ devis.total_fourniture|floatformat:0 }} FC</span></div>
-                        <div class="total-line"><span>Main d'œuvre:</span><span>{{ devis.main_oeuvre|floatformat:0 }} FC</span></div>
-                        <div class="grand-total-box">
+                        <div class="total-line"><span>Main d'œuvre (25%):</span><span>{{ devis.main_oeuvre|floatformat:0 }} FC</span></div>
+                        {% endif %}
+                        <div class="grand-total-box {% if devis.service == 'cleaning' %}!bg-green-700{% endif %}">
                             <div class="grand-total-line">
                                 <span>TOTAL PAYÉ:</span>
                                 <span>{{ devis.total_general|floatformat:0 }} FC</span>
@@ -116,7 +132,7 @@
 
             <!-- Pied de page -->
             <div class="pdf-footer">
-                <p>SHAMMAR SERVICES - MABIPEINT | Merci pour votre achat</p>
+                <p>SHAMMAR SERVICES - {{ devis.get_service_display }} | Merci pour votre confiance</p>
                 <p class="text-xs opacity-50">Généré le {{ devis.date_modification|date:"d/m/Y H:i" }}</p>
             </div>
 
@@ -152,6 +168,10 @@
     display: flex; justify-content: space-between; align-items: start;
     border-bottom: 3px solid #1E40AF; padding-bottom: 15px; margin-bottom: 20px;
 }
+{% if devis.service == 'cleaning' %}
+.pdf-header { border-bottom-color: #15803d; }
+{% endif %}
+
 .logo-section { display: flex; align-items: center; margin-bottom: 5px; }
 .logo-circle {
     width: var(--logo-size); height: var(--logo-size); background: #1E40AF;
@@ -165,12 +185,21 @@
 .header-side { text-align: right; }
 .doc-type { font-size: var(--font-h2); font-weight: bold; color: #1F2937; margin: 0; }
 .doc-number { font-size: calc(var(--font-body) + 3px); font-weight: bold; color: #3B82F6; margin: 0; }
+{% if devis.service == 'cleaning' %}
+.doc-number { color: #15803d; }
+{% endif %}
 .doc-date { color: #6B7280; margin: 0; }
 
 .info-row { display: flex; gap: 15px; margin-bottom: 20px; width: 100%; }
 .info-col { flex: 1; }
 .info-title { font-size: var(--font-h3); font-weight: bold; border-bottom: 2px solid #3B82F6; padding-bottom: 5px; margin-bottom: 8px; }
+{% if devis.service == 'cleaning' %}
+.info-title { border-bottom-color: #15803d; }
+{% endif %}
 .info-box { background: #F9FAFB; padding: 10px; border-radius: 5px; border-left: 3px solid #3B82F6; }
+{% if devis.service == 'cleaning' %}
+.info-box { border-left-color: #15803d; }
+{% endif %}
 .client-name { font-weight: bold; margin-bottom: 5px; }
 .info-item { display: flex; align-items: center; margin: 2px 0; }
 .info-item i { margin-right: 5px; font-size: 0.9em; width: 12px; }
@@ -180,6 +209,9 @@
 
 .pdf-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; table-layout: fixed; }
 .pdf-table th { background: #1E40AF; color: white; padding: 8px 4px; font-size: 0.9em; text-align: center; }
+{% if devis.service == 'cleaning' %}
+.pdf-table th { background: #15803d; }
+{% endif %}
 .pdf-table td { padding: 6px 4px; border: 1px solid #E5E7EB; text-align: center; word-wrap: break-word; }
 .pdf-table .text-left { text-align: left; }
 .pdf-table .text-right { text-align: right; }
@@ -198,6 +230,9 @@
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg);
     opacity: 0.05; font-size: 80px; font-weight: bold; color: #1E40AF; white-space: nowrap; pointer-events: none;
 }
+{% if devis.service == 'cleaning' %}
+.watermark { color: #15803d; }
+{% endif %}
 .pdf-footer { border-top: 1px solid #D1D5DB; padding-top: 15px; text-align: center; color: #6B7280; }
 
 /* --- OPTIMISATION IMPRESSION POUR ÉVITER LA PAGE VIDE --- */

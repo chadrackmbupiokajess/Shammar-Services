@@ -1,6 +1,6 @@
 {% extends 'mabipint/base.html' %}
 
-{% block title %}Reçu {{ devis.numero }} - MABIPEINT{% endblock %}
+{% block title %}Reçu {{ devis.numero }} - {{ devis.get_service_display }}{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
@@ -28,15 +28,15 @@
 
         <div class="receipt-content">
             <!-- En-tête -->
-            <div class="receipt-header">
+            <div class="receipt-header {% if devis.service == 'cleaning' %}border-green-600{% endif %}">
                 <div class="header-main">
-                    <h1 class="company-name">SHAMMAR SERVICES</h1>
-                    <p class="company-tagline">Écosystème MABIPEINT</p>
+                    <h1 class="company-name {% if devis.service == 'cleaning' %}text-green-700{% endif %}">SHAMMAR SERVICES</h1>
+                    <p class="company-tagline">{% if devis.service == 'cleaning' %}Expertise NETTOYAGE & ENTRETIEN{% else %}Écosystème MABIPEINT{% endif %}</p>
                     <p class="system-name">Système de Gestion des Ventes</p>
                 </div>
                 <div class="header-side">
                     <h2 class="doc-type">REÇU</h2>
-                    <p class="doc-number">{{ devis.numero }}</p>
+                    <p class="doc-number {% if devis.service == 'cleaning' %}text-green-600{% endif %}">{{ devis.numero }}</p>
                     <p class="doc-date">Date: {{ devis.date_creation|date:"d/m/Y" }}</p>
                 </div>
             </div>
@@ -44,8 +44,8 @@
             <!-- Informations (2 colonnes forcées) -->
             <div class="info-row">
                 <div class="info-col">
-                    <h3 class="info-title"><i class="fas fa-user"></i>CLIENT</h3>
-                    <div class="info-box">
+                    <h3 class="info-title {% if devis.service == 'cleaning' %}border-green-600{% endif %}"><i class="fas fa-user"></i>CLIENT</h3>
+                    <div class="info-box {% if devis.service == 'cleaning' %}border-green-600{% endif %}">
                         <p class="font-bold">{{ devis.client_nom }}</p>
                         {% if devis.client_telephone %}<p class="info-text"><i class="fas fa-phone"></i>{{ devis.client_telephone }}</p>{% endif %}
                         {% if devis.client_adresse %}<p class="info-text"><i class="fas fa-map-marker-alt"></i>{{ devis.client_adresse }}</p>{% endif %}
@@ -53,8 +53,8 @@
                 </div>
 
                 <div class="info-col">
-                    <h3 class="info-title"><i class="fas fa-info-circle"></i>DÉTAILS</h3>
-                    <div class="info-box">
+                    <h3 class="info-title {% if devis.service == 'cleaning' %}border-green-600{% endif %}"><i class="fas fa-info-circle"></i>DÉTAILS</h3>
+                    <div class="info-box {% if devis.service == 'cleaning' %}border-green-600{% endif %}">
                         <div class="detail-line"><span>Statut:</span><span class="status-paid">Payé</span></div>
                         <div class="detail-line"><span>Paiement:</span><span>Espèces</span></div>
                         <div class="detail-line">
@@ -74,25 +74,37 @@
             <!-- Tableau -->
             <div class="table-section">
                 <table class="receipt-table">
-                    <thead>
+                    <thead class="{% if devis.service == 'cleaning' %}!bg-green-700{% endif %}">
                         <tr>
-                            <th width="8%">N°</th>
+                            <th width="8%" class="{% if devis.service == 'cleaning' %}bg-green-700{% endif %}">N°</th>
+                            {% if devis.service == 'cleaning' %}
+                            <th width="52%" class="bg-green-700">TYPE & MARQUE ENGIN</th>
+                            <th width="20%" class="bg-green-700">N° MATRICULE</th>
+                            <th width="20%" class="bg-green-700">MONTANT</th>
+                            {% else %}
                             <th width="42%">LIBELLÉ</th>
                             <th width="10%">UNITÉ</th>
                             <th width="10%">QTÉ</th>
                             <th width="15%">P.U</th>
                             <th width="15%">P.T</th>
+                            {% endif %}
                         </tr>
                     </thead>
                     <tbody>
                         {% for ligne in devis.lignes.all %}
                         <tr class="{% if forloop.counter|divisibleby:2 %}bg-gray{% endif %}">
                             <td class="text-center">{{ ligne.numero_ligne }}</td>
+                            {% if devis.service == 'cleaning' %}
+                            <td class="text-left font-medium">{{ ligne.libelle }}</td>
+                            <td class="text-center">{{ ligne.unite }}</td>
+                            <td class="text-right font-bold">{{ ligne.prix_total|floatformat:0 }} FC</td>
+                            {% else %}
                             <td class="text-left font-medium">{{ ligne.libelle }}</td>
                             <td class="text-center">{{ ligne.get_unite_display }}</td>
                             <td class="text-center">{{ ligne.quantite }}</td>
                             <td class="text-right">{{ ligne.prix_unitaire|floatformat:0 }}</td>
                             <td class="text-right font-bold">{{ ligne.prix_total|floatformat:0 }}</td>
+                            {% endif %}
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -104,9 +116,13 @@
                 <div class="spacer-col"></div>
                 <div class="totals-col">
                     <div class="totals-box">
+                        {% if devis.service == 'cleaning' %}
+                        <div class="total-line"><span>Sous-total:</span><span>{{ devis.total_fourniture|floatformat:0 }} FC</span></div>
+                        {% else %}
                         <div class="total-line"><span>Articles:</span><span>{{ devis.total_fourniture|floatformat:0 }} FC</span></div>
                         <div class="total-line"><span>Main d'œuvre:</span><span>{{ devis.main_oeuvre|floatformat:0 }} FC</span></div>
-                        <div class="grand-total-box">
+                        {% endif %}
+                        <div class="grand-total-box {% if devis.service == 'cleaning' %}!bg-green-700{% endif %}">
                             <div class="grand-total-line">
                                 <span>TOTAL PAYÉ:</span>
                                 <span>{{ devis.total_general|floatformat:0 }} FC</span>
@@ -126,7 +142,7 @@
 
             <!-- Pied -->
             <div class="receipt-footer">
-                <p>SHAMMAR SERVICES - MABIPEINT | Merci pour votre achat</p>
+                <p>SHAMMAR SERVICES - {{ devis.get_service_display }} | Merci pour votre confiance</p>
             </div>
         </div>
     </div>

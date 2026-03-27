@@ -73,6 +73,10 @@ class Devis(models.Model):
 
     @property
     def main_oeuvre(self):
+        # Pas de main d'oeuvre pour Shammar Cleaning
+        if self.service == 'cleaning':
+            return Decimal('0.00')
+        
         if self.inclure_main_oeuvre:
             return self.total_fourniture * Decimal('0.25')
         return Decimal('0.00')
@@ -88,6 +92,11 @@ class Devis(models.Model):
             prefix = "MAB" if self.service == 'mabipeint' else "CLN"
             count = Devis.objects.filter(service=self.service, date_creation__year=year).count() + 1
             self.numero = f"{prefix}-{year}-{count:04d}"
+        
+        # Sécurité : forcer inclure_main_oeuvre à False pour cleaning
+        if self.service == 'cleaning':
+            self.inclure_main_oeuvre = False
+
         super().save(*args, **kwargs)
 
 
