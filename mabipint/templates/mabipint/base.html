@@ -23,6 +23,35 @@
         @media print { .no-print { display: none !important; } }
 
         .group:hover .group-hover\:block { display: block; }
+
+        /* Styles pour le menu mobile */
+        .mobile-menu {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(-100%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 75%; /* Largeur du menu mobile */
+            height: 100%;
+            z-index: 999;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+        }
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+            display: none;
+        }
+        .overlay.open {
+            display: block;
+        }
     </style>
 </head>
 <body class="bg-gray-50 service-{{ request.session.current_service|default:'mabipeint' }}">
@@ -32,69 +61,133 @@
     <nav class="gradient-bg shadow-lg no-print">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between h-16">
+                <!-- Logo et Switcher de Service -->
                 <div class="flex items-center">
-                    <a href="{% url 'dashboard' %}" class="text-white">
+                    <a href="{% url 'dashboard' %}" class="text-white flex-shrink-0">
                         <h1 class="text-xl font-bold">SHAMMAR SERVICES</h1>
                         <p class="text-[10px] uppercase tracking-widest opacity-80">
                             {% if request.session.current_service == 'cleaning' %}SHAMMAR CLEANING{% else %}ÉCOSYSTÈME MABIPEINT{% endif %}
                         </p>
                     </a>
 
-                    <!-- Switcher de Service - RÉSERVÉ À L'ADMIN -->
+                    <!-- Switcher de Service - RÉSERVÉ À L'ADMIN (Desktop) -->
                     {% if user.is_superuser %}
                     <div class="ml-6 hidden sm:flex bg-white/10 rounded-lg p-1 border border-white/20">
                         <a href="{% url 'switch_service' 'mabipeint' %}" class="px-3 py-1 text-[10px] font-bold rounded {% if request.session.current_service != 'cleaning' %}bg-white text-blue-600{% else %}text-white hover:bg-white/10{% endif %} transition">MABIPEINT</a>
                         <a href="{% url 'switch_service' 'cleaning' %}" class="px-3 py-1 text-[10px] font-bold rounded {% if request.session.current_service == 'cleaning' %}bg-white text-emerald-600{% else %}text-white hover:bg-white/10{% endif %} transition ml-1">CLEANING</a>
                     </div>
                     {% endif %}
-
-                    <!-- Menu principal (Desktop) -->
-                    <div class="hidden md:ml-8 md:flex md:space-x-2">
-                        <a href="{% url 'dashboard' %}" class="text-white hover:bg-white/20 px-3 py-2 rounded-md text-sm font-medium transition">
-                            <i class="fas fa-chart-pie mr-1.5"></i>Tableau de bord
-                        </a>
-                        <a href="{% url 'devis_list' %}" class="text-white hover:bg-white/20 px-3 py-2 rounded-md text-sm font-medium transition">
-                            <i class="fas {% if request.session.current_service == 'cleaning' %}fa-broom{% else %}fa-history{% endif %} mr-1.5"></i>
-                            {% if request.session.current_service == 'cleaning' %}Nettoyages{% else %}Ventes{% endif %}
-                        </a>
-                        <a href="{% url 'devis_create' %}" class="text-white hover:bg-white/20 px-3 py-2 rounded-md text-sm font-medium transition">
-                            <i class="fas {% if request.session.current_service == 'cleaning' %}fa-plus-circle{% else %}fa-cart-plus{% endif %} mr-1.5"></i>
-                            {% if request.session.current_service == 'cleaning' %}Nouveau Nettoyage{% else %}Nouvelle Vente{% endif %}
-                        </a>
-
-                        {% if user.is_superuser %}
-                        <div class="relative group">
-                            <button class="text-white hover:bg-white/20 px-3 py-2 rounded-md text-sm font-medium transition flex items-center h-full">
-                                <i class="fas fa-users mr-1.5"></i>Équipe
-                                <i class="fas fa-chevron-down ml-1.5 text-[10px]"></i>
-                            </button>
-                            <div class="absolute left-0 mt-0 w-48 bg-white rounded-md shadow-xl py-2 z-50 hidden group-hover:block border border-gray-100">
-                                <a href="{% url 'user_list' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    <i class="fas fa-list-ul mr-2 text-gray-400"></i>Gérer l'équipe
-                                </a>
-                                <a href="{% url 'user_create' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    <i class="fas fa-user-plus mr-2 text-gray-400"></i>Ajouter un agent
-                                </a>
-                            </div>
-                        </div>
-                        {% endif %}
-
-                        <a href="{% url 'aide_statuts' %}" class="text-white hover:bg-white/20 px-3 py-2 rounded-md text-sm font-medium transition">
-                            <i class="fas fa-question-circle mr-1.5"></i>Aide
-                        </a>
-                    </div>
                 </div>
 
-                <!-- Utilisateur -->
+                <!-- Menu principal (Desktop) -->
+                <div class="hidden md:flex md:items-center md:ml-8 md:space-x-2">
+                    <a href="{% url 'dashboard' %}" class="text-white hover:bg-white/20 px-3 py-2 rounded-md text-sm font-medium transition">
+                        <i class="fas fa-chart-pie mr-1.5"></i>Tableau de bord
+                    </a>
+                    <a href="{% url 'devis_list' %}" class="text-white hover:bg-white/20 px-3 py-2 rounded-md text-sm font-medium transition">
+                        <i class="fas {% if request.session.current_service == 'cleaning' %}fa-broom{% else %}fa-history{% endif %} mr-1.5"></i>
+                        {% if request.session.current_service == 'cleaning' %}Nettoyages{% else %}Ventes{% endif %}
+                    </a>
+                    <a href="{% url 'devis_create' %}" class="text-white hover:bg-white/20 px-3 py-2 rounded-md text-sm font-medium transition">
+                        <i class="fas {% if request.session.current_service == 'cleaning' %}fa-plus-circle{% else %}fa-cart-plus{% endif %} mr-1.5"></i>
+                        {% if request.session.current_service == 'cleaning' %}Nouveau Nettoyage{% else %}Nouvelle Vente{% endif %}
+                    </a>
+
+                    {% if user.is_superuser %}
+                    <div class="relative group">
+                        <button class="text-white hover:bg-white/20 px-3 py-2 rounded-md text-sm font-medium transition flex items-center h-full">
+                            <i class="fas fa-users mr-1.5"></i>Équipe
+                            <i class="fas fa-chevron-down ml-1.5 text-[10px]"></i>
+                        </button>
+                        <div class="absolute left-0 mt-0 w-48 bg-white rounded-md shadow-xl py-2 z-50 hidden group-hover:block border border-gray-100">
+                            <a href="{% url 'user_list' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-list-ul mr-2 text-gray-400"></i>Gérer l'équipe
+                            </a>
+                            <a href="{% url 'user_create' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-user-plus mr-2 text-gray-400"></i>Ajouter un agent
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <a href="{% url 'aide_statuts' %}" class="text-white hover:bg-white/20 px-3 py-2 rounded-md text-sm font-medium transition">
+                        <i class="fas fa-question-circle mr-1.5"></i>Aide
+                    </a>
+                </div>
+
+                <!-- Utilisateur et Bouton Mobile (visible sur mobile) -->
                 <div class="flex items-center space-x-2">
                     <span class="text-white text-xs font-semibold hidden lg:block">{{ user.username }}</span>
                     <a href="{% url 'logout' %}" class="text-white hover:bg-white/20 p-2 rounded-full transition" title="Déconnexion">
                         <i class="fas fa-sign-out-alt"></i>
                     </a>
+                    <!-- Bouton Hamburger (visible sur mobile, caché sur md et plus) -->
+                    <button id="mobile-menu-button" class="md:hidden text-white hover:bg-white/20 p-2 rounded-md focus:outline-none">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </nav>
+
+    <!-- Overlay pour le menu mobile -->
+    <div id="mobile-menu-overlay" class="overlay" onclick="toggleMobileMenu()"></div>
+
+    <!-- Menu Mobile (caché par défaut, visible sur mobile) -->
+    <div id="mobile-menu" class="mobile-menu gradient-bg md:hidden">
+        <div class="p-4 border-b border-white/20 flex justify-between items-center">
+            <a href="{% url 'dashboard' %}" class="text-white">
+                <h1 class="text-xl font-bold">SHAMMAR SERVICES</h1>
+                <p class="text-[10px] uppercase tracking-widest opacity-80">
+                    {% if request.session.current_service == 'cleaning' %}SHAMMAR CLEANING{% else %}ÉCOSYSTÈME MABIPEINT{% endif %}
+                </p>
+            </a>
+            <button onclick="toggleMobileMenu()" class="text-white hover:bg-white/20 p-2 rounded-md focus:outline-none">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <div class="p-4 space-y-2">
+            <a href="{% url 'dashboard' %}" class="block text-white hover:bg-white/20 px-3 py-2 rounded-md text-base font-medium transition">
+                <i class="fas fa-chart-pie mr-2"></i>Tableau de bord
+            </a>
+            <a href="{% url 'devis_list' %}" class="block text-white hover:bg-white/20 px-3 py-2 rounded-md text-base font-medium transition">
+                <i class="fas {% if request.session.current_service == 'cleaning' %}fa-broom{% else %}fa-history{% endif %} mr-2"></i>
+                {% if request.session.current_service == 'cleaning' %}Nettoyages{% else %}Ventes{% endif %}
+            </a>
+            <a href="{% url 'devis_create' %}" class="block text-white hover:bg-white/20 px-3 py-2 rounded-md text-base font-medium transition">
+                <i class="fas {% if request.session.current_service == 'cleaning' %}fa-plus-circle{% else %}fa-cart-plus{% endif %} mr-2"></i>
+                {% if request.session.current_service == 'cleaning' %}Nouveau Nettoyage{% else %}Nouvelle Vente{% endif %}
+            </a>
+
+            {% if user.is_superuser %}
+            <div class="border-t border-white/20 pt-2 mt-2">
+                <span class="block px-3 py-2 text-white/70 text-sm font-semibold">Équipe</span>
+                <a href="{% url 'user_list' %}" class="block px-4 py-2 text-white hover:bg-white/20 rounded-md text-sm">
+                    <i class="fas fa-list-ul mr-2"></i>Gérer l'équipe
+                </a>
+                <a href="{% url 'user_create' %}" class="block px-4 py-2 text-white hover:bg-white/20 rounded-md text-sm">
+                    <i class="fas fa-user-plus mr-2"></i>Ajouter un agent
+                </a>
+            </div>
+            {% endif %}
+
+            <a href="{% url 'aide_statuts' %}" class="block text-white hover:bg-white/20 px-3 py-2 rounded-md text-base font-medium transition">
+                <i class="fas fa-question-circle mr-2"></i>Aide
+            </a>
+
+            <!-- Switcher de Service - RÉSERVÉ À L'ADMIN (Mobile) -->
+            {% if user.is_superuser %}
+            <div class="border-t border-white/20 pt-2 mt-2">
+                <span class="block px-3 py-2 text-white/70 text-sm font-semibold">Changer de système</span>
+                <div class="flex bg-white/10 rounded-lg p-1 border border-white/20 mx-3">
+                    <a href="{% url 'switch_service' 'mabipeint' %}" class="flex-1 text-center px-3 py-1 text-[10px] font-bold rounded {% if request.session.current_service != 'cleaning' %}bg-white text-blue-600{% else %}text-white hover:bg-white/10{% endif %} transition">MABIPEINT</a>
+                    <a href="{% url 'switch_service' 'cleaning' %}" class="flex-1 text-center px-3 py-1 text-[10px] font-bold rounded {% if request.session.current_service == 'cleaning' %}bg-white text-emerald-600{% else %}text-white hover:bg-white/10{% endif %} transition ml-1">CLEANING</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
     {% endwith %}
     {% endif %}
 
@@ -103,5 +196,20 @@
     </main>
 
     {% block extra_js %}{% endblock %}
+    <script>
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const overlay = document.getElementById('mobile-menu-overlay');
+            if (mobileMenu && overlay) {
+                mobileMenu.classList.toggle('open');
+                overlay.classList.toggle('open');
+            }
+        }
+
+        const menuBtn = document.getElementById('mobile-menu-button');
+        if (menuBtn) {
+            menuBtn.addEventListener('click', toggleMobileMenu);
+        }
+    </script>
 </body>
 </html>
