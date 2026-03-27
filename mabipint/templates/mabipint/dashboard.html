@@ -251,9 +251,10 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert('Prestation ajoutée : ' + data.nom);
+                // ALERTE SUPPRIMÉE : La modale se ferme simplement
                 closePrestationModal();
-                // Optionnel : Recharger la page ou mettre à jour une liste
+                // On peut recharger la page pour voir les changements si besoin
+                window.location.reload();
             } else {
                 alert('Erreur lors de l\'enregistrement. Vérifiez les données.');
             }

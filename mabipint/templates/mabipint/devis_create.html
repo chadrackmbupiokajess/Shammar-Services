@@ -270,7 +270,8 @@ function afficherLignes() {
                 </td>
                 <td class="px-1 py-2">
                     <input type="number" value="${ligne.prix_unitaire}" min="0" step="1"
-                           class="w-full px-1 py-1.5 text-[11px] md:text-sm border border-gray-200 rounded-md text-right outline-none font-bold"
+                           class="w-full px-1 py-1.5 text-[11px] md:text-sm border border-gray-200 rounded-md text-right outline-none font-bold bg-gray-50"
+                           readonly
                            oninput="updateLigne(${ligne.id}, 'prix_unitaire', this.value)">
                 </td>
                 <td class="px-1 py-3 text-center">
