@@ -132,8 +132,20 @@
                 </div>
             </div>
 
+            <!-- Section Signature / Validation -->
+            <div class="signature-section" style="margin-top: 40px; display: flex; justify-content: space-between; gap: 50px;">
+                <div class="signature-box" style="flex: 1; border: 1.5px dashed #D1D5DB; padding: 15px; border-radius: 8px; text-align: center;">
+                    <p style="font-weight: bold; font-size: 0.9em; text-transform: uppercase; color: #4B5563; margin-bottom: 30px;">Signature Client</p>
+                    <div style="height: 1px; background: #E5E7EB; width: 80%; margin: 0 auto;"></div>
+                </div>
+                <div class="signature-box" style="flex: 1; border: 1.5px dashed #D1D5DB; padding: 15px; border-radius: 8px; text-align: center;">
+                    <p style="font-weight: bold; font-size: 0.9em; text-transform: uppercase; color: #4B5563; margin-bottom: 30px;">Pour Acquit (Caisse)</p>
+                    <div style="height: 1px; background: #E5E7EB; width: 80%; margin: 0 auto;"></div>
+                </div>
+            </div>
+
             <!-- Pied de page -->
-            <div class="pdf-footer">
+            <div class="pdf-footer" style="margin-top: 50px;">
                 <p>SHAMMAR SERVICES - {{ devis.get_service_display }} | Merci pour votre confiance</p>
                 <p class="text-xs opacity-50">Généré le {{ devis.date_modification|date:"d/m/Y H:i" }}</p>
             </div>
