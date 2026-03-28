@@ -1,0 +1,21 @@
+{
+    "name": "Shammar Services",
+    "short_name": "Shammar",
+    "description": "Système de Gestion Mabipeint & Cleaning",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#1E40AF",
+    "icons": [
+        {
+            "src": "/static/img/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/static/img/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
